@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html><head>
+		<meta charset=“UTF-8”>
+
+<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+<link rel="apple-touch-icon" href="https://www.favicon.cc/logo3d/13114.png"/>
+
+		<title>Our Budget</title>
+		
+		<link rel=“stylesheet” href=“https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css”>
+        <link rel=“stylesheet” href=“https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css”>
+		
+	</head>
+	<body>
+		
+		<form id=“test-form”>
+  
+		<div>
+			<label>Field 1</label>
+			<input type=“text” name=“form_field_1” placeholder=“Field 1”>
+		</div>
+
+		<div>
+			<label>Field 2</label>
+			<input type=“text” name=“form_field_2” placeholder=“Field 2”>
+		</div>
+
+		<div>
+			<label>Field 3</label>
+			<input type=“text” name=“form_field_3” placeholder=“Field 3”>
+		</div>
+
+		<div>
+			<label>Field 4</label>
+			<input type=“text” name=“form_field_4” placeholder=“Field 4”>
+		</div>
+
+		<div>
+			<button type=“submit” id=“submit-form”>Submit</button>
+		</div>
+
+		</form>
+		
+		<script src=“https://code.jquery.com/jquery-3.4.1.min.js” integrity=“sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=“ crossorigin=“anonymous”></script>
+		<script src=“https://cdnjs.cloudflare.com/ajax/libs/jquery-serialize-object/2.5.0/jquery.serialize-object.min.js”></script>
+		<script src=“https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js”></script>
+        <script src=“https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js”></script>
+		
+		<script>
+			
+			$(document).ready(function() {
+			
+				var $form = $(‘form#test-form’),
+					url = ‘https://script.google.com/macros/s/AKfycbz3RIRPhwjho5cvmxX7Q8ML2oeAtj-w0FGAAqg0A0qu1I5nu3c/exec’ // My custome Google Script, “web_form_handler” to handle the data from the form above when sent.
+
+				$(‘#submit-form’).on(‘click’, function(e) {
+					e.preventDefault();
+					$.ajax({
+                        url: url,
+                        dataType: “json”,
+                        type: “GET”,
+						//contentType: ‘application/x-www-form-urlencoded’,
+                        data: $form.serializeObject(),
+                        success: function() {
+							alert(“Transaction was added.”)
+							
+						},
+                        error: function(e){
+                            console.log(e.responseText);
+                        }
+						
+                    });
+						
+				})
+						
+			});
+
+		</script>
+	
+</body></html>

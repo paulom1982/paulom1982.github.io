@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<link rel="apple-touch-icon" href="https://www.favicon.cc/logo3d/13114.png"/>
+		<link rel="icon" type="image/png" href="https://www.favicon.cc/logo3d/13114.png">
+		<title>Our Budget</title>
+		
+		<!-- jQuery & Bootstrap foundational css -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css" /> <!-- Select Option Dropdown boxes -->
+        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.standalone.min.css" />
+		
+        <style>
+            
+            body {
+                padding-top: 50px;
+            }
+            
+            .starter-template {
+                padding: 10px 15px;
+                text-align: center;
+            }
+            
+        </style>
+        
+	</head>
+	<body>
+		
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">Our Family Budget</a>
+                </div>
+                <div class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <li class="active"><a href="#">Transactions</a></li>
+                        <li><a href="#about">Budget</a></li>
+                        <li><a href="#contact">Accounts</a></li>
+                    </ul>
+                </div>
+                <!--.nav-collapse -->
+            </div>
+        </nav>
+        
+        <div class="container-fluid">
+            <div class="starter-template">
+                
+                <form id="form-transaction-add">
+                    
+                    <div class="form-group">
+                        <div class="input-group">
+                            <select class="selectpicker" name="form_field_1" data-live-search="true" title="Select a Category" data-size="7">
+                                <optgroup label="Automotive">
+                                    <option value="DMV Fees">DMV Fees</option>
+                                    <option value="Gasoline">Gasoline</option>
+                                    <option value="General Maintenance">General Maintenance</option>
+                                    <option value="Repairs">Repairs</option>
+                                    <option value="Tolls">Tolls</option>
+                                </optgroup>
+                                <optgroup label="Clothing">
+                                    <option value="Clothing">Clothing</option>
+                                </optgroup>
+                                <optgroup label="Discretionary">
+                                    <option value="Date Night">Date Night</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Grooming">Grooming</option>
+                                    <option value="Home Decor">Home Decor</option>
+                                    <option value="Miscellaneous">Miscellaneous</option>
+                                </optgroup>
+                                <optgroup label="Food">
+                                    <option value="Dining">Dining</option>
+                                    <option value="Fast Food">Fast Food</option>
+                                    <option value="Snacks">Snacks</option>
+                                </optgroup>
+                                <optgroup label="Gifts">
+                                    <option value="Birthday">Birthday</option>
+                                    <option value="Events">Events</option>
+                                    <option value="Spontaneous">Spontaneous</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="glyphicon glyphicon-usd"></i>
+                            </div>
+                            <input class="form-control" id="form_field_2" name="form_field_2" placeholder="Amount" type="text" />
+                        </div>
+                    </div>
+                    
+                    <div class="form-group ">
+                        <div class="input-group">
+                            <select class="selectpicker" id="form_field_3" name="form_field_3" data-live-search="true" title="Select a Merchant/Payee" data-size="7">
+                                <option value="Shoprite">Shoprite</option>
+                                <option value="Amazon">Amazon</option>
+                                <option value="Target">Target</option>
+                                <option value="Walmart">Walmart</option>
+								<option value="Aldi">Aldi</option>
+                                <option value="CVS">CVS</option>
+                                <option value="Wawa">Wawa</option>
+                                <option value="Starbucks">Starbucks</option>
+								<option value="Sandra Salon">Sandra Salon</option>
+                                <option value="Dunkin Donuts">Dunkin Donuts</option>
+                                <option value="Home Depot">Home Depot</option>
+                                <option value="Lowes">Lowes</option>
+                                <option value="Bed Bath Beyond">Bed Bath Beyond</option>
+                                <option value="Staples">Staples</option>
+								<option value="Subs Galore">Subs Galore</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="input-group date form_date col-sm-5" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input1" data-link-format="DD, MM dd yyyy" data-date-end-date="0d">
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                            <input class="form-control" id="form_field_4" name="form_field_4" size="16" type="text" placeholder="Transaction Date" value="" readonly>
+                        </div>
+                        <input type="hidden" id="dtp_input1" value="" />
+                    </div>
+                    
+                    <div class="row">
+                        <button type="submit" class="btn btn-info btn-lg" id="submit-form">Submit</button>
+                    </div>
+
+                </form>
+
+				<!-- Modal -->
+				<div class="modal fade" id="myModal" role="dialog">
+					<div class="modal-dialog">
+
+					<!-- Modal content-->
+					<div class="modal-content">
+						<div class="modal-header" style="padding:10px 0;">
+							<!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
+							<h3 class="modal-title" id="alert_title" style="color:green;"><i class="glyphicon glyphicon-ok"></i></h3>
+						</div>
+						<div class="modal-body">
+							<p id="alert_text" style="font-size:1.2em;">-</p>
+						</div>
+						<div class="modal-footer" style="padding:10px 20px;">
+							<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+
+				</div>
+				</div>
+  
+            </div>
+        </div>
+		
+		<!-- jQuery & Bootstrap foundational scripts -->
+		<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-serialize-object/2.5.0/jquery.serialize-object.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script> 
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script><!-- Select Option Dropdown boxes -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+        
+		<script>
+			$('.form_date').datepicker({
+                weekStart: 0,
+                todayBtn: 1,
+                autoclose: 1,
+                todayHighlight: 1,
+                startView: 0,
+                minView: 2,
+                daysOfWeekHighlighted: [0, 6],
+                disableTouchKeyboard: true,
+                forceParse: 0
+            });
+            my_date_string = moment().format('YYYY-MM-D')
+            $('#form_field_4').attr("value", my_date_string);
+            
+			$(document).ready(function() {
+			
+				var $form = $('form#form-transaction-add'),
+					url = 'https://script.google.com/macros/s/AKfycbz3RIRPhwjho5cvmxX7Q8ML2oeAtj-w0FGAAqg0A0qu1I5nu3c/exec' // My custome Google Script, "web_form_handler" to handle the data from the form above when sent.
+
+				$('#submit-form').on('click', function(e) {
+					e.preventDefault();
+					$.ajax({
+                        url: url,
+                        dataType: "json",
+                        type: "GET",
+						//contentType: 'application/x-www-form-urlencoded',
+                        data: $form.serializeObject(),
+                        success: function() {
+							$('#form-transaction-add').trigger("reset");
+							$("#alert_text").val("The transaction has been added.");
+						},
+                        error: function(e){
+                            console.log(e.responseText);
+                        }
+						
+                    });
+						
+				});
+				
+				// Sort the Merhcant dropdown options
+				$("#form_field_3").html($("#form_field_3 option").sort(function (a, b) {
+					return a.text == b.text ? 0 : a.text < b.text ? -1 : 1
+				}))
+			});
+
+		</script>
+	</body>
+</html>
