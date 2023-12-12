@@ -61,17 +61,22 @@
         <div class="container">
         
             <form id="form_transaction" action="https://sheetdb.io/api/v1/n09q5n4vvki5y" method="post" id="sheetdb-form" style="padding-top:15px;padding-bottom:130px;">
+                
                 <div class="container">
+
                     <p><label for="transaction_id">Transaction ID:</label>
                     <input class="form-control" id="transaction_id" name="data[Transaction_ID]" type="text" value="" readonly></p>
 
-                    <p>
-                    <label class="radio-inline"><input type="radio" id="transaction_type" name="data[Transaction_Type]" value="Expense" checked> Expense</label>
-                    <label class="radio-inline"><input type="radio" id="transaction_type" name="data[Transaction_Type]" value="Income"> Income</label>
-                    <input type="hidden" id="transaction_type_text" value="" /></p>
-                    
-                    <label for="payee">Payee/Vendor:</label>
+                    <!-- TRANSACTION TYPE -->
                     <div class="form-group">
+                        <label class="radio-inline"><input type="radio" id="transaction_type" name="data[Transaction_Type]" value="Expense" checked> Expense</label>
+                        <label class="radio-inline"><input type="radio" id="transaction_type" name="data[Transaction_Type]" value="Income"> Income</label>
+                        <input type="hidden" id="transaction_type_text" value="" />
+                    </div>
+                    
+                    <!-- PAYEE -->
+                    <div class="form-group">
+                        <label for="payee">Payee/Vendor:</label>
                         <div class="input-group">
                             <select class="selectpicker" id="payee" name="data[Payee]" data-live-search="true" title="Select a Category" data-size="7">
                                 <option disabled selected value></option>
@@ -94,8 +99,11 @@
                         </div>
                     </div>
                     
-                    <p><label for="split">Split:</label>
-                    <input type="checkbox" id="split" name="data[Split]" value="Y"></p> 
+                    <!-- SPLIT -->
+                    <div class="form-group">
+                        <label for="split">Split:</label>
+                        <input type="checkbox" id="split" name="data[Split]" value="Y">
+                    </div>
 
                     <!-- AMOUNT 1 -->
                     <div class="form-group">
@@ -242,6 +250,7 @@
                     </div>
 
                     <br>
+                    <!-- TRANSACTION DATE -->
                     <div class="form-group">
                         <div class="input-group date form_date" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input1" data-link-format="DD, MM dd yyyy" data-date-end-date="0d">
                             <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
@@ -250,13 +259,17 @@
                         <input type="hidden" id="dtp_input1" value="" />
                     </div>
 
+                    <!-- CLEARED -->
                     <p><label for="cleared">Cleared:</label>
                     <input type="checkbox" id="cleared" name="data[Cleared]" value="Y" checked></p> 
 
+                    <!-- GOOGLE SHEETS LINK -->
                     <p id="result"><a href="https://docs.google.com/spreadsheets/d/1nl1hJd9mAbw4TFrErvpPvWiccrBesnnAtTl7JffK6B0/edit?usp=sharing" target="_blank">Go to Google Sheet</a></p>
                     
+                    <!-- SUBMIT BUTTON -->
                     <input type="submit" value="Add Transaction">
                 </div>
+                
             </form>
             
             <div class="footer bg-dark">
