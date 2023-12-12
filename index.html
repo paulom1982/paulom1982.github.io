@@ -99,6 +99,15 @@
 
                     <!-- AMOUNT 1 -->
                     <div class="form-group">
+
+                        <label for="amount_1">Amount:</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            <input class="form-control" id="amount_1" name="data[Category_1_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="-0.00">
+                        </div>
+
                         <label for="category_1">Category:</label>
                         <div class="input-group">
                             <select class="selectpicker" id="category_1" name="data[Category_1]" data-live-search="true" title="Select a Category" data-size="7">
@@ -134,18 +143,20 @@
                             </select>
                         </div>
 
-                        <label for="amount_1">Amount:</label>
+                    </div>
+
+                    <!-- AMOUNT 2 -->
+                    <div class="form-group">
+
+                        <label for="amount_2">Amount:</label>
                         <div class="input-group mb-3">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">$</span>
                             </div>
-                            <input class="form-control" id="amount_1" name="data[Category_1_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="-0.00">
+                            <input class="form-control" id="amount_2" name="data[Category_2_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="-0.00">
                         </div>
-                    </div>
 
-                    <!-- AMOUNT 2 -->
-                    <label for="category_2">Category:</label>
-                    <div class="form-group">
+                        <label for="category_2">Category:</label>
                         <div class="input-group">
                             <select class="selectpicker" id="category_2" name="data[Category_2]" data-live-search="true" title="Select a Category" data-size="7">
                                 <option disabled selected value></option>
@@ -179,15 +190,9 @@
                                 </optgroup>
                             </select>
                         </div>
+                        
                     </div>
 
-                    <label for="amount_2">Amount:</label>
-					<div class="input-group mb-3">
-						<div class="input-group-prepend">
-							<span class="input-group-text">$</span>
-						</div>
-                    	<input class="form-control" id="amount_2" name="data[Category_2_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="-0.00">
-		    		</div>
 
                     <!-- AMOUNT 3 -->
                     <label for="category_3">Category:</label>
