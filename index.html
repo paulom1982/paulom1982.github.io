@@ -29,7 +29,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.standalone.min.css" />
 
-        <title>Our Budgets</title>
+        <title>Our Budget</title>
         
         <style>
             
@@ -131,7 +131,8 @@
                     </div>
 
                     <p><label for="amount_1">Amount:</label><br>
-                    <input class="form-control" id="amount_1" name="data[Category_1_Amount]" type="number" min="0.00" step="0.01" value=""></p>
+                    <!-- <input class="form-control" id="amount_1" name="data[Category_1_Amount]" type="number" min="0.00" step="0.01" value=""></p> -->
+                    <input class="form-control" id="amount_1" name="data[Category_1_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value=""></p>
                     
                     <label for="category_2">Category:</label>
                     <div class="form-group">
