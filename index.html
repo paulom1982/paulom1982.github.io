@@ -142,14 +142,14 @@
 
     <body>
 
-        <div class="container">
+        <div class="container" style="padding-top:15px">
         
             <form id="form_transaction" action="https://sheetdb.io/api/v1/n09q5n4vvki5y" method="post" id="sheetdb-form" style="padding-top:15px;padding-bottom:130px;">
                 
                 <div class="container">
 
                     <!-- TRANSACTION ID -->
-                    <div class="form-group">
+                    <div class="form-group" style="display:none">
                         <label for="transaction_id">Transaction ID:</label>
                         <input class="form-control" id="transaction_id" name="data[Transaction_ID]" type="text" value="" readonly>
                     </div>
@@ -319,11 +319,12 @@
                             </div>
                         </div>
 
-                        <!-- AMOUNTS TOTAL -->
-                        <div style="font-weight: bold;font-style:italic;font-size:1.1em;">
-                            <span class="js-format-currency" id="amount_total_view_only">Total:  $0.00</span>
-                        </div>
+                    </div>
 
+
+                    <!-- AMOUNTS TOTAL -->
+                    <div style="padding-top:5px;padding-left:15px;font-weight:bold;font-style:italic;font-size:1.5em;">
+                        <span class="js-format-currency" id="amount_total_view_only">Total:  $0.00</span>
                     </div>
 
                     <br>
