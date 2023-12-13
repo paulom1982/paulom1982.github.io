@@ -52,7 +52,18 @@
                 text-align: center;
             }
             
-            /* CUSTOM TOGGLE SWITCH CHECKBOXES */
+            /* ************************************************************************* */
+            /* CUSTOM CSS */
+            /* ************************************************************************* */
+            
+            /* RADIO BUTTONS */
+            input[type=radio] {
+                transform:scale(2);
+                margin-right: 10px;
+                margin-left: 10px;
+            }
+
+            /* TOGGLE SWITCH CHECKBOXES */
             /* for sm */
             .custom-switch.custom-switch-sm .custom-control-label {
                 padding-left: 1rem;
@@ -144,7 +155,7 @@
                     </div>
 
                     <!-- TRANSACTION TYPE -->
-                    <div class="form-group">
+                    <div class="form-group text-center">
                         <label class="radio-inline"><input type="radio" id="transaction_type" name="data[Transaction_Type]" value="Expense" checked> Expense</label>
                         <label class="radio-inline"><input type="radio" id="transaction_type" name="data[Transaction_Type]" value="Income"> Income</label>
                     </div>
@@ -153,7 +164,7 @@
                     <div class="form-group">
                         <label for="payee">Payee/Vendor:</label>
                         <div class="input-group">
-                            <select class="selectpicker" id="payee" name="data[Payee]" data-live-search="true" title="Select a Category" data-size="7">
+                            <select class="selectpicker" id="payee" name="data[Payee]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
                                 <option disabled selected value></option>
                                 <option value="Shoprite">Shoprite</option>
                                 <option value="Amazon">Amazon</option>
@@ -189,7 +200,7 @@
 
                             <label for="category_1">Category:</label>
                             <div class="input-group">
-                                <select class="selectpicker" id="category_1" name="data[Category_1]" data-live-search="true" title="Select a Category" data-size="7">
+                                <select class="selectpicker" id="category_1" name="data[Category_1]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
                                     <option disabled selected value></option>
                                     <optgroup label="Automotive">
                                         <option value="DMV Fees">DMV Fees</option>
@@ -228,7 +239,7 @@
                         <!-- SPLIT CHECKBOX -->
                         <div class="form-group">
                             <div class="custom-control custom-switch custom-switch-md">
-                                <input class="custom-control-input" type="checkbox" id="split" name="data[Split]" value="Y">
+                                <input class="custom-control-input" type="checkbox" id="split" name="data[Split]" value="N">
                                 <label class="custom-control-label" for="split">Split</label>
                             </div>
                         </div>
@@ -243,12 +254,12 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">$</span>
                                     </div>
-                                    <input class="form-control js-format-currency" id="amount_2" name="data[Category_2_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="0.00">
+                                    <input class="form-control js-format-currency" id="amount_2" name="data[Category_2_Amount]" inputmode="numeric" type="text" value="" placeholder="0.00">
                                 </div>
 
                                 <label for="category_2">Category:</label>
                                 <div class="input-group">
-                                    <select class="selectpicker" id="category_2" name="data[Category_2]" data-live-search="true" title="Select a Category" data-size="7">
+                                    <select class="selectpicker" id="category_2" name="data[Category_2]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
                                         <option disabled selected value></option>
                                         <optgroup label="Automotive">
                                             <option value="DMV Fees">DMV Fees</option>
@@ -291,12 +302,12 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">$</span>
                                     </div>
-                                    <input class="form-control js-format-currency" id="amount_3" name="data[Category_3_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="0.00">
+                                    <input class="form-control js-format-currency" id="amount_3" name="data[Category_3_Amount]" inputmode="numeric" type="text" value="" placeholder="0.00">
                                 </div>
 
                                 <label for="category_3">Category:</label>
                                 <div class="input-group">
-                                    <select class="selectpicker" id="category_3" name="data[Category_3]" data-live-search="true" title="Select a Category" data-size="7">
+                                    <select class="selectpicker" id="category_3" name="data[Category_3]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
                                         <option disabled selected value></option>
                                         <optgroup label="Automotive">
                                             <option value="DMV Fees">DMV Fees</option>
@@ -354,7 +365,7 @@
                     <!-- CLEARED -->
                     <div class="form-group">
                         <div class="custom-control custom-switch custom-switch-md">
-                            <input class="custom-control-input" type="checkbox" id="cleared" name="data[Cleared]" value="Y">
+                            <input class="custom-control-input" type="checkbox" id="cleared" name="data[Cleared]" value="Y" checked>
                             <label class="custom-control-label" for="cleared">Cleared</label>
                         </div>
                     </div> 
@@ -397,6 +408,10 @@
 
         $(document).ready(function(){
 
+            // FORM variable
+            var form = document.getElementById("form_transaction");
+
+
             // ---------------------------------------------------------------------------------------------------
             // SPECIAL FUNCTIONS 
             // ---------------------------------------------------------------------------------------------------
@@ -414,21 +429,7 @@
             // Remove any commas from number, for number to be valid for calculations
             function cleanNumber(str) {
                 return parseFloat(str.replaceAll(',', ''));
-            }
-
-            // ---------------------------------------------------------------------------------------------------
-            // ---------------------------------------------------------------------------------------------------
-
-            // STARTUP DEFAULTS
-            $(".js-format-currency").css("color", "red");
-
-            // FORM variable
-            var form = document.getElementById("form_transaction");
-
-            // PAGE STARTUP DEFAULTS
-            //$("input[type=radio][id=transaction_type]").trigger("change");
-
-
+            };
 
             // Datepicker, popup calendar for the form
             $(".form_date").datepicker({
@@ -443,8 +444,36 @@
                 forceParse: 0
             });
 
-            // TRANSACTION ID auto-populate
-            $("#transaction_id").val( moment().format('YYYYMMDDHHmmssSSS') );
+            // ---------------------------------------------------------------------------------------------------
+
+
+            // ---------------------------------------------------------------------------------------------------
+            // STARTUP DEFAULTS
+            // ---------------------------------------------------------------------------------------------------
+
+            function transactionFormDefaults() {
+                // Set the currency input text color
+                $(".js-format-currency").css("color", "red");
+
+                // TRANSACTION ID auto-populate
+                $("#transaction_id").val( moment().format('YYYYMMDDHHmmssSSS') );
+
+                // TRANSACTION DATE auto-populate
+                $('#transaction_date').attr("value", moment().format('YYYY-MM-DD') );
+
+                // TRANSACTION TOTAL label 
+                $("#amount_total_view_only").text( "Total:  $0.00" );
+
+                // Set focus on first transaction amount input
+                document.getElementById("amount_1").focus();
+            };
+
+            // ---------------------------------------------------------------------------------------------------
+
+
+            // START UP THE PAGE
+            transactionFormDefaults();
+
 
             // TRANSACTION TYPE
             $("input[type=radio][id=transaction_type]").change(function(){               // "input change click touchend" = all added for iOS "keyup" support
@@ -457,15 +486,15 @@
                 }
             });
 
-            // TRANSACTION DATE auto-populate
-            $('#transaction_date').attr("value", moment().format('YYYY-MM-DD') );
-
             // SPLIT TRANSACTION
             $("#split").click(function(){
                 $("#split_amounts").toggle();
                 if($(this).prop('checked')==false){
+                    $(this).val("N");
                     $("#amount_2, #amount_3").val('');
                     $("#category_2, #category_3").val('');
+                } else {
+                    $(this).val("Y");
                 }
             });
 
@@ -478,6 +507,15 @@
                 var amount_total_formatted = parseFloat(amount_1_number + amount_2_number + amount_3_number).toFixed(2)
                 amount_total_formatted = Number(amount_total_formatted).toLocaleString('en-US', {minimumFractionDigits: 2}); // add commas to the display number
                 $("#amount_total_view_only").text( "Total:  $" + amount_total_formatted );
+            });
+
+            // CLEARED
+            $("#cleared").click(function(){
+                if($(this).prop('checked')==false){
+                    $(this).val("N");
+                } else {
+                    $(this).val("Y");
+                }
             });
 
             // ---------------------------------------------------------------------------------------
@@ -505,8 +543,11 @@
                     // Reset the form 
                     $("#form_transaction").trigger("reset");
                     $("#split").prop("checked", false)
-                    $("#split").trigger("click");
-                    
+                    $("#split_amounts").hide();
+
+                    // Set page defaults
+                    transactionFormDefaults();
+
                     // Display confirmation
                     alert("The transaction has been added.")
                 });
