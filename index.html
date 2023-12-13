@@ -2,30 +2,30 @@
 <html lang="en">
     <head>
 
-	<!-- TEMPORARY meta tags: To force cache clearing during development, so GitHub Pages will reflect changes immediately. -->
-	<meta http-equiv='cache-control' content='no-cache'> 
-	<meta http-equiv='expires' content='0'> 
-	<meta http-equiv='pragma' content='no-cache'>
-	    
-	<!-- Required meta tags -->
-    <meta charset="UTF-8">
-	<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <meta name="apple-mobile-web-app-status-bar" content="#ffffff" />
-    <meta name="theme-color" content="#ffffff" />
+        <!-- TEMPORARY meta tags: To force cache clearing during development, so GitHub Pages will reflect changes immediately. -->
+        <meta http-equiv='cache-control' content='no-cache'> 
+        <meta http-equiv='expires' content='0'> 
+        <meta http-equiv='pragma' content='no-cache'>
         
-    <!-- Additional iOS requirements -->
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="images/icons/icon-72x72.png">
-    <link rel="apple-touch-icon" href="images/icons/icon-96x96.png">
-    <link rel="apple-touch-icon" href="images/icons/icon-128x128.png">
-    <link rel="apple-touch-icon" href="images/icons/icon-256x256.png">
-    <link rel="apple-touch-icon" href="images/icons/icon-512x512.png">
-    <link rel="apple-touch-startup-image" href="images/splash-screen-image.png">
-    
-	<!-- <link rel="apple-touch-icon" href="https://www.favicon.cc/logo3d/13114.png"/> -->
-	<link rel="icon" type="image/png" href="https://icons.iconarchive.com/icons/custom-icon-design/flatastic-11/32/Cash-icon.png">
+        <!-- Required meta tags -->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <meta name="apple-mobile-web-app-status-bar" content="#ffffff" />
+        <meta name="theme-color" content="#ffffff" />
+            
+        <!-- Additional iOS requirements -->
+        <link rel="manifest" href="manifest.json">
+        <link rel="apple-touch-icon" href="images/icons/icon-72x72.png">
+        <link rel="apple-touch-icon" href="images/icons/icon-96x96.png">
+        <link rel="apple-touch-icon" href="images/icons/icon-128x128.png">
+        <link rel="apple-touch-icon" href="images/icons/icon-256x256.png">
+        <link rel="apple-touch-icon" href="images/icons/icon-512x512.png">
+        <link rel="apple-touch-startup-image" href="images/splash-screen-image.png">
+        
+        <!-- <link rel="apple-touch-icon" href="https://www.favicon.cc/logo3d/13114.png"/> -->
+        <link rel="icon" type="image/png" href="https://icons.iconarchive.com/icons/custom-icon-design/flatastic-11/32/Cash-icon.png">
 
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -147,7 +147,6 @@
                     <div class="form-group">
                         <label class="radio-inline"><input type="radio" id="transaction_type" name="data[Transaction_Type]" value="Expense" checked> Expense</label>
                         <label class="radio-inline"><input type="radio" id="transaction_type" name="data[Transaction_Type]" value="Income"> Income</label>
-                        <input type="hidden" id="transaction_type_text" value="" />
                     </div>
                     
                     <!-- PAYEE -->
@@ -185,7 +184,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">$</span>
                                 </div>
-                                <input class="form-control js-format-currency" type="text" id="amount_1" name="data[Category_1_Amount]" inputmode="numeric" pattern="[0-9]*" value="" placeholder="-0.00" >
+                                <input class="form-control js-format-currency" type="text" id="amount_1" name="data[Category_1_Amount]" inputmode="numeric" value="" placeholder="0.00" >
                             </div>
 
                             <label for="category_1">Category:</label>
@@ -244,7 +243,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">$</span>
                                     </div>
-                                    <input class="form-control js-format-currency" id="amount_2" name="data[Category_2_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="-0.00">
+                                    <input class="form-control js-format-currency" id="amount_2" name="data[Category_2_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="0.00">
                                 </div>
 
                                 <label for="category_2">Category:</label>
@@ -292,7 +291,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">$</span>
                                     </div>
-                                    <input class="form-control js-format-currency" id="amount_3" name="data[Category_3_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="-0.00">
+                                    <input class="form-control js-format-currency" id="amount_3" name="data[Category_3_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="0.00">
                                 </div>
 
                                 <label for="category_3">Category:</label>
@@ -335,7 +334,7 @@
 
                         <!-- AMOUNTS TOTAL -->
                         <div style="font-weight: bold;font-style:italic;font-size:1.1em;">
-                            Total:  $<span id="amount_total_view_only">0.00</span>
+                            <span class="js-format-currency" id="amount_total_view_only">Total:  $0.00</span>
                         </div>
 
                     </div>
@@ -403,7 +402,7 @@
             // ---------------------------------------------------------------------------------------------------
 
             // Currency Input Visualizer
-            var inputs = document.getElementsByClassName('js-format-currency');
+            var inputs = document.getElementsByClassName("js-format-currency");
             for (var i = 0; i < inputs.length; i++) {
                 inputs[i].addEventListener('input', function (e) {
                     var input = e.target.value.replace(/[^0-9]/g, '');                                  // Remove non-digits
@@ -420,12 +419,19 @@
             // ---------------------------------------------------------------------------------------------------
             // ---------------------------------------------------------------------------------------------------
 
+            // STARTUP DEFAULTS
+            $(".js-format-currency").css("color", "red");
 
             // FORM variable
-            var form = document.getElementById('form_transaction');
+            var form = document.getElementById("form_transaction");
+
+            // PAGE STARTUP DEFAULTS
+            //$("input[type=radio][id=transaction_type]").trigger("change");
+
+
 
             // Datepicker, popup calendar for the form
-            $('.form_date').datepicker({
+            $(".form_date").datepicker({
                 weekStart: 0,
                 todayBtn: 1,
                 autoclose: 1,
@@ -438,12 +444,21 @@
             });
 
             // TRANSACTION ID auto-populate
-            var transaction_id = moment().format('YYYYMMDDHHmmssSSS')
-            $("#transaction_id").val(transaction_id);
+            $("#transaction_id").val( moment().format('YYYYMMDDHHmmssSSS') );
+
+            // TRANSACTION TYPE
+            $("input[type=radio][id=transaction_type]").change(function(){               // "input change click touchend" = all added for iOS "keyup" support
+                var transaction_type = $("input[type=radio][id=transaction_type]:checked").val();
+                if (transaction_type == "Expense") {
+                    // If expense, change text color to red
+                    $(".js-format-currency").css("color", "red");
+                } else {
+                    $(".js-format-currency").css("color", "black");
+                }
+            });
 
             // TRANSACTION DATE auto-populate
-            transaction_date_string = moment().format('YYYY-MM-DD')
-            $('#transaction_date').attr("value", transaction_date_string);
+            $('#transaction_date').attr("value", moment().format('YYYY-MM-DD') );
 
             // SPLIT TRANSACTION
             $("#split").click(function(){
@@ -455,15 +470,14 @@
             });
 
             // AMOUNTS AND SPLIT TRANSACTION EVENT CHANGES
-            $("#amount_1, #amount_2, #amount_3, #split").on("keyup input change click touchend", function(e){       // "input change click touchend" = all added for iOS "keyup" support
-                // var amount_1 = parseFloat( $("#amount_1").val() );
-                // var amount_2 = parseFloat( $("#amount_2").val() );
-                // var amount_3 = parseFloat( $("#amount_3").val() );
-                var amount_1_number = parseFloat( $("#amount_1").val() == "" ? 0.00 : cleanNumber($("#amount_1").val()) ); // cleanNumber is a custom function which removes the commas from numbers
+            $("#amount_1, #amount_2, #amount_3, #split").on("keyup input change click touchend", function(e){               // "input change click touchend" = all added for iOS "keyup" support
+                var amount_1_number = parseFloat( $("#amount_1").val() == "" ? 0.00 : cleanNumber($("#amount_1").val()) );  // cleanNumber is a custom function which removes the commas from numbers
                 var amount_2_number = parseFloat( $("#amount_2").val() == "" ? 0.00 : cleanNumber($("#amount_2").val()) );
                 var amount_3_number = parseFloat( $("#amount_3").val() == "" ? 0.00 : cleanNumber($("#amount_3").val()) );
                 
-                $("#amount_total_view_only").text( parseFloat(amount_1_number + amount_2_number + amount_3_number).toFixed(2) );
+                var amount_total_formatted = parseFloat(amount_1_number + amount_2_number + amount_3_number).toFixed(2)
+                amount_total_formatted = Number(amount_total_formatted).toLocaleString('en-US', {minimumFractionDigits: 2}); // add commas to the display number
+                $("#amount_total_view_only").text( "Total:  $" + amount_total_formatted );
             });
 
             // ---------------------------------------------------------------------------------------
@@ -488,10 +502,12 @@
                 }).then(
                     response => response.json()
                 ).then((html) => {
-                    // you can put any JS code here
+                    // Reset the form 
                     $("#form_transaction").trigger("reset");
                     $("#split").prop("checked", false)
                     $("#split").trigger("click");
+                    
+                    // Display confirmation
                     alert("The transaction has been added.")
                 });
             });
