@@ -24,8 +24,8 @@
     <link rel="apple-touch-icon" href="images/icons/icon-512x512.png">
     <link rel="apple-touch-startup-image" href="images/splash-screen-image.png">
     
-	<!-- <link rel="apple-touch-icon" href="https://www.favicon.cc/logo3d/13114.png"/>
-	<link rel="icon" type="image/png" href="https://icons.iconarchive.com/icons/custom-icon-design/flatastic-11/32/Cash-icon.png"> -->
+	<!-- <link rel="apple-touch-icon" href="https://www.favicon.cc/logo3d/13114.png"/> -->
+	<link rel="icon" type="image/png" href="https://icons.iconarchive.com/icons/custom-icon-design/flatastic-11/32/Cash-icon.png">
 
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -64,8 +64,11 @@
                 
                 <div class="container">
 
-                    <p><label for="transaction_id">Transaction ID:</label>
-                    <input class="form-control" id="transaction_id" name="data[Transaction_ID]" type="text" value="" readonly></p>
+                    <!-- TRANSACTION ID -->
+                    <div class="form-group">
+                        <label for="transaction_id">Transaction ID:</label>
+                        <input class="form-control" id="transaction_id" name="data[Transaction_ID]" type="text" value="" readonly>
+                    </div>
 
                     <!-- TRANSACTION TYPE -->
                     <div class="form-group">
@@ -98,156 +101,173 @@
                             </select>
                         </div>
                     </div>
-                    
-                    <!-- SPLIT -->
-                    <div class="form-group">
-                        <label for="split">Split:</label>
-                        <input type="checkbox" id="split" name="data[Split]" value="Y">
+
+                    <div class="card card-body bg-light">
+
+                        <!-- AMOUNT 1 -->
+                        <div class="form-group">
+
+                            <label for="amount_1">Amount:</label>
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">$</span>
+                                </div>
+                                <input class="form-control" type="text" id="amount_1" name="data[Category_1_Amount]" inputmode="numeric" pattern="[0-9]*" value="" placeholder="-0.00" >
+                            </div>
+
+                            <label for="category_1">Category:</label>
+                            <div class="input-group">
+                                <select class="selectpicker" id="category_1" name="data[Category_1]" data-live-search="true" title="Select a Category" data-size="7">
+                                    <option disabled selected value></option>
+                                    <optgroup label="Automotive">
+                                        <option value="DMV Fees">DMV Fees</option>
+                                        <option value="Gasoline">Gasoline</option>
+                                        <option value="General Maintenance">General Maintenance</option>
+                                        <option value="Repairs">Repairs</option>
+                                        <option value="Tolls">Tolls</option>
+                                    </optgroup>
+                                    <optgroup label="Clothing">
+                                        <option value="Clothing">Clothing</option>
+                                    </optgroup>
+                                    <optgroup label="Discretionary">
+                                        <option value="Date Night">Date Night</option>
+                                        <option value="Entertainment">Entertainment</option>
+                                        <option value="Grooming">Grooming</option>
+                                        <option value="Home Decor">Home Decor</option>
+                                        <option value="Miscellaneous">Miscellaneous</option>
+                                    </optgroup>
+                                    <optgroup label="Food">
+                                        <option value="Dining">Dining</option>
+                                        <option value="Fast Food">Fast Food</option>
+                                        <option value="Groceries">Groceries</option>
+                                        <option value="Snacks">Snacks</option>
+                                    </optgroup>
+                                    <optgroup label="Gifts">
+                                        <option value="Birthday">Birthday</option>
+                                        <option value="Events">Events</option>
+                                        <option value="Spontaneous">Spontaneous</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        
+                        <!-- SPLIT -->
+                        <div class="form-group">
+                            <label for="split">Split:</label>
+                            <input type="checkbox" id="split" name="data[Split]" value="Y">
+                        </div>
+
+                        <div style="display: none;" id="split_amounts">
+                            <!-- AMOUNT 2 -->
+                            <div class="form-group">
+
+                                <label for="amount_2">Amount:</label>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">$</span>
+                                    </div>
+                                    <input class="form-control" id="amount_2" name="data[Category_2_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="-0.00">
+                                </div>
+
+                                <label for="category_2">Category:</label>
+                                <div class="input-group">
+                                    <select class="selectpicker" id="category_2" name="data[Category_2]" data-live-search="true" title="Select a Category" data-size="7">
+                                        <option disabled selected value></option>
+                                        <optgroup label="Automotive">
+                                            <option value="DMV Fees">DMV Fees</option>
+                                            <option value="Gasoline">Gasoline</option>
+                                            <option value="General Maintenance">General Maintenance</option>
+                                            <option value="Repairs">Repairs</option>
+                                            <option value="Tolls">Tolls</option>
+                                        </optgroup>
+                                        <optgroup label="Clothing">
+                                            <option value="Clothing">Clothing</option>
+                                        </optgroup>
+                                        <optgroup label="Discretionary">
+                                            <option value="Date Night">Date Night</option>
+                                            <option value="Entertainment">Entertainment</option>
+                                            <option value="Grooming">Grooming</option>
+                                            <option value="Home Decor">Home Decor</option>
+                                            <option value="Miscellaneous">Miscellaneous</option>
+                                        </optgroup>
+                                        <optgroup label="Food">
+                                            <option value="Dining">Dining</option>
+                                            <option value="Fast Food">Fast Food</option>
+                                            <option value="Groceries">Groceries</option>
+                                            <option value="Snacks">Snacks</option>
+                                        </optgroup>
+                                        <optgroup label="Gifts">
+                                            <option value="Birthday">Birthday</option>
+                                            <option value="Events">Events</option>
+                                            <option value="Spontaneous">Spontaneous</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <!-- AMOUNT 3 -->
+                            <div class="form-group">
+
+                                <label for="amount_3">Amount:</label>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">$</span>
+                                    </div>
+                                    <input class="form-control" id="amount_3" name="data[Category_3_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="-0.00">
+                                </div>
+
+                                <label for="category_3">Category:</label>
+                                <div class="input-group">
+                                    <select class="selectpicker" id="category_3" name="data[Category_3]" data-live-search="true" title="Select a Category" data-size="7">
+                                        <option disabled selected value></option>
+                                        <optgroup label="Automotive">
+                                            <option value="DMV Fees">DMV Fees</option>
+                                            <option value="Gasoline">Gasoline</option>
+                                            <option value="General Maintenance">General Maintenance</option>
+                                            <option value="Repairs">Repairs</option>
+                                            <option value="Tolls">Tolls</option>
+                                        </optgroup>
+                                        <optgroup label="Clothing">
+                                            <option value="Clothing">Clothing</option>
+                                        </optgroup>
+                                        <optgroup label="Discretionary">
+                                            <option value="Date Night">Date Night</option>
+                                            <option value="Entertainment">Entertainment</option>
+                                            <option value="Grooming">Grooming</option>
+                                            <option value="Home Decor">Home Decor</option>
+                                            <option value="Miscellaneous">Miscellaneous</option>
+                                        </optgroup>
+                                        <optgroup label="Food">
+                                            <option value="Dining">Dining</option>
+                                            <option value="Fast Food">Fast Food</option>
+                                            <option value="Groceries">Groceries</option>
+                                            <option value="Snacks">Snacks</option>
+                                        </optgroup>
+                                        <optgroup label="Gifts">
+                                            <option value="Birthday">Birthday</option>
+                                            <option value="Events">Events</option>
+                                            <option value="Spontaneous">Spontaneous</option>
+                                        </optgroup>
+                                    </select>
+                                </div>           
+
+                            </div>
+                        </div>
+
                     </div>
 
-                    <!-- AMOUNT 1 -->
-                    <div class="form-group">
-
-                        <label for="amount_1">Amount:</label>
+                    <br>
+                    <!-- AMOUNTS TOTAL -->
+                    <label for="amount_total">Total:</label>
                         <div class="input-group mb-3">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">$</span>
                             </div>
-                            <input class="form-control" id="amount_1" name="data[Category_1_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="-0.00">
+                            <input class="form-control" type="text" id="amount_total" inputmode="numeric" pattern="[0-9]*" value="" placeholder="-0.00" >
                         </div>
-
-                        <label for="category_1">Category:</label>
-                        <div class="input-group">
-                            <select class="selectpicker" id="category_1" name="data[Category_1]" data-live-search="true" title="Select a Category" data-size="7">
-                                <option disabled selected value></option>
-                                <optgroup label="Automotive">
-                                    <option value="DMV Fees">DMV Fees</option>
-                                    <option value="Gasoline">Gasoline</option>
-                                    <option value="General Maintenance">General Maintenance</option>
-                                    <option value="Repairs">Repairs</option>
-                                    <option value="Tolls">Tolls</option>
-                                </optgroup>
-                                <optgroup label="Clothing">
-                                    <option value="Clothing">Clothing</option>
-                                </optgroup>
-                                <optgroup label="Discretionary">
-                                    <option value="Date Night">Date Night</option>
-                                    <option value="Entertainment">Entertainment</option>
-                                    <option value="Grooming">Grooming</option>
-                                    <option value="Home Decor">Home Decor</option>
-                                    <option value="Miscellaneous">Miscellaneous</option>
-                                </optgroup>
-                                <optgroup label="Food">
-                                    <option value="Dining">Dining</option>
-                                    <option value="Fast Food">Fast Food</option>
-                                    <option value="Groceries">Groceries</option>
-                                    <option value="Snacks">Snacks</option>
-                                </optgroup>
-                                <optgroup label="Gifts">
-                                    <option value="Birthday">Birthday</option>
-                                    <option value="Events">Events</option>
-                                    <option value="Spontaneous">Spontaneous</option>
-                                </optgroup>
-                            </select>
-                        </div>
-
-                    </div>
-
-                    <!-- AMOUNT 2 -->
-                    <div class="form-group">
-
-                        <label for="amount_2">Amount:</label>
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">$</span>
-                            </div>
-                            <input class="form-control" id="amount_2" name="data[Category_2_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="-0.00">
-                        </div>
-
-                        <label for="category_2">Category:</label>
-                        <div class="input-group">
-                            <select class="selectpicker" id="category_2" name="data[Category_2]" data-live-search="true" title="Select a Category" data-size="7">
-                                <option disabled selected value></option>
-                                <optgroup label="Automotive">
-                                    <option value="DMV Fees">DMV Fees</option>
-                                    <option value="Gasoline">Gasoline</option>
-                                    <option value="General Maintenance">General Maintenance</option>
-                                    <option value="Repairs">Repairs</option>
-                                    <option value="Tolls">Tolls</option>
-                                </optgroup>
-                                <optgroup label="Clothing">
-                                    <option value="Clothing">Clothing</option>
-                                </optgroup>
-                                <optgroup label="Discretionary">
-                                    <option value="Date Night">Date Night</option>
-                                    <option value="Entertainment">Entertainment</option>
-                                    <option value="Grooming">Grooming</option>
-                                    <option value="Home Decor">Home Decor</option>
-                                    <option value="Miscellaneous">Miscellaneous</option>
-                                </optgroup>
-                                <optgroup label="Food">
-                                    <option value="Dining">Dining</option>
-                                    <option value="Fast Food">Fast Food</option>
-                                    <option value="Groceries">Groceries</option>
-                                    <option value="Snacks">Snacks</option>
-                                </optgroup>
-                                <optgroup label="Gifts">
-                                    <option value="Birthday">Birthday</option>
-                                    <option value="Events">Events</option>
-                                    <option value="Spontaneous">Spontaneous</option>
-                                </optgroup>
-                            </select>
-                        </div>
-
-                    </div>
-
-                    <!-- AMOUNT 3 -->
-                    <div class="form-group">
-
-                        <label for="amount_3">Amount:</label>
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">$</span>
-                            </div>
-                            <input class="form-control" id="amount_3" name="data[Category_3_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="-0.00">
-                        </div>
-
-                        <label for="category_3">Category:</label>
-                        <div class="input-group">
-                            <select class="selectpicker" id="category_3" name="data[Category_3]" data-live-search="true" title="Select a Category" data-size="7">
-                                <option disabled selected value></option>
-                                <optgroup label="Automotive">
-                                    <option value="DMV Fees">DMV Fees</option>
-                                    <option value="Gasoline">Gasoline</option>
-                                    <option value="General Maintenance">General Maintenance</option>
-                                    <option value="Repairs">Repairs</option>
-                                    <option value="Tolls">Tolls</option>
-                                </optgroup>
-                                <optgroup label="Clothing">
-                                    <option value="Clothing">Clothing</option>
-                                </optgroup>
-                                <optgroup label="Discretionary">
-                                    <option value="Date Night">Date Night</option>
-                                    <option value="Entertainment">Entertainment</option>
-                                    <option value="Grooming">Grooming</option>
-                                    <option value="Home Decor">Home Decor</option>
-                                    <option value="Miscellaneous">Miscellaneous</option>
-                                </optgroup>
-                                <optgroup label="Food">
-                                    <option value="Dining">Dining</option>
-                                    <option value="Fast Food">Fast Food</option>
-                                    <option value="Groceries">Groceries</option>
-                                    <option value="Snacks">Snacks</option>
-                                </optgroup>
-                                <optgroup label="Gifts">
-                                    <option value="Birthday">Birthday</option>
-                                    <option value="Events">Events</option>
-                                    <option value="Spontaneous">Spontaneous</option>
-                                </optgroup>
-                            </select>
-                        </div>           
-
-                    </div>
 
                     <br>
                     <!-- TRANSACTION DATE -->
@@ -297,49 +317,91 @@
   
     <script>
 
-        $('.form_date').datepicker({
-            weekStart: 0,
-            todayBtn: 1,
-            autoclose: 1,
-            todayHighlight: 1,
-            startView: 0,
-            minView: 2,
-            daysOfWeekHighlighted: [0, 6],
-            disableTouchKeyboard: true,
-            forceParse: 0
-        });
-        transaction_date_string = moment().format('YYYY-MM-DD')
-        $('#transaction_date').attr("value", transaction_date_string);
+        $(document).ready(function(){
 
-        var form = document.getElementById('form_transaction');
+            // FORM variable
+            var form = document.getElementById('form_transaction');
 
-        var transaction_id = moment().format('YYYYMMDDHHmmssSSS')
-        $("#transaction_id").val(transaction_id);
-
-        
-
-        form.addEventListener("submit", e => {
-            transaction_type = $("input[type=radio][id=transaction_type]:checked").val();
-            amount_1 = $("#amount_1").val();
-            amount_2 = $("#amount_2").val();
-            amount_3 = $("#amount_3").val();
-            
-            if (transaction_type == "Expense") {
-                // If expense, convert amounts to negative numbers
-                if(amount_1 !="") { $("#amount_1").val(-amount_1) };
-                if(amount_2 !="") { $("#amount_2").val(-amount_2) };
-                if(amount_3 !="") { $("#amount_3").val(-amount_3) };
-            } 
-            e.preventDefault();
-            fetch(form.action, {
-                method : "POST",
-                body: new FormData(document.getElementById("form_transaction")),
-            }).then(
-                response => response.json()
-            ).then((html) => {
-                // you can put any JS code here
-                alert("success")
+            // Datepicker, popup calendar for the form
+            $('.form_date').datepicker({
+                weekStart: 0,
+                todayBtn: 1,
+                autoclose: 1,
+                todayHighlight: 1,
+                startView: 0,
+                minView: 2,
+                daysOfWeekHighlighted: [0, 6],
+                disableTouchKeyboard: true,
+                forceParse: 0
             });
+
+            // TRANSACTION DATE auto-populate
+            transaction_date_string = moment().format('YYYY-MM-DD')
+            $('#transaction_date').attr("value", transaction_date_string);
+
+            // TRANSACTION ID auto-populate
+            var transaction_id = moment().format('YYYYMMDDHHmmssSSS')
+            $("#transaction_id").val(transaction_id);
+
+            // SPLIT TRANSACTION
+            $("#split").click(function(){
+                $("#split_amounts").toggle();
+                if($(this).prop('checked')==false){
+                    $("#amount_1").val( $("#amount_total").val() );
+                    $("#amount_2, #amount_3").val('');
+                    $("#category_2, #category_3").val('');
+                } else {
+                    $("#amount_total").val( $("#amount_1").val() );
+                }
+            });
+
+            $("#amount_1").change(function(){
+                $("#amount_total").val( $("#amount_1").val() );
+            });
+
+            $("#amount_2, #amount_3").change(function(){
+                var amount_total = parseInt( $("#amount_total").val() == "" ? 0 : $("#amount_total").val() );
+                var amount_1 = parseInt( $("#amount_1").val() == "" ? 0 : $("#amount_1").val() );
+                var amount_2 = parseInt( $("#amount_2").val() == "" ? 0 : $("#amount_2").val() );
+                var amount_3 = parseInt( $("#amount_3").val() == "" ? 0 : $("#amount_3").val() );
+                
+                var amount_remaining = amount_total - (amount_2 + amount_3)
+                
+                if(amount_remaining < 0) {
+                    alert("The total split amounts total up to more than the primary amount. \n\nAdjust the split amounts to correct the issue.")
+                } else {
+                    $("#amount_1").val( amount_remaining );
+                }
+            });
+
+            // FORM SUBMISSION
+            form.addEventListener("submit", e => {
+                transaction_type = $("input[type=radio][id=transaction_type]:checked").val();
+                amount_1 = $("#amount_1").val();
+                amount_2 = $("#amount_2").val();
+                amount_3 = $("#amount_3").val();
+                
+                if (transaction_type == "Expense") {
+                    // If expense, convert amounts to negative numbers
+                    if(amount_1 !="") { $("#amount_1").val(-amount_1) };
+                    if(amount_2 !="") { $("#amount_2").val(-amount_2) };
+                    if(amount_3 !="") { $("#amount_3").val(-amount_3) };
+                } 
+                e.preventDefault();
+                fetch(form.action, {
+                    method : "POST",
+                    body: new FormData(document.getElementById("form_transaction")),
+                }).then(
+                    response => response.json()
+                ).then((html) => {
+                    // you can put any JS code here
+                    $("#form_transaction").trigger("reset");
+                    $("#split").prop("checked", false)
+                    $("#split").trigger("click");
+                    alert("The transaction has been added.")
+                });
+            });
+
         });
 
     </script>
