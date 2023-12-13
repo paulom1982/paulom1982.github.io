@@ -398,28 +398,28 @@
 
         $(document).ready(function(){
 
+            // ---------------------------------------------------------------------------------------------------
+            // SPECIAL FUNCTIONS 
+            // ---------------------------------------------------------------------------------------------------
+
+            // Currency Input Visualizer
             var inputs = document.getElementsByClassName('js-format-currency');
             for (var i = 0; i < inputs.length; i++) {
                 inputs[i].addEventListener('input', function (e) {
                     var input = e.target.value.replace(/[^0-9]/g, '');                                  // Remove non-digits
-                    if (input.length < 3) {
-                        input = input.padStart(3, '0');                                                 // Pad with zeros if less than 3 digits
-                    }
-                    var formatted = input.slice(0, -2) + '.' + input.slice(-2);                         // Insert decimal point
+                    var formatted = parseFloat(input / 100).toFixed(2);                                 // Divide by 100 and fix to 2 decimal places
                     formatted = Number(formatted).toLocaleString('en-US', {minimumFractionDigits: 2});  // Add commas
                     e.target.value = formatted;
                 });
             }
-            // document.getElementById('amount_1').addEventListener('input', function (e) {
-            //     var input = e.target.value.replace(/[^0-9]/g, ''); // Remove non-digits
-            //     var formatted = parseFloat(input / 100).toFixed(2); // Divide by 100 and fix to 2 decimal places
-            //     formatted = Number(formatted).toLocaleString('en-US', {minimumFractionDigits: 2}); // Add commas
-            //     e.target.value = formatted;
-            // });
             // Remove any commas from number, for number to be valid for calculations
             function cleanNumber(str) {
                 return parseFloat(str.replaceAll(',', ''));
             }
+
+            // ---------------------------------------------------------------------------------------------------
+            // ---------------------------------------------------------------------------------------------------
+
 
             // FORM variable
             var form = document.getElementById('form_transaction');
@@ -437,13 +437,13 @@
                 forceParse: 0
             });
 
-            // TRANSACTION DATE auto-populate
-            transaction_date_string = moment().format('YYYY-MM-DD')
-            $('#transaction_date').attr("value", transaction_date_string);
-
             // TRANSACTION ID auto-populate
             var transaction_id = moment().format('YYYYMMDDHHmmssSSS')
             $("#transaction_id").val(transaction_id);
+
+            // TRANSACTION DATE auto-populate
+            transaction_date_string = moment().format('YYYY-MM-DD')
+            $('#transaction_date').attr("value", transaction_date_string);
 
             // SPLIT TRANSACTION
             $("#split").click(function(){
@@ -459,14 +459,16 @@
                 // var amount_1 = parseFloat( $("#amount_1").val() );
                 // var amount_2 = parseFloat( $("#amount_2").val() );
                 // var amount_3 = parseFloat( $("#amount_3").val() );
-                var amount_1_number = parseFloat( $("#amount_1").val() == "" ? 0.00 : cleanNumber($("#amount_1").val()) );
+                var amount_1_number = parseFloat( $("#amount_1").val() == "" ? 0.00 : cleanNumber($("#amount_1").val()) ); // cleanNumber is a custom function which removes the commas from numbers
                 var amount_2_number = parseFloat( $("#amount_2").val() == "" ? 0.00 : cleanNumber($("#amount_2").val()) );
                 var amount_3_number = parseFloat( $("#amount_3").val() == "" ? 0.00 : cleanNumber($("#amount_3").val()) );
                 
-                $("#amount_total_view_only").text( amount_1_number + amount_2_number + amount_3_number );
+                $("#amount_total_view_only").text( parseFloat(amount_1_number + amount_2_number + amount_3_number).toFixed(2) );
             });
 
+            // ---------------------------------------------------------------------------------------
             // FORM SUBMISSION
+            // ---------------------------------------------------------------------------------------
             form.addEventListener("submit", e => {
                 transaction_type = $("input[type=radio][id=transaction_type]:checked").val();
                 amount_1 = $("#amount_1").val();
