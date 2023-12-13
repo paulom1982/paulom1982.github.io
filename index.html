@@ -243,7 +243,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">$</span>
                                     </div>
-                                    <input class="form-control" id="amount_2" name="data[Category_2_Amount]" inputmode="numeric" type="text" pattern="[0-9]*" value="" placeholder="-0.00">
+                                    <input class="form-control" id="amount_2" name="data[Category_2_Amount]" inputmode="decimal" type="text" pattern="[0-9]*" value="" placeholder="-0.00">
                                 </div>
 
                                 <label for="category_2">Category:</label>
@@ -358,7 +358,6 @@
                             <label class="custom-control-label" for="cleared">Cleared</label>
                         </div>
                     </div> 
-
                     
                     <!-- SUBMIT BUTTON -->
                     <input type="submit" value="Add Transaction" style="position: fixed; bottom: 100px; left: 50%; margin: auto;">
@@ -431,7 +430,7 @@
             });
 
             // AMOUNTS AND SPLIT TRANSACTION EVENT CHANGES
-            $("#amount_1, #amount_2, #amount_3, #split").on("keyup input change click touchend", function(e){       // input = iOS "keyup" support
+            $("#amount_1, #amount_2, #amount_3, #split").on("keyup input change click touchend", function(e){       // "input change click touchend" = all added for iOS "keyup" support
                 var amount_1 = parseFloat( $("#amount_1").val() == "" ? 0.00 : $("#amount_1").val() );
                 var amount_2 = parseFloat( $("#amount_2").val() == "" ? 0.00 : $("#amount_2").val() );
                 var amount_3 = parseFloat( $("#amount_3").val() == "" ? 0.00 : $("#amount_3").val() );
