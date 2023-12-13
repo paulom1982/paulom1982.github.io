@@ -52,6 +52,79 @@
                 text-align: center;
             }
             
+            /* CUSTOM TOGGLE SWITCH CHECKBOXES */
+            /* for sm */
+            .custom-switch.custom-switch-sm .custom-control-label {
+                padding-left: 1rem;
+                padding-bottom: 1rem;
+            }
+            .custom-switch.custom-switch-sm .custom-control-label::before {
+                height: 1rem;
+                width: calc(1rem + 0.75rem);
+                border-radius: 2rem;
+            }
+            .custom-switch.custom-switch-sm .custom-control-label::after {
+                width: calc(1rem - 4px);
+                height: calc(1rem - 4px);
+                border-radius: calc(1rem - (1rem / 2));
+            }
+            .custom-switch.custom-switch-sm .custom-control-input:checked ~ .custom-control-label::after {
+                transform: translateX(calc(1rem - 0.25rem));
+            }
+            /* for md */
+            .custom-switch.custom-switch-md .custom-control-label {
+                padding-left: 2rem;
+                padding-bottom: 1.5rem;
+            }
+            .custom-switch.custom-switch-md .custom-control-label::before {
+                height: 1.5rem;
+                width: calc(2rem + 0.75rem);
+                border-radius: 3rem;
+            }
+            .custom-switch.custom-switch-md .custom-control-label::after {
+                width: calc(1.5rem - 4px);
+                height: calc(1.5rem - 4px);
+                border-radius: calc(2rem - (1.5rem / 2));
+            }
+            .custom-switch.custom-switch-md .custom-control-input:checked ~ .custom-control-label::after {
+                transform: translateX(calc(1.5rem - 0.25rem));
+            }
+            /* for lg */
+            .custom-switch.custom-switch-lg .custom-control-label {
+                padding-left: 3rem;
+                padding-bottom: 2rem;
+            }
+            .custom-switch.custom-switch-lg .custom-control-label::before {
+                height: 2rem;
+                width: calc(3rem + 0.75rem);
+                border-radius: 4rem;
+            }
+            .custom-switch.custom-switch-lg .custom-control-label::after {
+                width: calc(2rem - 4px);
+                height: calc(2rem - 4px);
+                border-radius: calc(3rem - (2rem / 2));
+            }
+            .custom-switch.custom-switch-lg .custom-control-input:checked ~ .custom-control-label::after {
+                transform: translateX(calc(2rem - 0.25rem));
+            }
+            /* for xl */
+            .custom-switch.custom-switch-xl .custom-control-label {
+                padding-left: 4rem;
+                padding-bottom: 2.5rem;
+            }
+            .custom-switch.custom-switch-xl .custom-control-label::before {
+                height: 2.5rem;
+                width: calc(4rem + 0.75rem);
+                border-radius: 5rem;
+            }
+            .custom-switch.custom-switch-xl .custom-control-label::after {
+                width: calc(2.5rem - 4px);
+                height: calc(2.5rem - 4px);
+                border-radius: calc(4rem - (2.5rem / 2));
+            }
+            .custom-switch.custom-switch-xl .custom-control-input:checked ~ .custom-control-label::after {
+                transform: translateX(calc(2.5rem - 0.25rem));
+            }
         </style>
 
     </head>
@@ -152,11 +225,13 @@
 
                         </div>
 
-                        
+                            
                         <!-- SPLIT -->
                         <div class="form-group">
-                            <label for="split">Split:</label>
-                            <input type="checkbox" id="split" name="data[Split]" value="Y">
+                            <div class="custom-control custom-switch custom-switch-md">
+                                <input class="custom-control-input" type="checkbox" id="split" name="data[Split]" value="Y">
+                                <label class="custom-control-label" for="split">Split</label>
+                            </div>
                         </div>
 
                         <div style="display: none;" id="split_amounts">
@@ -257,21 +332,18 @@
                             </div>
                         </div>
 
+                        <!-- AMOUNTS TOTAL -->
+                        <div style="font-weight: bold;font-style:italic;font-size:1.1em;">
+                            Total:  $-<span id="amount_total_view_only">0.00</span>
+                        </div>
+
                     </div>
 
-                    <br>
-                    <!-- AMOUNTS TOTAL -->
-                    <label for="amount_total">Total:</label>
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">$</span>
-                            </div>
-                            <input class="form-control" type="text" id="amount_total" inputmode="numeric" pattern="[0-9]*" value="" placeholder="-0.00" >
-                        </div>
 
                     <br>
                     <!-- TRANSACTION DATE -->
                     <div class="form-group">
+                        <label for="transaction_date">Transaction Date:</label>
                         <div class="input-group date form_date" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input1" data-link-format="DD, MM dd yyyy" data-date-end-date="0d">
                             <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
                             <input class="form-control" id="transaction_date" name="data[Transaction_Date]" size="16" type="text" placeholder="Transaction Date" value="" readonly>
@@ -280,11 +352,13 @@
                     </div>
 
                     <!-- CLEARED -->
-                    <p><label for="cleared">Cleared:</label>
-                    <input type="checkbox" id="cleared" name="data[Cleared]" value="Y" checked></p> 
+                    <div class="form-group">
+                        <div class="custom-control custom-switch custom-switch-md">
+                            <input class="custom-control-input" type="checkbox" id="cleared" name="data[Cleared]" value="Y">
+                            <label class="custom-control-label" for="cleared">Cleared</label>
+                        </div>
+                    </div> 
 
-                    <!-- GOOGLE SHEETS LINK -->
-                    <p id="result"><a href="https://docs.google.com/spreadsheets/d/1nl1hJd9mAbw4TFrErvpPvWiccrBesnnAtTl7JffK6B0/edit?usp=sharing" target="_blank">Go to Google Sheet</a></p>
                     
                     <!-- SUBMIT BUTTON -->
                     <input type="submit" value="Add Transaction" style="position: fixed; bottom: 100px; left: 50%; margin: auto;">
@@ -296,7 +370,11 @@
                 <div class="row">
                     <div class="col-3 text-center"><a class="nav-link" href="#"><img src="images/dashboard48x48.png" alt="Dashboard" style="width:42px;height:42px;"></a></div>
                     <div class="col-3 text-center"><a class="nav-link active" href="#"><img src="images/transactions48x48.png" alt="Transactions" style="width:42px;height:42px;"><span class="sr-only">(current)</span></a></div>
-                    <div class="col-3 text-center"><a class="nav-link" href="#"><img src="images/budget48x48.png" alt="Budget" style="width:42px;height:42px;"></a></div>
+                    <div class="col-3 text-center">
+                        <a class="nav-link" href="https://docs.google.com/spreadsheets/d/1nl1hJd9mAbw4TFrErvpPvWiccrBesnnAtTl7JffK6B0/edit?usp=sharing" target="_blank">
+                            <img src="images/budget48x48.png" alt="Budget" style="width:42px;height:42px;">
+                        </a>
+                    </div>
                     <div class="col-3 text-center"><a class="nav-link" href="#"><img src="images/reports48x48.png" alt="Reports" style="width:42px;height:42px;"></a></div>
                 </div>
             </div>
@@ -347,31 +425,18 @@
             $("#split").click(function(){
                 $("#split_amounts").toggle();
                 if($(this).prop('checked')==false){
-                    $("#amount_1").val( $("#amount_total").val() );
                     $("#amount_2, #amount_3").val('');
                     $("#category_2, #category_3").val('');
-                } else {
-                    $("#amount_total").val( $("#amount_1").val() );
                 }
             });
 
-            $("#amount_1").change(function(){
-                $("#amount_total").val( $("#amount_1").val() );
-            });
 
-            $("#amount_2, #amount_3").change(function(){
-                var amount_total = parseInt( $("#amount_total").val() == "" ? 0 : $("#amount_total").val() );
-                var amount_1 = parseInt( $("#amount_1").val() == "" ? 0 : $("#amount_1").val() );
-                var amount_2 = parseInt( $("#amount_2").val() == "" ? 0 : $("#amount_2").val() );
-                var amount_3 = parseInt( $("#amount_3").val() == "" ? 0 : $("#amount_3").val() );
+            $("#amount_1, #amount_2, #amount_3, #split").change(function(){
+                var amount_1 = parseFloat( $("#amount_1").val() == "" ? 0.00 : $("#amount_1").val() );
+                var amount_2 = parseFloat( $("#amount_2").val() == "" ? 0.00 : $("#amount_2").val() );
+                var amount_3 = parseFloat( $("#amount_3").val() == "" ? 0.00 : $("#amount_3").val() );
                 
-                var amount_remaining = amount_total - (amount_2 + amount_3)
-                
-                if(amount_remaining < 0) {
-                    alert("The total split amounts total up to more than the primary amount. \n\nAdjust the split amounts to correct the issue.")
-                } else {
-                    $("#amount_1").val( amount_remaining );
-                }
+                $("#amount_total_view_only").text( amount_1 + amount_2 + amount_3 );
             });
 
             // FORM SUBMISSION
