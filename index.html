@@ -55,7 +55,7 @@
             /* ************************************************************************* */
             /* CUSTOM CSS */
             /* ************************************************************************* */
-            
+
             /* RADIO BUTTONS */
             input[type=radio] {
                 transform:scale(2);
@@ -85,7 +85,7 @@
             /* for md */
             .custom-switch.custom-switch-md .custom-control-label {
                 padding-left: 2rem;
-                padding-bottom: 1.5rem;
+                padding-bottom: 0.3rem;
             }
             .custom-switch.custom-switch-md .custom-control-label::before {
                 height: 1.5rem;
@@ -160,31 +160,7 @@
                         <label class="radio-inline"><input type="radio" id="transaction_type" name="data[Transaction_Type]" value="Income"> Income</label>
                     </div>
                     
-                    <!-- PAYEE -->
-                    <div class="form-group">
-                        <label for="payee">Payee/Vendor:</label>
-                        <div class="input-group">
-                            <select class="selectpicker" id="payee" name="data[Payee]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
-                                <option disabled selected value></option>
-                                <option value="Shoprite">Shoprite</option>
-                                <option value="Amazon">Amazon</option>
-                                <option value="Target">Target</option>
-                                <option value="Walmart">Walmart</option>
-                                <option value="Aldi">Aldi</option>
-                                <option value="CVS">CVS</option>
-                                <option value="Wawa">Wawa</option>
-                                <option value="Starbucks">Starbucks</option>
-                                <option value="Sandra Salon">Sandra Salon</option>
-                                <option value="Dunkin Donuts">Dunkin Donuts</option>
-                                <option value="Home Depot">Home Depot</option>
-                                <option value="Lowes">Lowes</option>
-                                <option value="Bed Bath Beyond">Bed Bath Beyond</option>
-                                <option value="Staples">Staples</option>
-                                <option value="Subs Galore">Subs Galore</option>
-                            </select>
-                        </div>
-                    </div>
-
+                    <!-- TRANSACTION AMOUNTS -->
                     <div class="card card-body bg-light">
 
                         <!-- AMOUNT 1 -->
@@ -350,28 +326,60 @@
 
                     </div>
 
-
                     <br>
-                    <!-- TRANSACTION DATE -->
-                    <div class="form-group">
-                        <label for="transaction_date">Transaction Date:</label>
-                        <div class="input-group date form_date" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input1" data-link-format="DD, MM dd yyyy" data-date-end-date="0d">
-                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                            <input class="form-control" id="transaction_date" name="data[Transaction_Date]" size="16" type="text" placeholder="Transaction Date" value="" readonly>
+                    <!-- PAYEE -->
+                    <div class="card card-body bg-light">
+                        <div class="form-group">
+                            <label for="payee">Payee/Vendor:</label>
+                            <div class="input-group">
+                                <select class="selectpicker" id="payee" name="data[Payee]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
+                                    <option disabled selected value></option>
+                                    <option value="Shoprite">Shoprite</option>
+                                    <option value="Amazon">Amazon</option>
+                                    <option value="Target">Target</option>
+                                    <option value="Walmart">Walmart</option>
+                                    <option value="Aldi">Aldi</option>
+                                    <option value="CVS">CVS</option>
+                                    <option value="Wawa">Wawa</option>
+                                    <option value="Starbucks">Starbucks</option>
+                                    <option value="Sandra Salon">Sandra Salon</option>
+                                    <option value="Dunkin Donuts">Dunkin Donuts</option>
+                                    <option value="Home Depot">Home Depot</option>
+                                    <option value="Lowes">Lowes</option>
+                                    <option value="Bed Bath Beyond">Bed Bath Beyond</option>
+                                    <option value="Staples">Staples</option>
+                                    <option value="Subs Galore">Subs Galore</option>
+                                </select>
+                            </div>
                         </div>
-                        <input type="hidden" id="dtp_input1" value="" />
                     </div>
 
-                    <!-- CLEARED -->
-                    <div class="form-group">
-                        <div class="custom-control custom-switch custom-switch-md">
-                            <input class="custom-control-input" type="checkbox" id="cleared" name="data[Cleared]" value="Y" checked>
-                            <label class="custom-control-label" for="cleared">Cleared</label>
+                    <br>
+                    <!-- OTHER TRANSACTION DETAILS -->
+                    <div class="card card-body bg-light">
+                        <!-- TRANSACTION DATE -->
+                        <div class="form-group">
+                            <label for="transaction_date">Transaction Date:</label>
+                            <div class="input-group date form_date" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input1" data-link-format="DD, MM dd yyyy" data-date-end-date="0d">
+                                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                                <input class="form-control" id="transaction_date" name="data[Transaction_Date]" size="16" type="text" placeholder="Transaction Date" value="" readonly>
+                            </div>
+                            <input type="hidden" id="dtp_input1" value="" />
                         </div>
-                    </div> 
+
+                        <!-- CLEARED -->
+                        <div class="form-group">
+                            <div class="custom-control custom-switch custom-switch-md">
+                                <input class="custom-control-input" type="checkbox" id="cleared" name="data[Cleared]" value="Y" checked>
+                                <label class="custom-control-label" for="cleared">Cleared</label>
+                            </div>
+                        </div> 
+                    </div>
                     
+                    <br><br>
                     <!-- SUBMIT BUTTON -->
-                    <input type="submit" value="Add Transaction" style="position: fixed; bottom: 100px; left: 50%; margin: auto;">
+                    <!-- <input class="btn btn-info btn-lg text-center" type="submit" value="Save Transaction" style="position: fixed; bottom: 100px; left: 50%; margin: auto;"> -->
+                    <input class="btn btn-info btn-lg text-center" type="submit" value="Save Transaction" style="position: fixed; bottom: 100px;">
                 </div>
 
             </form>
