@@ -431,7 +431,7 @@
             });
 
             // AMOUNTS AND SPLIT TRANSACTION EVENT CHANGES
-            $("#amount_1, #amount_2, #amount_3, #split").on("keyup input change", function(e){       // input = iOS "keyup" support
+            $("#amount_1, #amount_2, #amount_3, #split").on("keyup input change click touchend", function(e){       // input = iOS "keyup" support
                 var amount_1 = parseFloat( $("#amount_1").val() == "" ? 0.00 : $("#amount_1").val() );
                 var amount_2 = parseFloat( $("#amount_2").val() == "" ? 0.00 : $("#amount_2").val() );
                 var amount_3 = parseFloat( $("#amount_3").val() == "" ? 0.00 : $("#amount_3").val() );
