@@ -11,10 +11,13 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-        <meta name="apple-mobile-web-app-status-bar" content="#ffffff" />
-        <meta name="theme-color" content="#ffffff" />
-            
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar" content="#000000" />
+        <meta name="theme-color" content="#000000" />
+        
+        <!-- ONLY HERE FOR NEOCITIES USE -->
+        <meta http-equiv="Content-Security-Policy" content="connect-src https://sheetdb.io/api/v1/n09q5n4vvki5y">
+        
         <!-- Additional iOS requirements -->
         <link rel="manifest" href="manifest.json">
         <link rel="apple-touch-icon" href="images/icons/icon-72x72.png">
@@ -27,11 +30,18 @@
         <!-- <link rel="apple-touch-icon" href="https://www.favicon.cc/logo3d/13114.png"/> -->
         <link rel="icon" type="image/png" href="https://icons.iconarchive.com/icons/custom-icon-design/flatastic-11/32/Cash-icon.png">
 
-        <!-- Bootstrap CSS -->
+        <!-- Bootstrap:  FRAMEWORK CSS -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
+        <!-- Bootstrap:  Date Picker -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.standalone.min.css" />
+        
+        <!-- Bootstrap:  Select Picker -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css" crossorigin="anonymous">
+        
+        
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 
         <title>Our Budget</title>
         
@@ -39,30 +49,107 @@
             
             html,
             body {
-                height: 100%;
+                /* height: 100%; */
                 overscroll-behavior-y: contain;
+                background-color: rgba(13, 18, 23, 1);
+                /* background-color: white; */
             }
             .footer {
                 position: fixed;
                 left: 0;
                 bottom: 0;
-                height: 70px;
                 width: 100%;
                 color: white;
                 text-align: center;
+            }
+            @media (max-width: 768px){ 
+              .footer {
+                height: 85px;
+              }
+            }
+            
+            #btn_submit {
+              bottom: 70px;
+              border-radius: 0px !important;
+            }
+            @media (max-width: 768px){
+              #btn_submit.mobile-adjust {
+                bottom:85px
+              }
             }
             
             /* ************************************************************************* */
             /* CUSTOM CSS */
             /* ************************************************************************* */
-
+            
+            /* LABELS */
+            .custom-label {
+               color:white
+            }
+            
             /* RADIO BUTTONS */
             input[type=radio] {
                 transform:scale(2);
                 margin-right: 10px;
                 margin-left: 10px;
             }
-
+            
+            /* RADIO BUTTON GROUP VIEW; CHANGE TO VERTICAL ON PHONE */
+            @media (max-width: 768px){ 
+              .radio-inline.mobile-adjust {
+                display: block;
+                padding-bottom: 10px; /* optional */
+              }
+            }
+            
+            /* SELECT PICKER */
+            .custom-select {
+              border: 1px solid rgba(204, 204, 204, 1) !important;
+            }
+            /* SELECT PICKER - OPTION GLYPHICON COLORS */
+            .green {
+              color: green !important
+            }
+            .yellow {
+              color: yellow !important
+            }
+            .orange {
+              color: orange !important
+            }
+            .purple {
+              color: purple !important
+            }
+            .blue {
+              color: blue !important
+            }
+            .red {
+              color: red !important
+            }
+            /* 
+            .bootstrap-select.btn-group:not(.input-group-btn),
+            .bootstrap-select.btn-group[class*="span"] {
+              margin: 0 !important;
+            }
+             */
+            
+            /* FONT AWESOME GLYPHICONS */
+            .custom-fa {
+              padding-right: 5px;
+              font-size: 1.1em;
+              color: rgba(174, 217, 254, 1);
+            }
+            
+            /* CARDS/WELLS */
+            .card {
+              background-color: rgba(28, 38, 49, 1);
+              border: 1px solid rgba(40, 55, 72, 1);
+              box-shadow: 0px 10px 10px -2px rgba(44,44,44,0.3);
+              -webkit-box-shadow: 0px 10px 10px -2px rgba(44,44,44,0.3);
+              -moz-box-shadow: 0px 10px 10px -2px rgba(44,44,44,0.3);
+            }
+            
+            
+            
             /* TOGGLE SWITCH CHECKBOXES */
             /* for sm */
             .custom-switch.custom-switch-sm .custom-control-label {
@@ -136,17 +223,124 @@
             .custom-switch.custom-switch-xl .custom-control-input:checked ~ .custom-control-label::after {
                 transform: translateX(calc(2.5rem - 0.25rem));
             }
+            
+            
+            /* LOADING SPINNER */
+            .spanner{
+              position:absolute;
+              top: 50%;
+              left: 0;
+              background: #2a2a2a55;
+              width: 100%;
+              display:block;
+              text-align:center;
+              height: 300px;
+              color: #FFF;
+              transform: translateY(-50%);
+              z-index: 1000;
+              visibility: hidden;
+            }
+            .overlay{
+              position: fixed;
+              width: 100%;
+              height: 100%;
+              background: rgba(0,0,0,0.5);
+              visibility: hidden;
+            }
+            .loader,
+            .loader:before,
+            .loader:after {
+              border-radius: 50%;
+              width: 2.5em;
+              height: 2.5em;
+              -webkit-animation-fill-mode: both;
+              animation-fill-mode: both;
+              -webkit-animation: load7 1.8s infinite ease-in-out;
+              animation: load7 1.8s infinite ease-in-out;
+            }
+            .loader {
+              color: #ffffff;
+              font-size: 10px;
+              margin: 80px auto;
+              position: relative;
+              text-indent: -9999em;
+              -webkit-transform: translateZ(0);
+              -ms-transform: translateZ(0);
+              transform: translateZ(0);
+              -webkit-animation-delay: -0.16s;
+              animation-delay: -0.16s;
+            }
+            .loader:before,
+            .loader:after {
+              content: '';
+              position: absolute;
+              top: 0;
+            }
+            .loader:before {
+              left: -3.5em;
+              -webkit-animation-delay: -0.32s;
+              animation-delay: -0.32s;
+            }
+            .loader:after {
+              left: 3.5em;
+            }
+            @-webkit-keyframes load7 {
+              0%,
+              80%,
+              100% {
+                box-shadow: 0 2.5em 0 -1.3em;
+              }
+              40% {
+                box-shadow: 0 2.5em 0 0;
+              }
+            }
+            @keyframes load7 {
+              0%,
+              80%,
+              100% {
+                box-shadow: 0 2.5em 0 -1.3em;
+              }
+              40% {
+                box-shadow: 0 2.5em 0 0;
+              }
+            }
+            .show{
+              visibility: visible;
+            }
+            .spanner, .overlay{
+              opacity: 0;
+              -webkit-transition: all 0.3s;
+              -moz-transition: all 0.3s;
+              transition: all 0.3s;
+            }
+            .spanner.show, .overlay.show {
+              opacity: 1
+            }
+            
         </style>
 
     </head>
 
+    <!-- <body style="background: linear-gradient(to bottom, hsla(0, 100%, 39%, 0.43) 0%,#ffd9d6 100%)"> -->
     <body>
-
-        <div class="container" style="padding-top:15px">
         
-            <form id="form_transaction" action="https://sheetdb.io/api/v1/n09q5n4vvki5y" method="post" id="sheetdb-form" style="padding-top:15px;padding-bottom:130px;">
+        <!-- TRANSACTION TYPE INDICATOR UNDERLAY  red=hsla(0, 100%, 37%, 0.26)  green=hsla(115, 100%, 37%, 0.26)-->
+        <!-- <div class="fixed-top" id="transaction_type_indicator" style="-index: 1;height: 100px;width: 100%;background: radial-gradient(ellipse at 50% 0%, hsla(0, 100%, 39%, 0.43) 70%, transparent 70%)"></div> -->
+        
+        <!-- MAIN CONTAINER -->
+        <div class="container" style="z-index: 2;position: relative;padding-top:15px;margin-bottom:10px;"> 
+          
+   
+            <!-- FORM:  TRANSACTION ENTRY -->
+            <form id="form_transaction" action="https://sheetdb.io/api/v1/n09q5n4vvki5y" method="post" style="display:none;padding-top:35px;padding-bottom:100px;">
                 
-                <div class="container">
+                <div class="fixed-top" id="form_navigation_bar">
+                  <!-- <button type="button" class="btn btn-primary btn-lg float-left" id="test_btn">Save Transaction</button> -->
+                  <div class="text-center center-block bg-dark" style="position:relative;padding-top:5px;height:40px;color:white;font-size:1.2em;">Add Transaction</div>
+                  <button type="button" class="btn btn-lg btn-link" style="position:absolute;top:0;padding-top:3px;margin-left:10px;" id="btn_cancel_transaction">Cancel</button>
+                </div>
+                  
+                <div class="container" id="form_body" style="padding-top:10px;">
 
                     <!-- TRANSACTION ID -->
                     <div class="form-group" style="display:none">
@@ -155,29 +349,58 @@
                     </div>
 
                     <!-- TRANSACTION TYPE -->
-                    <div class="form-group text-center">
-                        <label class="radio-inline"><input type="radio" id="transaction_type" name="data[Transaction_Type]" value="Expense" checked> Expense</label>
-                        <label class="radio-inline"><input type="radio" id="transaction_type" name="data[Transaction_Type]" value="Income"> Income</label>
+                    <div class="form-group text-center bg-danger" id="transaction_type_container" style="padding-top:15px;padding-bottom:10px;border-radius: 4px;">
+                        <label class="radio-inline" style="color:white;font-weight:bold;padding:0px 5px;"><input type="radio" id="transaction_type" name="data[Transaction_Type]" value="Expense" checked> Expense</label>
+                        <label class="radio-inline" style="color:white;font-weight:bold;padding:0px 5px;"><input type="radio" id="transaction_type" name="data[Transaction_Type]" value="Income"> Income</label>
                     </div>
                     
+                    <!-- PAYEE -->
+                    <div class="card card-body">
+                        <div class="form-group">
+                            <label class="custom-label" for="payee" style="color:white"><i class="fa fa-exchange-alt custom-fa"></i> Payee:</label>
+                            <div class="input-group">
+                                <select class="selectpicker form-control custom-select" id="payee" name="data[Payee]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
+                                    <option disabled selected value></option>
+                                    <option value="Shoprite">Shoprite</option>
+                                    <option value="Amazon">Amazon</option>
+                                    <option value="Target">Target</option>
+                                    <option value="Walmart">Walmart</option>
+                                    <option value="Aldi">Aldi</option>
+                                    <option value="CVS">CVS</option>
+                                    <option value="Wawa">Wawa</option>
+                                    <option value="Starbucks">Starbucks</option>
+                                    <option value="Sandra Salon">Sandra Salon</option>
+                                    <option value="Dunkin Donuts">Dunkin Donuts</option>
+                                    <option value="Home Depot">Home Depot</option>
+                                    <option value="Lowes">Lowes</option>
+                                    <option value="Bed Bath Beyond">Bed Bath Beyond</option>
+                                    <option value="Staples">Staples</option>
+                                    <option value="Subs Galore">Subs Galore</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <br>
                     <!-- TRANSACTION AMOUNTS -->
-                    <div class="card card-body bg-light">
+                    <div class="card card-body">
 
                         <!-- AMOUNT 1 -->
                         <div class="form-group">
 
-                            <label for="amount_1">Amount:</label>
+                            <label class="custom-label" for="amount_1"><i class="fa fa-dollar-sign custom-fa"></i> Amount:</label>
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">$</span>
                                 </div>
-                                <input class="form-control js-format-currency" type="text" id="amount_1" name="data[Category_1_Amount]" inputmode="numeric" value="" placeholder="0.00" >
+                                <input class="form-control js-format-currency" type="text" inputmode="numeric" id="amount_1" name="data[Category_1_Amount]" style="font-weight:bold;" value="" placeholder="0.00" >
                             </div>
 
-                            <label for="category_1">Category:</label>
+                            <label class="custom-label" for="category_1"><i class="fa fa-tag custom-fa"></i> Category:</label>
                             <div class="input-group">
-                                <select class="selectpicker" id="category_1" name="data[Category_1]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
-                                    <option disabled selected value></option>
+                                <select class="selectpicker form-control custom-select" id="category_1" name="data[Category_1]" data-live-search="true" title="Select a Category" data-size="7" style="width: 125%">
+                                    <!-- <option disabled selected value></option> -->
                                     <optgroup label="Automotive">
                                         <option value="DMV Fees">DMV Fees</option>
                                         <option value="Gasoline">Gasoline</option>
@@ -198,8 +421,8 @@
                                     <optgroup label="Food">
                                         <option value="Dining">Dining</option>
                                         <option value="Fast Food">Fast Food</option>
-                                        <option value="Groceries">Groceries</option>
-                                        <option value="Snacks">Snacks</option>
+                                        <option value="Groceries" data-subtext="$25.00">Groceries</option>
+                                        <option value="Snacks/Coffee">Snacks/Coffee</option>
                                     </optgroup>
                                     <optgroup label="Gifts">
                                         <option value="Birthday">Birthday</option>
@@ -214,7 +437,7 @@
                             
                         <!-- SPLIT CHECKBOX -->
                         <div class="form-group">
-                            <div class="custom-control custom-switch custom-switch-md">
+                            <div class="custom-control custom-switch custom-switch-md custom-label">
                                 <input class="custom-control-input" type="checkbox" id="split" name="data[Split]" value="N">
                                 <label class="custom-control-label" for="split">Split</label>
                             </div>
@@ -225,18 +448,18 @@
                             <!-- AMOUNT 2 -->
                             <div class="form-group">
 
-                                <label for="amount_2">Amount:</label>
+                                <label class="custom-label" for="amount_2"><i class="fa fa-dollar-sign custom-fa"></i> Amount:</label>
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">$</span>
                                     </div>
-                                    <input class="form-control js-format-currency" id="amount_2" name="data[Category_2_Amount]" inputmode="numeric" type="text" value="" placeholder="0.00">
+                                    <input class="form-control js-format-currency" type="text" inputmode="numeric" id="amount_2" name="data[Category_2_Amount]" style="font-weight:bold;" value="" placeholder="0.00">
                                 </div>
 
-                                <label for="category_2">Category:</label>
+                                <label class="custom-label" for="category_2"><i class="fa fa-tag custom-fa"></i> Category:</label>
                                 <div class="input-group">
-                                    <select class="selectpicker" id="category_2" name="data[Category_2]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
-                                        <option disabled selected value></option>
+                                    <select class="selectpicker form-control custom-select" id="category_2" name="data[Category_2]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
+                                        <!-- <option disabled selected value></option> -->
                                         <optgroup label="Automotive">
                                             <option value="DMV Fees">DMV Fees</option>
                                             <option value="Gasoline">Gasoline</option>
@@ -273,18 +496,18 @@
                             <!-- AMOUNT 3 -->
                             <div class="form-group">
 
-                                <label for="amount_3">Amount:</label>
+                                <label class="custom-label" for="amount_3"><i class="fa fa-dollar-sign custom-fa"></i> Amount:</label>
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">$</span>
                                     </div>
-                                    <input class="form-control js-format-currency" id="amount_3" name="data[Category_3_Amount]" inputmode="numeric" type="text" value="" placeholder="0.00">
+                                    <input class="form-control js-format-currency" type="text" inputmode="numeric" id="amount_3" name="data[Category_3_Amount]" style="font-weight:bold;" value="" placeholder="0.00">
                                 </div>
 
-                                <label for="category_3">Category:</label>
+                                <label class="custom-label" for="category_3"><i class="fa fa-tag custom-fa"></i> Category:</label>
                                 <div class="input-group">
-                                    <select class="selectpicker" id="category_3" name="data[Category_3]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
-                                        <option disabled selected value></option>
+                                    <select class="selectpicker form-control custom-select" id="category_3" name="data[Category_3]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
+                                        <!-- <option disabled selected value></option> -->
                                         <optgroup label="Automotive">
                                             <option value="DMV Fees">DMV Fees</option>
                                             <option value="Gasoline">Gasoline</option>
@@ -323,64 +546,93 @@
 
 
                     <!-- AMOUNTS TOTAL -->
-                    <div style="padding-top:5px;padding-left:15px;font-weight:bold;font-style:italic;font-size:1.5em;">
+                    <div class="text-center" style="padding-top:5px;font-weight:bold;font-style:italic;font-size:1.5em;">
                         <span class="js-format-currency" id="amount_total_view_only">Total:  $0.00</span>
-                    </div>
-
-                    <br>
-                    <!-- PAYEE -->
-                    <div class="card card-body bg-light">
-                        <div class="form-group">
-                            <label for="payee">Payee/Vendor:</label>
-                            <div class="input-group">
-                                <select class="selectpicker" id="payee" name="data[Payee]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
-                                    <option disabled selected value></option>
-                                    <option value="Shoprite">Shoprite</option>
-                                    <option value="Amazon">Amazon</option>
-                                    <option value="Target">Target</option>
-                                    <option value="Walmart">Walmart</option>
-                                    <option value="Aldi">Aldi</option>
-                                    <option value="CVS">CVS</option>
-                                    <option value="Wawa">Wawa</option>
-                                    <option value="Starbucks">Starbucks</option>
-                                    <option value="Sandra Salon">Sandra Salon</option>
-                                    <option value="Dunkin Donuts">Dunkin Donuts</option>
-                                    <option value="Home Depot">Home Depot</option>
-                                    <option value="Lowes">Lowes</option>
-                                    <option value="Bed Bath Beyond">Bed Bath Beyond</option>
-                                    <option value="Staples">Staples</option>
-                                    <option value="Subs Galore">Subs Galore</option>
-                                </select>
-                            </div>
-                        </div>
+                        <input type="hidden" class="form-control" id="amount_total_numeric_format" value=0.00 />
                     </div>
 
                     <br>
                     <!-- OTHER TRANSACTION DETAILS -->
-                    <div class="card card-body bg-light">
+                    <div class="card card-body">
                         <!-- TRANSACTION DATE -->
                         <div class="form-group">
-                            <label for="transaction_date">Transaction Date:</label>
+                            <label class="custom-label" for="transaction_date"><i class="fa fa-calendar-alt custom-fa"></i> Transaction Date:</label>
                             <div class="input-group date form_date" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input1" data-link-format="DD, MM dd yyyy" data-date-end-date="0d">
                                 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
                                 <input class="form-control" id="transaction_date" name="data[Transaction_Date]" size="16" type="text" placeholder="Transaction Date" value="" readonly>
                             </div>
                             <input type="hidden" id="dtp_input1" value="" />
                         </div>
+                      
+                        <!-- ACCOUNT -->
+                        <div class="form-group" style="display:none;">
+                        <br>
+                            <label class="custom-label" for="account"><i class="fa fa-university custom-fa"></i> Account:</label>
+                            <div class="input-group">
+                                <select class="selectpicker form-control custom-select" id="account" name="data[Account]" data-live-search="true" title="Select an Account" data-size="7" style="width: 100%">
+                                    <option selected value="Paycheck">Paycheck</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- PAYMENT TYPE -->
+                        <div class="form-group">
+                            <label class="custom-label" for="payment_type"><i class="fa fa-wallet custom-fa"></i> Payment Type:</label>
+                            <div class="input-group">
+                                <select class="selectpicker form-control custom-select" id="payment_type" name="data[Payment_Type]" data-live-search="true" title="Select a Payment Type" data-size="7" style="width: 100%">
+                                    <!-- <option disabled selected value></option> -->
+                                    <optgroup label="Debit/Cash">
+                                        <option selected value="Debit: Pay">Pay Debit</option>
+                                        <option value="Debit: Groceries">Groceries Debit</option>
+                                        <option value="Cash">Cash</option>
+                                    </optgroup>
+                                    <optgroup label="Credit Card">
+                                        <option value="CC: Discover">Discover CC</option>
+                                        <option value="CC: Visa Amazon">Visa (Amazon) CC</option>
+                                        <option value="CC: Apple">Apple CC</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- FLAGS -->
+                        <div class="form-group">
+                            <label class="custom-label" for="flag"><i class="fa fa-flag custom-fa"></i> Flag:</label>
+                            <div class="input-group">
+                                <select class="selectpicker form-control custom-select" id="flag" name="data[Flag]" data-live-search="true" title="Select a Flag" data-size="7" style="width: 100%">
+                                      <option data-icon="fa fa-flag red" value="Red"> Red</option>
+                                      <option data-icon="fa fa-flag yellow" value="Transfer">Transfer</option>
+                                      <option data-icon="fa fa-flag orange" value="Yearly Charge">Yearly Charge</option>
+                                      <option data-icon="fa fa-flag blue" value="Recurring Charge">Recurring Charge</option>
+                                      <option data-icon="fa fa-flag purple" value="Grocery Transfer">Grocery Transfer</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- MEMO -->
+                        <div class="form-group">
+                            <label class="custom-label" for="memo"><i class="fa fa-wallet custom-fa"></i> Memo: <small class="text-muted">(max 100 characters)</small></label>
+                            <div class="input-group">
+                                <textarea class="form-control" id="memo" name="data[Memo]" rows="1" maxlength="100"></textarea>
+                            </div>
+                        </div>
+                        
 
                         <!-- CLEARED -->
                         <div class="form-group">
                             <div class="custom-control custom-switch custom-switch-md">
                                 <input class="custom-control-input" type="checkbox" id="cleared" name="data[Cleared]" value="Y" checked>
-                                <label class="custom-control-label" for="cleared">Cleared</label>
+                                <label class="custom-control-label custom-label" for="cleared">Cleared</label>
                             </div>
                         </div> 
+                        
                     </div>
                     
                     <br><br>
                     <!-- SUBMIT BUTTON -->
                     <!-- <input class="btn btn-info btn-lg text-center" type="submit" value="Save Transaction" style="position: fixed; bottom: 100px; left: 50%; margin: auto;"> -->
-                    <input class="btn btn-info btn-lg text-center" type="submit" value="Save Transaction" style="position: fixed; bottom: 100px;">
+                    <input class="btn btn-primary btn-lg text-center fixed-bottom mobile-adjust" type="submit" value="Save Transaction" id="btn_submit" style="z-index:1">
+
                 </div>
 
             </form>
@@ -388,17 +640,49 @@
             <!-- FOOTER -->
             <div class="footer bg-dark">
                 <div class="row">
-                    <div class="col-3 text-center"><a class="nav-link" href="#"><img src="images/dashboard48x48.png" alt="Dashboard" style="width:42px;height:42px;filter:invert(100%);"></a></div>
-                    <div class="col-3 text-center"><a class="nav-link active" href="#"><img src="images/transactions48x48.png" alt="Transactions" style="width:42px;height:42px;filter:invert(100%);"><span class="sr-only">(current)</span></a></div>
                     <div class="col-3 text-center">
-                        <a class="nav-link" href="https://docs.google.com/spreadsheets/d/1nl1hJd9mAbw4TFrErvpPvWiccrBesnnAtTl7JffK6B0/edit?usp=sharing" target="_blank">
-                            <img src="images/budget48x48.png" alt="Budget" style="width:42px;height:42px;filter:invert(100%);">
-                        </a>
+                      <a class="nav-link" href="#">
+                        <div style="color:white;">
+                          <i class="fa fa-columns row" style="font-size: 1.8em;"></i>
+                          <br>Dashboard
+                        </div>
+                      </a>
                     </div>
-                    <div class="col-3 text-center"><a class="nav-link" href="#"><img src="images/reports48x48.png" alt="Reports" style="width:42px;height:42px;filter:invert(100%);"></a></div>
+                    <div class="col-3 text-center">
+                      <a class="nav-link" href="#" id="btn_add_transaction">
+                        <div style="color:white;">
+                          <i class="fa fa-plus-circle" style="font-size: 1.8em"></i>
+                          <br>Transaction
+                        </div>
+                      </a>
+                    </div>
+                    <div class="col-3 text-center">
+                      <a class="nav-link" href="https://docs.google.com/spreadsheets/d/1nl1hJd9mAbw4TFrErvpPvWiccrBesnnAtTl7JffK6B0/edit?usp=sharing" target="_blank">
+                        <div style="color:white;">
+                          <i class="fa fa-chart-line" style="font-size: 1.8em;"></i>
+                          <br>Reports
+                        </div>
+                      </a>
+                    </div>
+                    <div class="col-3 text-center">
+                      <a class="nav-link" href="#">
+                        <div style="color:white;">
+                          <i class="fa fa-envelope-open-text" style="font-size: 1.8em;"></i>
+                          <br>Budget
+                        </div>
+                      </a>
+                    </div>
                 </div>
             </div>
             
+            
+            <!-- Loading Spinner -->
+            <div class="overlay"></div>
+            <div class="spanner">
+              <div class="loader"></div>
+              <p>Please wait...</p>
+            </div>
+
             <!-- Modal -->
             <div class="modal fade" id="pop_up_dialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
               <div class="modal-dialog modal-dialog-centered" role="document">
@@ -421,14 +705,18 @@
             
         </div>
         
-        <script src="js/app.js"></script>
+        <script src="app.js"></script>
         
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
+        
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+        
+		    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
         
     </body>
   
@@ -436,6 +724,12 @@
     <script>
 
         $(document).ready(function(){
+          
+            // TEST BUTTON FOR DEVELOPMENT PURPOSES ONLY
+            $("#test_btn").click(function(){
+              alert("testing");
+            });
+
 
             // FORM variable
             var form = document.getElementById("form_transaction");
@@ -481,7 +775,11 @@
             // ---------------------------------------------------------------------------------------------------
 
             function transactionFormDefaults() {
-                // Set the currency input text color
+              
+                // Initialize all select pickers
+                $(".selectpicker").selectpicker();
+
+                // Set the currency input AND the expense/income selector colors
                 $(".js-format-currency").css("color", "red");
 
                 // TRANSACTION ID auto-populate
@@ -490,11 +788,12 @@
                 // TRANSACTION DATE auto-populate
                 $('#transaction_date').attr("value", moment().format('YYYY-MM-DD') );
 
-                // TRANSACTION TOTAL label 
+                // TRANSACTION TOTAL label & hidden number box
                 $("#amount_total_view_only").text( "Total:  $0.00" );
+                $("#amount_total_numeric_format").val(0.00);
 
                 // Set focus on first transaction amount input
-                document.getElementById("amount_1").focus();
+                document.getElementById("payee").focus();
             };
 
             // ---------------------------------------------------------------------------------------------------
@@ -503,22 +802,61 @@
             // START UP THE PAGE
             transactionFormDefaults();
 
-
+            
+            // ---------------------------------------------------------------------------------------------------
+            // CONTROLS EVENT HANDLERS
+            // ---------------------------------------------------------------------------------------------------
+            
             // TRANSACTION TYPE
             $("input[type=radio][id=transaction_type]").change(function(){               // "input change click touchend" = all added for iOS "keyup" support
                 var transaction_type = $("input[type=radio][id=transaction_type]:checked").val();
                 if (transaction_type == "Expense") {
-                    // If expense, change text color to red
-                    $(".js-format-currency").css("color", "red");
+                  // If expense, change text colors to red, otherwise green/black
+                  $(".js-format-currency").css("color", "red");
+                  $("#transaction_type_container").addClass("bg-danger").removeClass("bg-success");
+                  $("#transaction_type_indicator").css( "background", "radial-gradient(ellipse at 50% 0%, hsla(0, 100%, 39%, 0.43) 70%, transparent 70%)" );
+                  $("body").css( "background", "linear-gradient(to bottom, hsla(0, 100%, 39%, 0.43) 0%,#ffd9d6 100%)" );
                 } else {
-                    $(".js-format-currency").css("color", "black");
+                  $(".js-format-currency").css("color", "black");
+                  $("#transaction_type_container").addClass("bg-success").removeClass("bg-danger");
+                  $("#transaction_type_indicator").css( "background", "radial-gradient(ellipse at 50% 0%, hsla(115, 100%, 37%, 0.26) 70%, transparent 70%)" );
+                  $("body").css( "background", "linear-gradient(to bottom, hsla(115, 100%, 37%, 0.26) 0%,#d6ffdc 100%)" );
                 }
+            });
+            
+            // CATEGORY TYPE AUTO-SELECT
+            $("#payee, #amount_total_numeric_format").on("keyup change paste", function(e){ 
+                var total_amount = $("#amount_total_numeric_format").val();
+                
+                // PAYEE
+                switch( $("#payee").val() ) {
+                  
+                  case "Shoprite":
+                    $("#category_1").val('Groceries');
+                    $("#payment_type").val('Debit: Groceries');
+                    break;
+                  case "Wawa":
+                    if(total_amount >= 20) {
+                      $("#category_1").val("Gasoline");
+                    } else if(total_amount > 0 && total_amount < 20) {
+                      $("#category_1").val("Snacks/Coffee");
+                    } else {
+                      $("#category_1").val("");
+                    }
+                    break;
+                  default:
+                    $("#category_1").val("");
+                    $("#payment_type").val('Debit: Pay');
+                    
+                }
+                
+                $(".selectpicker").selectpicker('refresh')
             });
 
             // SPLIT TRANSACTION
             $("#split").click(function(){
                 $("#split_amounts").toggle();
-                if($(this).prop('checked')==false){
+                if($(this).prop('checked')==false) {
                     $(this).val("N");
                     $("#amount_2, #amount_3").val('');
                     $("#category_2, #category_3").val('');
@@ -528,12 +866,15 @@
             });
 
             // AMOUNTS AND SPLIT TRANSACTION EVENT CHANGES
-            $("#amount_1, #amount_2, #amount_3, #split").on("keyup input change click touchend", function(e){               // "input change click touchend" = all added for iOS "keyup" support
+            $("#amount_1, #amount_2, #amount_3, #split").on("keyup input change paste click touchend", function(e){         // "input change click touchend" = all added for iOS "keyup" support
                 var amount_1_number = parseFloat( $("#amount_1").val() == "" ? 0.00 : cleanNumber($("#amount_1").val()) );  // cleanNumber is a custom function which removes the commas from numbers
                 var amount_2_number = parseFloat( $("#amount_2").val() == "" ? 0.00 : cleanNumber($("#amount_2").val()) );
                 var amount_3_number = parseFloat( $("#amount_3").val() == "" ? 0.00 : cleanNumber($("#amount_3").val()) );
                 
+                // First, set the hidden numeric box first; value here is used for rules in other controls
                 var amount_total_formatted = parseFloat(amount_1_number + amount_2_number + amount_3_number).toFixed(2)
+                $("#amount_total_numeric_format").val( amount_total_formatted ).trigger("input"); // Need to trigger input so that the CATEGORY TYPE AUTO-SELECT event above will detect the change.
+                // Then, set the visible, formatted label for the end user to view
                 amount_total_formatted = Number(amount_total_formatted).toLocaleString('en-US', {minimumFractionDigits: 2}); // add commas to the display number
                 $("#amount_total_view_only").text( "Total:  $" + amount_total_formatted );
             });
@@ -546,11 +887,31 @@
                     $(this).val("Y");
                 }
             });
+            
+            // ---------------------------------------------------------------------------------------------------
+
 
             // ---------------------------------------------------------------------------------------
             // FORM SUBMISSION
             // ---------------------------------------------------------------------------------------
             form.addEventListener("submit", e => {
+                
+                // Will prevent the form submission from continuing if a "return false" is present
+                e.preventDefault();
+                
+                // VALIDATIONS START ----------------------------------------------------
+                var total_amount = $("#amount_total_numeric_format").val();
+                if(total_amount == "" || total_amount == 0){
+                  alert("You haven't entered in a transaction amount.");
+                  return false;
+                }
+                // VALIDATIONS END ----------------------------------------------------
+                
+                
+                // Show loading spinner
+                $("div.spanner").addClass("show");
+                $("div.overlay").addClass("show");
+                
                 transaction_type = $("input[type=radio][id=transaction_type]:checked").val();
                 amount_1 = $("#amount_1").val();
                 amount_2 = $("#amount_2").val();
@@ -576,10 +937,26 @@
 
                     // Set page defaults
                     transactionFormDefaults();
+                    
+                    // Hide loading spinner
+                    $("div.spanner").removeClass("show");
+                    $("div.overlay").removeClass("show");
 
                     // Display confirmation
                     $("#pop_up_dialog").modal("toggle");
                 });
+            });
+            
+            
+            
+            $("#btn_add_transaction").click(function(){
+              //$("#container_form_transaction").slideDown("slow");
+              $("#form_transaction").show("slide", { direction: "down" }, 500);
+              //.show( 'slide', {direction: 'up'} );
+            });
+            $("#btn_cancel_transaction").click(function(){
+              //$("#container_form_transaction").slideUp("slow");
+              $("#form_transaction").hide("slide", { direction: "down" }, 500);
             });
 
         });

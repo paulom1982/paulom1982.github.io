@@ -3,8 +3,8 @@
   "short_name": "Our Budget",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#8c8c8c",
+  "theme_color": "#8c8c8c",
   "orientation": "portrait-primary",
   "icons": [
     {

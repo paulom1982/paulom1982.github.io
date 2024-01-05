@@ -1,8 +1,8 @@
 const staticOurBudget = "our-budget-v1";
 const assets = [
   "/",
-  "/index.html",
-  "/js/app.js"
+  "index.html",
+  "app.js"
 ];
 
 self.addEventListener("install", installEvent => {
