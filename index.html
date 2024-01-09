@@ -40,7 +40,9 @@
         <!-- Bootstrap:  Select Picker -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css" crossorigin="anonymous">
         
-        
+        <!-- Load DataTables stylesheet  -->
+        <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css">
+
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 
         <title>Our Budget</title>
@@ -266,6 +268,12 @@
               }
             }
             
+            .table-container  {
+                padding: 15px;
+                background-color: #f2f2f2;
+                border-radius: 1rem;
+            }
+            
         </style>
 
     </head>
@@ -279,15 +287,15 @@
         <!-- MAIN CONTAINER -->
         <div class="container" style="z-index: 2;position: relative;padding-top:15px;margin-bottom:10px;"> 
           
-            
+            <button type="button" class="btn btn-primary btn-lg float-left" id="test_btn" style="display:none;">SHOW</button>
             
             <!-- FORM:  TRANSACTION ENTRY -->
-            <form id="form_transaction" action="https://sheetdb.io/api/v1/n09q5n4vvki5y" method="post" style="display:none;padding-top:35px;padding-bottom:100px;">
+            <form id="form_transaction" action="https://sheetdb.io/api/v1/n09q5n4vvki5y" method="post" style="display:none;padding-top:35px;padding-bottom:80px;">
                 
                 <div class="fixed-top" id="form_navigation_bar">
                   <div class="text-center center-block bg-dark" style="position:relative;padding-top:5px;height:40px;color:white;font-size:1.2em;">Add Transaction</div>
                   <button type="button" class="btn btn-lg btn-link" style="position:absolute;top:0;padding-top:3px;margin-left:10px;" id="btn_cancel_transaction">Cancel</button>
-                  <button type="button" class="btn btn-primary btn-lg float-left" id="test_btn">SHOW</button>
+                  <!--<button type="button" class="btn btn-primary btn-lg float-left" id="test_btn">SHOW</button>-->
                 </div>
                   
                 <div class="container" id="form_body" style="padding-top:10px;">
@@ -587,6 +595,10 @@
 
             </form>
             
+            <!-- TRANSACTION TABLE -->
+            <div class="table-container">
+              <table id="transaction_table" class="table table-striped"></table><br><br><br>
+            </div>
             
             <!-- FOOTER -->
             <div class="footer bg-dark">
@@ -669,251 +681,281 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
         
 		    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-
-    </body>
+		    
+		    <script src="https://unpkg.com/sheetrock@1.2.0/dist/sheetrock.min.js"></script>
+		    
+		    <!-- Load DataTables script  -->
+        <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
   
-  
-    <script>
-
-        $(document).ready(function(){
-          
-            // TEST BUTTON FOR DEVELOPMENT PURPOSES ONLY
-            $("#test_btn").click(function(){
-              //alert("testing");
-              $.getJSON('https://sheetdb.io/api/v1/n09q5n4vvki5y', function(data) {
-                    // JSON result in `data` variable
-                    console.log(data)
-                });
-            });
-
-
-            // FORM variable
-            var form = document.getElementById("form_transaction");
-
-
-            // ---------------------------------------------------------------------------------------------------
-            // SPECIAL FUNCTIONS 
-            // ---------------------------------------------------------------------------------------------------
-
-            // Currency Input Visualizer
-            var inputs = document.getElementsByClassName("js-format-currency");
-            for (var i = 0; i < inputs.length; i++) {
-                inputs[i].addEventListener('input', function (e) {
-                    var input = e.target.value.replace(/[^0-9]/g, '');                                  // Remove non-digits
-                    var formatted = parseFloat(input / 100).toFixed(2);                                 // Divide by 100 and fix to 2 decimal places
-                    formatted = Number(formatted).toLocaleString('en-US', {minimumFractionDigits: 2});  // Add commas
-                    e.target.value = formatted;
-                });
-            }
-            // Remove any commas from number, for number to be valid for calculations
-            function cleanNumber(str) {
-                return parseFloat(str.replaceAll(',', ''));
-            };
-
-            // Datepicker, popup calendar for the form
-            $(".form_date").datepicker({
-                weekStart: 0,
-                todayBtn: 1,
-                autoclose: 1,
-                todayHighlight: 1,
-                startView: 0,
-                minView: 2,
-                daysOfWeekHighlighted: [0, 6],
-                disableTouchKeyboard: true,
-                forceParse: 0
-            });
-
-            // ---------------------------------------------------------------------------------------------------
-
-
-            // ---------------------------------------------------------------------------------------------------
-            // STARTUP DEFAULTS
-            // ---------------------------------------------------------------------------------------------------
-
-            function transactionFormDefaults() {
-              
-                // Initialize all select pickers
-                $(".selectpicker").selectpicker();
-
-                // Set the currency input AND the expense/income selector colors
-                $(".js-format-currency").css("color", "red");
-
-                // TRANSACTION ID auto-populate
-                $("#transaction_id").val( moment().format('YYYYMMDDHHmmssSSS') );
-
-                // TRANSACTION DATE auto-populate
-                $('#transaction_date').attr("value", moment().format('YYYY-MM-DD') );
-
-                // TRANSACTION TOTAL label & hidden number box
-                $("#amount_total_view_only").text( "Total:  $0.00" );
-                $("#amount_total_numeric_format").val(0.00);
-
-                // Set focus on first transaction amount input
-                document.getElementById("payee").focus();
-            };
-
-            // ---------------------------------------------------------------------------------------------------
-
-
-            // START UP THE PAGE
-            transactionFormDefaults();
-
-            
-            // ---------------------------------------------------------------------------------------------------
-            // CONTROLS EVENT HANDLERS
-            // ---------------------------------------------------------------------------------------------------
-            
-            // TRANSACTION TYPE
-            $("input[type=radio][id=transaction_type]").change(function(){               // "input change click touchend" = all added for iOS "keyup" support
-                var transaction_type = $("input[type=radio][id=transaction_type]:checked").val();
-                if (transaction_type == "Expense") {
-                  // If expense, change text colors to red, otherwise green/black
-                  $(".js-format-currency").css("color", "red");
-                  $("#transaction_type_container").addClass("bg-danger").removeClass("bg-success");
-                  $("#transaction_type_indicator").css( "background", "radial-gradient(ellipse at 50% 0%, hsla(0, 100%, 39%, 0.43) 70%, transparent 70%)" );
-                  $("body").css( "background", "linear-gradient(to bottom, hsla(0, 100%, 39%, 0.43) 0%,#ffd9d6 100%)" );
-                } else {
-                  $(".js-format-currency").css("color", "black");
-                  $("#transaction_type_container").addClass("bg-success").removeClass("bg-danger");
-                  $("#transaction_type_indicator").css( "background", "radial-gradient(ellipse at 50% 0%, hsla(115, 100%, 37%, 0.26) 70%, transparent 70%)" );
-                  $("body").css( "background", "linear-gradient(to bottom, hsla(115, 100%, 37%, 0.26) 0%,#d6ffdc 100%)" );
-                }
-            });
-            
-            // CATEGORY TYPE AUTO-SELECT
-            $("#payee, #amount_total_numeric_format").on("keyup change paste", function(e){ 
-                var total_amount = $("#amount_total_numeric_format").val();
+        <script>
+    
+            $(document).ready(function(){
                 
-                // PAYEE
-                switch( $("#payee").val() ) {
+                // Get transaction list and load to table; 
+                
+                // USING THE SHEETDB METHOD.
+                //    Will likely uste the SheetDB method instead since it supports enough requests for personal use and is much easier to use.  
+                //    Using the Google API method below just to test an option that doesn't depend on a 3rd party such as SheetDB.
+                $.getJSON('https://sheetdb.io/api/v1/n09q5n4vvki5y', function(data) {
+                  // JSON result in `data` variable
+                  console.log(data)
+                });
+                
+                // USING THE GOOGLE API METHOD.
+                //    source: https://www.sitepoint.com/google-sheets-api-v4-integration-guide/
+                //    source: https://chriszarate.github.io/sheetrock/#usage
+                var mySpreadsheet = 'https://docs.google.com/spreadsheets/d/1nl1hJd9mAbw4TFrErvpPvWiccrBesnnAtTl7JffK6B0/edit#gid=0';
+                $('#transaction_table').sheetrock({
+                  url: mySpreadsheet,
+                  query: "SELECT A,B,C,D,E,F,G WHERE C = 'Expense' ORDER BY B DESC",
+                }).on('sheetrock:loaded', function () {
+                  $(this).DataTable();
+                });
+                
+                
+                
                   
-                  case "Shoprite":
-                    $("#category_1").val('Groceries');
-                    $("#payment_type").val('Debit: Groceries');
-                    break;
-                  case "Wawa":
-                    if(total_amount >= 20) {
-                      $("#category_1").val("Gasoline");
-                    } else if(total_amount > 0 && total_amount < 20) {
-                      $("#category_1").val("Snacks/Coffee");
-                    } else {
-                      $("#category_1").val("");
-                    }
-                    break;
-                  default:
-                    $("#category_1").val("");
-                    $("#payment_type").val('Debit: Pay');
-                    
-                }
-                
-                $(".selectpicker").selectpicker('refresh')
-            });
-
-            // SPLIT TRANSACTION
-            $("#split").click(function(){
-                $("#split_amounts").toggle();
-                if($(this).prop('checked')==false) {
-                    $(this).val("N");
-                    $("#amount_2, #amount_3").val('');
-                    $("#category_2, #category_3").val('');
-                } else {
-                    $(this).val("Y");
-                }
-            });
-
-            // AMOUNTS AND SPLIT TRANSACTION EVENT CHANGES
-            $("#amount_1, #amount_2, #amount_3, #split").on("keyup input change paste click touchend", function(e){         // "input change click touchend" = all added for iOS "keyup" support
-                var amount_1_number = parseFloat( $("#amount_1").val() == "" ? 0.00 : cleanNumber($("#amount_1").val()) );  // cleanNumber is a custom function which removes the commas from numbers
-                var amount_2_number = parseFloat( $("#amount_2").val() == "" ? 0.00 : cleanNumber($("#amount_2").val()) );
-                var amount_3_number = parseFloat( $("#amount_3").val() == "" ? 0.00 : cleanNumber($("#amount_3").val()) );
-                
-                // First, set the hidden numeric box first; value here is used for rules in other controls
-                var amount_total_formatted = parseFloat(amount_1_number + amount_2_number + amount_3_number).toFixed(2)
-                $("#amount_total_numeric_format").val( amount_total_formatted ).trigger("input"); // Need to trigger input so that the CATEGORY TYPE AUTO-SELECT event above will detect the change.
-                // Then, set the visible, formatted label for the end user to view
-                amount_total_formatted = Number(amount_total_formatted).toLocaleString('en-US', {minimumFractionDigits: 2}); // add commas to the display number
-                $("#amount_total_view_only").text( "Total:  $" + amount_total_formatted );
-            });
-
-            // CLEARED
-            $("#cleared").click(function(){
-                if($(this).prop('checked')==false){
-                    $(this).val("N");
-                } else {
-                    $(this).val("Y");
-                }
-            });
-            
-            // ---------------------------------------------------------------------------------------------------
-
-
-            // ---------------------------------------------------------------------------------------
-            // FORM SUBMISSION
-            // ---------------------------------------------------------------------------------------
-            form.addEventListener("submit", e => {
-                
-                // Will prevent the form submission from continuing if a "return false" is present
-                e.preventDefault();
-                
-                // VALIDATIONS START ----------------------------------------------------
-                var total_amount = $("#amount_total_numeric_format").val();
-                if(total_amount == "" || total_amount == 0){
-                  alert("You haven't entered in a transaction amount.");
-                  return false;
-                }
-                // VALIDATIONS END ----------------------------------------------------
-                
-                
-                // Show loading spinner
-                $('#overlay').fadeIn();
-                
-                transaction_type = $("input[type=radio][id=transaction_type]:checked").val();
-                amount_1 = $("#amount_1").val();
-                amount_2 = $("#amount_2").val();
-                amount_3 = $("#amount_3").val();
-                
-                if (transaction_type == "Expense") {
-                    // If expense, convert amounts to negative numbers
-                    if(amount_1 !="") { $("#amount_1").val(-amount_1) };
-                    if(amount_2 !="") { $("#amount_2").val(-amount_2) };
-                    if(amount_3 !="") { $("#amount_3").val(-amount_3) };
-                } 
-                e.preventDefault();
-                fetch(form.action, {
-                    method : "POST",
-                    body: new FormData(document.getElementById("form_transaction")),
-                }).then(
-                    response => response.json()
-                ).then((html) => {
-                    // Reset the form 
-                    $("#form_transaction").trigger("reset");
-                    $("#split").prop("checked", false)
-                    $("#split_amounts").hide();
-
-                    // Set page defaults
-                    transactionFormDefaults();
-                    
-                    // Hide loading spinner
-                    $('#overlay').fadeOut();
-
-                    // Display confirmation
-                    $("#pop_up_dialog").modal("toggle");
+                // TEST BUTTON FOR DEVELOPMENT PURPOSES ONLY
+                $("#test_btn").click(function(){
+                  //alert("testing");
+                  
+                  // $.getJSON('https://sheetdb.io/api/v1/n09q5n4vvki5y', function(data) {
+                  //       // JSON result in `data` variable
+                  //       console.log(data)
+                  //   });
+                  
                 });
+    
+    
+                // FORM variable
+                var form = document.getElementById("form_transaction");
+    
+    
+                // ---------------------------------------------------------------------------------------------------
+                // SPECIAL FUNCTIONS 
+                // ---------------------------------------------------------------------------------------------------
+    
+                // Currency Input Visualizer
+                var inputs = document.getElementsByClassName("js-format-currency");
+                for (var i = 0; i < inputs.length; i++) {
+                    inputs[i].addEventListener('input', function (e) {
+                        var input = e.target.value.replace(/[^0-9]/g, '');                                  // Remove non-digits
+                        var formatted = parseFloat(input / 100).toFixed(2);                                 // Divide by 100 and fix to 2 decimal places
+                        formatted = Number(formatted).toLocaleString('en-US', {minimumFractionDigits: 2});  // Add commas
+                        e.target.value = formatted;
+                    });
+                }
+                // Remove any commas from number, for number to be valid for calculations
+                function cleanNumber(str) {
+                    return parseFloat(str.replaceAll(',', ''));
+                };
+    
+                // Datepicker, popup calendar for the form
+                $(".form_date").datepicker({
+                    weekStart: 0,
+                    todayBtn: 1,
+                    autoclose: 1,
+                    todayHighlight: 1,
+                    startView: 0,
+                    minView: 2,
+                    daysOfWeekHighlighted: [0, 6],
+                    disableTouchKeyboard: true,
+                    forceParse: 0
+                });
+    
+                // ---------------------------------------------------------------------------------------------------
+    
+    
+                // ---------------------------------------------------------------------------------------------------
+                // STARTUP DEFAULTS
+                // ---------------------------------------------------------------------------------------------------
+    
+                function transactionFormDefaults() {
+                  
+                    // Initialize all select pickers
+                    $(".selectpicker").selectpicker();
+    
+                    // Set the currency input AND the expense/income selector colors
+                    $(".js-format-currency").css("color", "red");
+    
+                    // TRANSACTION ID auto-populate
+                    $("#transaction_id").val( moment().format('YYYYMMDDHHmmssSSS') );
+    
+                    // TRANSACTION DATE auto-populate
+                    $('#transaction_date').attr("value", moment().format('YYYY-MM-DD') );
+    
+                    // TRANSACTION TOTAL label & hidden number box
+                    $("#amount_total_view_only").text( "Total:  $0.00" );
+                    $("#amount_total_numeric_format").val(0.00);
+    
+                    // Set focus on first transaction amount input
+                    document.getElementById("payee").focus();
+                };
+    
+                // ---------------------------------------------------------------------------------------------------
+    
+    
+                // START UP THE PAGE
+                transactionFormDefaults();
+    
+                
+                // ---------------------------------------------------------------------------------------------------
+                // CONTROLS EVENT HANDLERS
+                // ---------------------------------------------------------------------------------------------------
+                
+                // TRANSACTION TYPE
+                $("input[type=radio][id=transaction_type]").change(function(){               // "input change click touchend" = all added for iOS "keyup" support
+                    var transaction_type = $("input[type=radio][id=transaction_type]:checked").val();
+                    if (transaction_type == "Expense") {
+                      // If expense, change text colors to red, otherwise green/black
+                      $(".js-format-currency").css("color", "red");
+                      $("#transaction_type_container").addClass("bg-danger").removeClass("bg-success");
+                      $("#transaction_type_indicator").css( "background", "radial-gradient(ellipse at 50% 0%, hsla(0, 100%, 39%, 0.43) 70%, transparent 70%)" );
+                      $("body").css( "background", "linear-gradient(to bottom, hsla(0, 100%, 39%, 0.43) 0%,#ffd9d6 100%)" );
+                    } else {
+                      $(".js-format-currency").css("color", "black");
+                      $("#transaction_type_container").addClass("bg-success").removeClass("bg-danger");
+                      $("#transaction_type_indicator").css( "background", "radial-gradient(ellipse at 50% 0%, hsla(115, 100%, 37%, 0.26) 70%, transparent 70%)" );
+                      $("body").css( "background", "linear-gradient(to bottom, hsla(115, 100%, 37%, 0.26) 0%,#d6ffdc 100%)" );
+                    }
+                });
+                
+                // CATEGORY TYPE AUTO-SELECT
+                $("#payee, #amount_total_numeric_format").on("keyup change paste", function(e){ 
+                    var total_amount = $("#amount_total_numeric_format").val();
+                    
+                    // PAYEE
+                    switch( $("#payee").val() ) {
+                      
+                      case "Shoprite":
+                        $("#category_1").val('Groceries');
+                        $("#payment_type").val('Debit: Groceries');
+                        break;
+                      case "Wawa":
+                        if(total_amount >= 20) {
+                          $("#category_1").val("Gasoline");
+                        } else if(total_amount > 0 && total_amount < 20) {
+                          $("#category_1").val("Snacks/Coffee");
+                        } else {
+                          $("#category_1").val("");
+                        }
+                        break;
+                      default:
+                        $("#category_1").val("");
+                        $("#payment_type").val('Debit: Pay');
+                        
+                    }
+                    
+                    $(".selectpicker").selectpicker('refresh')
+                });
+    
+                // SPLIT TRANSACTION
+                $("#split").click(function(){
+                    $("#split_amounts").toggle();
+                    if($(this).prop('checked')==false) {
+                        $(this).val("N");
+                        $("#amount_2, #amount_3").val('');
+                        $("#category_2, #category_3").val('');
+                    } else {
+                        $(this).val("Y");
+                    }
+                });
+    
+                // AMOUNTS AND SPLIT TRANSACTION EVENT CHANGES
+                $("#amount_1, #amount_2, #amount_3, #split").on("keyup input change paste click touchend", function(e){         // "input change click touchend" = all added for iOS "keyup" support
+                    var amount_1_number = parseFloat( $("#amount_1").val() == "" ? 0.00 : cleanNumber($("#amount_1").val()) );  // cleanNumber is a custom function which removes the commas from numbers
+                    var amount_2_number = parseFloat( $("#amount_2").val() == "" ? 0.00 : cleanNumber($("#amount_2").val()) );
+                    var amount_3_number = parseFloat( $("#amount_3").val() == "" ? 0.00 : cleanNumber($("#amount_3").val()) );
+                    
+                    // First, set the hidden numeric box first; value here is used for rules in other controls
+                    var amount_total_formatted = parseFloat(amount_1_number + amount_2_number + amount_3_number).toFixed(2)
+                    $("#amount_total_numeric_format").val( amount_total_formatted ).trigger("input"); // Need to trigger input so that the CATEGORY TYPE AUTO-SELECT event above will detect the change.
+                    // Then, set the visible, formatted label for the end user to view
+                    amount_total_formatted = Number(amount_total_formatted).toLocaleString('en-US', {minimumFractionDigits: 2}); // add commas to the display number
+                    $("#amount_total_view_only").text( "Total:  $" + amount_total_formatted );
+                });
+    
+                // CLEARED
+                $("#cleared").click(function(){
+                    if($(this).prop('checked')==false){
+                        $(this).val("N");
+                    } else {
+                        $(this).val("Y");
+                    }
+                });
+                
+                // ---------------------------------------------------------------------------------------------------
+    
+    
+                // ---------------------------------------------------------------------------------------
+                // FORM SUBMISSION
+                // ---------------------------------------------------------------------------------------
+                form.addEventListener("submit", e => {
+                    
+                    // Will prevent the form submission from continuing if a "return false" is present
+                    e.preventDefault();
+                    
+                    // VALIDATIONS START ----------------------------------------------------
+                    var total_amount = $("#amount_total_numeric_format").val();
+                    if(total_amount == "" || total_amount == 0){
+                      alert("You haven't entered in a transaction amount.");
+                      return false;
+                    }
+                    // VALIDATIONS END ----------------------------------------------------
+                    
+                    
+                    // Show loading spinner
+                    $('#overlay').fadeIn();
+                    
+                    transaction_type = $("input[type=radio][id=transaction_type]:checked").val();
+                    amount_1 = $("#amount_1").val();
+                    amount_2 = $("#amount_2").val();
+                    amount_3 = $("#amount_3").val();
+                    
+                    if (transaction_type == "Expense") {
+                        // If expense, convert amounts to negative numbers
+                        if(amount_1 !="") { $("#amount_1").val(-amount_1) };
+                        if(amount_2 !="") { $("#amount_2").val(-amount_2) };
+                        if(amount_3 !="") { $("#amount_3").val(-amount_3) };
+                    } 
+                    e.preventDefault();
+                    fetch(form.action, {
+                        method : "POST",
+                        body: new FormData(document.getElementById("form_transaction")),
+                    }).then(
+                        response => response.json()
+                    ).then((html) => {
+                        // Reset the form 
+                        $("#form_transaction").trigger("reset");
+                        $("#split").prop("checked", false)
+                        $("#split_amounts").hide();
+    
+                        // Set page defaults
+                        transactionFormDefaults();
+                        
+                        // Hide loading spinner
+                        $('#overlay').fadeOut();
+    
+                        // Display confirmation
+                        $("#pop_up_dialog").modal("toggle");
+                    });
+                });
+                
+                
+                
+                $("#btn_add_transaction").click(function(){
+                  //$("#container_form_transaction").slideDown("slow");
+                  $("#form_transaction").show("slide", { direction: "down" }, 500);
+                  //.show( 'slide', {direction: 'up'} );
+                });
+                $("#btn_cancel_transaction").click(function(){
+                  //$("#container_form_transaction").slideUp("slow");
+                  $("#form_transaction").hide("slide", { direction: "down" }, 500);
+                });
+    
             });
-            
-            
-            
-            $("#btn_add_transaction").click(function(){
-              //$("#container_form_transaction").slideDown("slow");
-              $("#form_transaction").show("slide", { direction: "down" }, 500);
-              //.show( 'slide', {direction: 'up'} );
-            });
-            $("#btn_cancel_transaction").click(function(){
-              //$("#container_form_transaction").slideUp("slow");
-              $("#form_transaction").hide("slide", { direction: "down" }, 500);
-            });
-
-        });
-
-    </script>
-  </html>
+    
+        </script>
+    </body>
+</html>
