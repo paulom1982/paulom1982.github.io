@@ -704,9 +704,8 @@
                   var table = new Tabulator("#transaction_table", {
                     height:305, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
                     data:myDataJson, //assign data to table
-                    layout:"fitColumns", //fit columns to width of table (optional)
+                    //layout:"fitColumns", //fit columns to width of table (optional)
                     columns:[ //Define Table Columns
-                      {title:"Transaction ID", field:"Transaction_ID"},
                       {title:"Transaction Date", field:"Transaction_Date", sorter:"date", hozAlign:"center"},
                       {title:"Payee", field:"Payee"},
                       {title:"Category", field:"Category_1"},
