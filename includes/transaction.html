@@ -1,0 +1,305 @@
+<!-- FORM:  TRANSACTION ENTRY -->
+<form id="form_transaction" action="https://sheetdb.io/api/v1/n09q5n4vvki5y" method="post" style="display:none;padding-top:35px;padding-bottom:80px;">
+                
+    <div class="fixed-top" id="form_navigation_bar">
+    <div class="text-center center-block bg-dark" style="position:relative;padding-top:5px;height:40px;color:white;font-size:1.2em;">Add Transaction</div>
+    <button type="button" class="btn btn-lg btn-link" style="position:absolute;top:0;padding-top:3px;margin-left:10px;" id="btn_cancel_transaction">Cancel</button>
+    <!--<button type="button" class="btn btn-primary btn-lg float-left" id="test_btn">SHOW</button>-->
+    </div>
+    
+    <div class="container" id="form_body" style="padding-top:10px;">
+
+        <!-- TRANSACTION ID -->
+        <div class="form-group" style="display:none">
+            <label for="transaction_id">Transaction ID:</label>
+            <input class="form-control" id="transaction_id" name="data[Transaction_ID]" type="text" value="" readonly>
+        </div>
+
+        <!-- TRANSACTION TYPE -->
+        <div class="form-group text-center bg-danger" id="transaction_type_container" style="padding-top:15px;padding-bottom:10px;border-radius: 4px;">
+            <label class="radio-inline" style="color:white;font-weight:bold;padding:0px 5px;"><input type="radio" id="transaction_type" name="data[Transaction_Type]" value="Expense" checked> Expense</label>
+            <label class="radio-inline" style="color:white;font-weight:bold;padding:0px 5px;"><input type="radio" id="transaction_type" name="data[Transaction_Type]" value="Income"> Income</label>
+        </div>
+        
+        <!-- PAYEE -->
+        <div class="card card-body">
+            <div class="form-group">
+                <label class="custom-label" for="payee" style="color:white"><i class="fa fa-exchange-alt custom-fa"></i> Payee:</label>
+                <div class="input-group">
+                    <select class="selectpicker form-control custom-select" id="payee" name="data[Payee]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
+                        <option disabled selected value></option>
+                        <option value="Shoprite">Shoprite</option>
+                        <option value="Amazon">Amazon</option>
+                        <option value="Target">Target</option>
+                        <option value="Walmart">Walmart</option>
+                        <option value="Aldi">Aldi</option>
+                        <option value="CVS">CVS</option>
+                        <option value="Wawa">Wawa</option>
+                        <option value="Starbucks">Starbucks</option>
+                        <option value="Sandra Salon">Sandra Salon</option>
+                        <option value="Dunkin Donuts">Dunkin Donuts</option>
+                        <option value="Home Depot">Home Depot</option>
+                        <option value="Lowes">Lowes</option>
+                        <option value="Bed Bath Beyond">Bed Bath Beyond</option>
+                        <option value="Staples">Staples</option>
+                        <option value="Subs Galore">Subs Galore</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+        <br>
+        <!-- TRANSACTION AMOUNTS -->
+        <div class="card card-body">
+
+            <!-- AMOUNT 1 -->
+            <div class="form-group">
+
+                <label class="custom-label" for="amount_1"><i class="fa fa-dollar-sign custom-fa"></i> Amount:</label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">$</span>
+                    </div>
+                    <input class="form-control js-format-currency" type="text" inputmode="numeric" id="amount_1" name="data[Category_1_Amount]" style="font-weight:bold;" value="" placeholder="0.00" >
+                </div>
+
+                <label class="custom-label" for="category_1"><i class="fa fa-tag custom-fa"></i> Category:</label>
+                <div class="input-group">
+                    <select class="selectpicker form-control custom-select" id="category_1" name="data[Category_1]" data-live-search="true" title="Select a Category" data-size="7" style="width: 125%">
+                        <!-- <option disabled selected value></option> -->
+                        <optgroup label="Automotive">
+                            <option value="DMV Fees">DMV Fees</option>
+                            <option value="Gasoline">Gasoline</option>
+                            <option value="General Maintenance">General Maintenance</option>
+                            <option value="Repairs">Repairs</option>
+                            <option value="Tolls">Tolls</option>
+                        </optgroup>
+                        <optgroup label="Clothing">
+                            <option value="Clothing">Clothing</option>
+                        </optgroup>
+                        <optgroup label="Discretionary">
+                            <option value="Date Night">Date Night</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Grooming">Grooming</option>
+                            <option value="Home Decor">Home Decor</option>
+                            <option value="Miscellaneous">Miscellaneous</option>
+                        </optgroup>
+                        <optgroup label="Food">
+                            <option value="Dining">Dining</option>
+                            <option value="Fast Food">Fast Food</option>
+                            <option value="Groceries" data-subtext="$25.00">Groceries</option>
+                            <option value="Snacks/Coffee">Snacks/Coffee</option>
+                        </optgroup>
+                        <optgroup label="Gifts">
+                            <option value="Birthday">Birthday</option>
+                            <option value="Events">Events</option>
+                            <option value="Spontaneous">Spontaneous</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+            </div>
+
+                
+            <!-- SPLIT CHECKBOX -->
+            <div class="form-group">
+                <div class="custom-control custom-switch custom-switch-md custom-label">
+                    <input class="custom-control-input" type="checkbox" id="split" name="data[Split]" value="N">
+                    <label class="custom-control-label" for="split">Split</label>
+                </div>
+            </div>
+            
+            <!-- SPLIT AMOUNTS -->
+            <div style="display: none;" id="split_amounts">
+                <!-- AMOUNT 2 -->
+                <div class="form-group">
+
+                    <label class="custom-label" for="amount_2"><i class="fa fa-dollar-sign custom-fa"></i> Amount:</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">$</span>
+                        </div>
+                        <input class="form-control js-format-currency" type="text" inputmode="numeric" id="amount_2" name="data[Category_2_Amount]" style="font-weight:bold;" value="" placeholder="0.00">
+                    </div>
+
+                    <label class="custom-label" for="category_2"><i class="fa fa-tag custom-fa"></i> Category:</label>
+                    <div class="input-group">
+                        <select class="selectpicker form-control custom-select" id="category_2" name="data[Category_2]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
+                            <!-- <option disabled selected value></option> -->
+                            <optgroup label="Automotive">
+                                <option value="DMV Fees">DMV Fees</option>
+                                <option value="Gasoline">Gasoline</option>
+                                <option value="General Maintenance">General Maintenance</option>
+                                <option value="Repairs">Repairs</option>
+                                <option value="Tolls">Tolls</option>
+                            </optgroup>
+                            <optgroup label="Clothing">
+                                <option value="Clothing">Clothing</option>
+                            </optgroup>
+                            <optgroup label="Discretionary">
+                                <option value="Date Night">Date Night</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Grooming">Grooming</option>
+                                <option value="Home Decor">Home Decor</option>
+                                <option value="Miscellaneous">Miscellaneous</option>
+                            </optgroup>
+                            <optgroup label="Food">
+                                <option value="Dining">Dining</option>
+                                <option value="Fast Food">Fast Food</option>
+                                <option value="Groceries">Groceries</option>
+                                <option value="Snacks">Snacks</option>
+                            </optgroup>
+                            <optgroup label="Gifts">
+                                <option value="Birthday">Birthday</option>
+                                <option value="Events">Events</option>
+                                <option value="Spontaneous">Spontaneous</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                </div>
+
+                <!-- AMOUNT 3 -->
+                <div class="form-group">
+
+                    <label class="custom-label" for="amount_3"><i class="fa fa-dollar-sign custom-fa"></i> Amount:</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">$</span>
+                        </div>
+                        <input class="form-control js-format-currency" type="text" inputmode="numeric" id="amount_3" name="data[Category_3_Amount]" style="font-weight:bold;" value="" placeholder="0.00">
+                    </div>
+
+                    <label class="custom-label" for="category_3"><i class="fa fa-tag custom-fa"></i> Category:</label>
+                    <div class="input-group">
+                        <select class="selectpicker form-control custom-select" id="category_3" name="data[Category_3]" data-live-search="true" title="Select a Category" data-size="7" style="width: 100%">
+                            <!-- <option disabled selected value></option> -->
+                            <optgroup label="Automotive">
+                                <option value="DMV Fees">DMV Fees</option>
+                                <option value="Gasoline">Gasoline</option>
+                                <option value="General Maintenance">General Maintenance</option>
+                                <option value="Repairs">Repairs</option>
+                                <option value="Tolls">Tolls</option>
+                            </optgroup>
+                            <optgroup label="Clothing">
+                                <option value="Clothing">Clothing</option>
+                            </optgroup>
+                            <optgroup label="Discretionary">
+                                <option value="Date Night">Date Night</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Grooming">Grooming</option>
+                                <option value="Home Decor">Home Decor</option>
+                                <option value="Miscellaneous">Miscellaneous</option>
+                            </optgroup>
+                            <optgroup label="Food">
+                                <option value="Dining">Dining</option>
+                                <option value="Fast Food">Fast Food</option>
+                                <option value="Groceries">Groceries</option>
+                                <option value="Snacks">Snacks</option>
+                            </optgroup>
+                            <optgroup label="Gifts">
+                                <option value="Birthday">Birthday</option>
+                                <option value="Events">Events</option>
+                                <option value="Spontaneous">Spontaneous</option>
+                            </optgroup>
+                        </select>
+                    </div>           
+
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- AMOUNTS TOTAL -->
+        <div class="text-center" style="padding-top:5px;font-weight:bold;font-style:italic;font-size:1.5em;">
+            <span class="js-format-currency" id="amount_total_view_only">Total:  $0.00</span>
+            <input type="hidden" class="form-control" id="amount_total_numeric_format" value=0.00 />
+        </div>
+
+        <br>
+        <!-- OTHER TRANSACTION DETAILS -->
+        <div class="card card-body">
+            <!-- TRANSACTION DATE -->
+            <div class="form-group">
+                <label class="custom-label" for="transaction_date"><i class="fa fa-calendar-alt custom-fa"></i> Transaction Date:</label>
+                <div class="input-group date form_date" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input1" data-link-format="DD, MM dd yyyy" data-date-end-date="0d">
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                    <input class="form-control" id="transaction_date" name="data[Transaction_Date]" size="16" type="text" placeholder="Transaction Date" value="" readonly>
+                </div>
+                <input type="hidden" id="dtp_input1" value="" />
+            </div>
+        
+            <!-- ACCOUNT -->
+            <div class="form-group" style="display:none;">
+            <br>
+                <label class="custom-label" for="account"><i class="fa fa-university custom-fa"></i> Account:</label>
+                <div class="input-group">
+                    <select class="selectpicker form-control custom-select" id="account" name="data[Account]" data-live-search="true" title="Select an Account" data-size="7" style="width: 100%">
+                        <option selected value="Paycheck">Paycheck</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- PAYMENT TYPE -->
+            <div class="form-group">
+                <label class="custom-label" for="payment_type"><i class="fa fa-wallet custom-fa"></i> Payment Type:</label>
+                <div class="input-group">
+                    <select class="selectpicker form-control custom-select" id="payment_type" name="data[Payment_Type]" data-live-search="true" title="Select a Payment Type" data-size="7" style="width: 100%">
+                        <!-- <option disabled selected value></option> -->
+                        <optgroup label="Debit/Cash">
+                            <option selected value="Debit: Pay">Pay Debit</option>
+                            <option value="Debit: Groceries">Groceries Debit</option>
+                            <option value="Cash">Cash</option>
+                        </optgroup>
+                        <optgroup label="Credit Card">
+                            <option value="CC: Discover">Discover CC</option>
+                            <option value="CC: Visa Amazon">Visa (Amazon) CC</option>
+                            <option value="CC: Apple">Apple CC</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- FLAGS -->
+            <div class="form-group">
+                <label class="custom-label" for="flag"><i class="fa fa-flag custom-fa"></i> Flag:</label>
+                <div class="input-group">
+                    <select class="selectpicker form-control custom-select" id="flag" name="data[Flag]" data-live-search="true" title="Select a Flag" data-size="7" style="width: 100%">
+                        <option data-icon="fa fa-flag red" value="Red"> Red</option>
+                        <option data-icon="fa fa-flag yellow" value="Transfer">Transfer</option>
+                        <option data-icon="fa fa-flag orange" value="Yearly Charge">Yearly Charge</option>
+                        <option data-icon="fa fa-flag blue" value="Recurring Charge">Recurring Charge</option>
+                        <option data-icon="fa fa-flag purple" value="Grocery Transfer">Grocery Transfer</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- MEMO -->
+            <div class="form-group">
+                <label class="custom-label" for="memo"><i class="fa fa-wallet custom-fa"></i> Memo: <small class="text-muted">(max 100 characters)</small></label>
+                <div class="input-group">
+                    <textarea class="form-control" id="memo" name="data[Memo]" rows="1" maxlength="100"></textarea>
+                </div>
+            </div>
+            
+
+            <!-- CLEARED -->
+            <div class="form-group">
+                <div class="custom-control custom-switch custom-switch-md">
+                    <input class="custom-control-input" type="checkbox" id="cleared" name="data[Cleared]" value="Y" checked>
+                    <label class="custom-control-label custom-label" for="cleared">Cleared</label>
+                </div>
+            </div> 
+            
+        </div>
+        
+        <br><br>
+        <!-- SUBMIT BUTTON -->
+        <!-- <input class="btn btn-info btn-lg text-center" type="submit" value="Save Transaction" style="position: fixed; bottom: 100px; left: 50%; margin: auto;"> -->
+        <input class="btn btn-primary btn-lg text-center fixed-bottom mobile-adjust" type="submit" value="Save Transaction" id="btn_submit_new_transaction" style="z-index:1">
+
+    </div>
+
+</form>
