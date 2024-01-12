@@ -32,6 +32,8 @@ function transactionFormDefaults() {
 
     // Set focus on first transaction amount input
     document.getElementById("payee").focus();
+
+    console.log("form reset");
     
 };
 
