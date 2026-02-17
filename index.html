@@ -287,7 +287,7 @@ function processDashboard() {
         const cardMatch = $('#filter-card').val() ? d.Card_Type === $('#filter-card').val() : true;
         const catMatch = $('#filter-category').val() ? d.Category === $('#filter-category').val() : true;
         const payMatch = $('#filter-payee').val() ? d.Payee === $('#filter-payee').val() : true;
-        const revMatch = $('#filter-review').val() ? String(d.Needs_Review).toUpperCase() === $('#filter-review').val() : true;
+        const revMatch = $('#filter-review').val() ? d.Needs_Review === $('#filter-review').val() : true;
 
         return timeMatch && cardMatch && catMatch && payMatch && revMatch;
     });
