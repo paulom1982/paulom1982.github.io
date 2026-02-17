@@ -310,16 +310,20 @@ function processDashboard() {
 
         // Static Filters
         const cardMatch = $('#filter-card').val() ? d.Card_Type === $('#filter-card').val() : true;
-        const catMatch = $('#filter-category').val() ? d.Category === $('#filter-category').val() : true;
-        const payMatch = $('#filter-payee').val() ? d.Payee === $('#filter-payee').val() : true;
-        const revMatch = $('#filter-review').val() ? String(d.Needs_Review).toUpperCase() === $('#filter-review').val() : true;
+        const categoryMatch = $('#filter-category').val() ? d.Category === $('#filter-category').val() : true;
+        const payeeMatch = $('#filter-payee').val() ? d.Payee === $('#filter-payee').val() : true;
+        
+		// Filter Logic
+		const reviewMatch = $('#filter-review').val() === "" ? true :
+						 ($('#filter-review').val() === "TRUE" ? (d.Needs_Review && String(d.Needs_Review).trim() !== "") : 
+						 (!d.Needs_Review || String(d.Needs_Review).trim() === ""));
 
-        return timeMatch && cardMatch && catMatch && payMatch && revMatch;
+        return timeMatch && cardMatch && categoryMatch && payeeMatch && reviewMatch;
     });
 
     // 3. Update Executive Metrics
     // Calculate Review Backlog (always from rawData)
-    const pendingReview = rawData.filter(d => String(d.Needs_Review).toUpperCase() === 'TRUE').length;
+    const pendingReview = rawData.filter(d => d.Needs_Review && String(d.Needs_Review).trim() !== "").length;
     $('#review-count').text(pendingReview).toggleClass('alert-text', pendingReview > 0);
 
     // Calculate Net/Expense based on current system month/year for the summary cards
@@ -361,8 +365,9 @@ function renderTable(data) {
     data.forEach(row => {
         const isInc = row.Transaction_Type.toLowerCase() === 'income';
         const dateStr = new Date(row.Transaction_Date + "T00:00:00").toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
-        const needsReview = String(row.Needs_Review).toUpperCase() === 'TRUE';
-        
+        const needsReview = (row.Needs_Review && String(row.Needs_Review).trim() !== "");
+		
+
         tbody.append(`
             <tr>
                 <td class="mono">${dateStr}</td>
@@ -371,7 +376,7 @@ function renderTable(data) {
                 <td class="mono ${isInc ? 'income-text' : ''}">${isInc ? '' : '-'}$${row.Transaction_Amount.toLocaleString()}</td>
                 <td style="color:var(--text-dim)">${row.Card_Type || 'N/A'}</td>
                 <td style="font-size:0.7rem; opacity:0.7;">${row.Transaction_Type}</td>
-                <td>${needsReview ? '<span class="review-badge">!</span>' : '—'}</td>
+                <td>${needsReview ? '<span class="review-badge" title="${row.Needs_Review}">!</span>' : '<span style="opacity:0.2">—</span>'}</td>
             </tr>
         `);
     });
