@@ -82,6 +82,52 @@
             outline: none;
             font-size: 0.9rem;
         }
+		
+		/* Table Styles */
+		.table-wrapper {
+			margin-top: 25px;
+			background: var(--card-bg);
+			border-radius: 12px;
+			border: 1px solid var(--border);
+			overflow-x: auto; /* Crucial for Mobile */
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 0.85rem;
+			text-align: left;
+		}
+
+		thead th {
+			position: sticky;
+			top: 0;
+			background: #2c2c2e;
+			padding: 12px 15px;
+			color: var(--text-dim);
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			cursor: pointer;
+			border-bottom: 1px solid var(--border);
+		}
+
+		thead th:hover {
+			color: var(--apple-blue);
+			background: #3a3a3c;
+		}
+
+		tbody td {
+			padding: 12px 15px;
+			border-bottom: 1px solid #2c2c2e;
+			white-space: nowrap;
+		}
+
+		tbody tr:hover {
+			background: rgba(255, 255, 255, 0.03);
+		}
+
+		.mono { font-family: 'JetBrains Mono', monospace; }
+		.sort-icon { font-size: 0.7rem; margin-left: 5px; opacity: 0.5; }
 
         /* Charts Section */
         .chart-grid {
@@ -154,6 +200,23 @@
             <canvas id="categoryChart"></canvas>
         </div>
     </div>
+	
+	<div class="table-wrapper">
+		<table id="transaction-table">
+			<thead>
+				<tr>
+					<th onclick="sortTable('Transaction_Date')">Date <span class="sort-icon">▼</span></th>
+					<th onclick="sortTable('Payee')">Payee</th>
+					<th onclick="sortTable('Category')">Category</th>
+					<th onclick="sortTable('Transaction_Amount')">Amount</th>
+					<th onclick="sortTable('Card_Type')">Card</th>
+					<th onclick="sortTable('Transaction_Type')">Type</th>
+				</tr>
+			</thead>
+			<tbody id="table-body">
+				</tbody>
+		</table>
+	</div>
 
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSO3dh28NbiDkFF4jTtjolPCg4oB3spD4fxw9jYOQiOFphOXOuMCpmsynBempzNXHor52pL_ZtanSz7/pub?gid=1564593237&single=true&output=csv";
@@ -225,7 +288,59 @@ function processDashboard() {
     else statusHtml = '<span class="status-light light-red"></span> OVER BUDGET';
     $('#status-indicator').html(statusHtml);
 
+	// Store filtered data for the table
+    currentFilteredData = filtered; 
+    // Sort by default date (descending)
+    currentFilteredData.sort((a, b) => new Date(b.Transaction_Date) - new Date(a.Transaction_Date));
+    
+    renderTable(currentFilteredData);
     updateCharts(filtered.filter(d => d.Transaction_Type === selectedType));
+}
+
+function renderTable(data) {
+    const tbody = $('#table-body');
+    tbody.empty();
+
+    data.forEach(row => {
+        const amtClass = row.Transaction_Type === 'Income' ? 'income-text' : '';
+        const dateStr = new Date(row.Transaction_Date).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
+        
+        tbody.append(`
+            <tr>
+                <td class="mono">${dateStr}</td>
+                <td style="font-weight: 600;">${row.Payee || 'Unknown'}</td>
+                <td><span style="background:#3a3a3c; padding:2px 8px; border-radius:4px;">${row.Category}</span></td>
+                <td class="mono ${amtClass}">${row.Transaction_Type === 'Expense' ? '-' : ''}$${row.Transaction_Amount.toLocaleString()}</td>
+                <td style="color:var(--text-dim)">${row.Card_Type || 'N/A'}</td>
+                <td style="font-size: 0.7rem; opacity: 0.7;">${row.Transaction_Type}</td>
+            </tr>
+        `);
+    });
+}
+
+function sortTable(field) {
+    // Toggle direction
+    currentSort.direction = (currentSort.field === field && currentSort.direction === 'desc') ? 'asc' : 'desc';
+    currentSort.field = field;
+
+    currentFilteredData.sort((a, b) => {
+        let valA = a[field];
+        let valB = b[field];
+
+        // Handle Dates
+        if (field === 'Transaction_Date') {
+            valA = new Date(valA);
+            valB = new Date(valB);
+        }
+
+        if (currentSort.direction === 'asc') {
+            return valA > valB ? 1 : -1;
+        } else {
+            return valA < valB ? 1 : -1;
+        }
+    });
+
+    renderTable(currentFilteredData);
 }
 
 function updateCharts(data) {
