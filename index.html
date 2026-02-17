@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinanceOS Dashboard</title>
+    <title>MartinsBudget Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -104,6 +104,36 @@
             gap: 10px;
             border: 1px solid var(--border);
         }
+		
+		#reset-filters {
+			background: transparent;
+			border: 1px solid var(--border);
+			color: var(--text-dim);
+			padding: 8px 16px;
+			border-radius: 8px;
+			cursor: pointer;
+			font-size: 0.8rem;
+			font-weight: 600;
+			transition: all 0.2s ease;
+		}
+
+		#reset-filters:hover {
+			border-color: var(--apple-blue);
+			color: var(--apple-blue);
+			background: rgba(10, 132, 255, 0.05);
+		}
+
+		#reset-filters:active {
+			transform: scale(0.95);
+		}
+
+		/* Ensure the filter bar wraps nicely on mobile */
+		@media (max-width: 768px) {
+			#reset-filters {
+				width: 100%;
+				margin-left: 0 !important;
+			}
+		}
 
         select {
             background: #2c2c2e;
@@ -160,6 +190,17 @@
 
 		.mono { font-family: 'JetBrains Mono', monospace; }
 		.sort-icon { font-size: 0.7rem; margin-left: 5px; opacity: 0.5; }
+		
+		.review-badge {
+			background: #ff9f0a; /* Apple Orange */
+			color: #000;
+			font-weight: 800;
+			padding: 2px 6px;
+			border-radius: 4px;
+			font-size: 0.7rem;
+			display: inline-block;
+			box-shadow: 0 0 5px rgba(255, 159, 10, 0.4);
+		}
 
         /* Charts Section */
         .chart-grid {
@@ -183,13 +224,19 @@
 
         .income-text { color: var(--bloomberg-green); }
         .expense-text { color: var(--bloomberg-red); }
+		
+		.alert-text {
+			color: #ff9f0a; /* Apple Warning Orange */
+			text-shadow: 0 0 10px rgba(255, 159, 10, 0.3);
+			font-weight: 800;
+		}
     </style>
 </head>
 <body>
 
 	<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
 		<h1 style="margin: 0; font-size: 1.4rem; letter-spacing: -0.5px; font-weight: 600;">
-			Budget<span style="color: var(--apple-blue);">OS</span>
+			Martins<span style="color: var(--apple-blue);">Budget</span>
 		</h1>
 		<div style="display: flex; align-items: center; gap: 12px;">
 			<div id="sync-timestamp" class="mono" style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; text-align: right; line-height: 1.2;">
@@ -218,6 +265,10 @@
             <div class="metric-label">YTD Expense</div>
             <div class="metric-value expense-text" id="ytd-expense">$0.00</div>
         </div>
+		<div class="metric-card">
+			<div class="metric-label">Review Items</div>
+			<div class="metric-value" id="review-count">0</div>
+		</div>
         <div class="metric-card">
             <div class="metric-label">Toggle View</div>
             <select id="type-toggle" style="width:100%; margin-top:5px;">
@@ -238,6 +289,15 @@
             <option value="1m">This Month</option>
             <option value="1w">This Week</option>
         </select>
+		<select id="filter-review">
+			<option value="">All Statuses</option>
+			<option value="TRUE">Needs Review</option>
+			<option value="FALSE">Reviewed</option>
+		</select>
+		
+		<button id="reset-filters" style="margin-left: auto;">
+			Reset Filters
+		</button>
     </div>
 
     <div class="chart-grid">
@@ -261,6 +321,7 @@
 					<th onclick="sortTable('Transaction_Amount')">Amount</th>
 					<th onclick="sortTable('Card_Type')">Card</th>
 					<th onclick="sortTable('Transaction_Type')">Type</th>
+					<th onclick="sortTable('Needs_Review')">Review</th>
 				</tr>
 			</thead>
 			<tbody id="table-body">
@@ -275,6 +336,7 @@ let rawData = [];
 let trendChart, categoryChart;
 
 $(document).ready(function() {
+
     fetchData();
 	
 	// Manual Refresh Event
@@ -287,6 +349,21 @@ $(document).ready(function() {
             fetchData();
         }, 500);
     });
+	
+	$('#reset-filters').on('click', function() {
+		// Reset all dropdowns to first option (empty value)
+		$('#filter-card, #filter-category, #filter-payee, #filter-review').val('');
+		
+		// Reset time to a sensible default, e.g., 'all' or 'ytd'
+		$('#filter-time').val('all');
+		
+		// Reset the toggle to Expenses
+		$('#type-toggle').val('Expense');
+
+		// Re-process the dashboard
+		processDashboard();
+	});
+	
 });
 
 function fetchData() {
@@ -301,7 +378,7 @@ function fetchData() {
             const now = new Date();
             const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             const dateString = now.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
-            $('#sync-timestamp').html(`Last Sync: ${dateString} @ ${timeString}`);
+            $('#sync-timestamp').html('Last Sync: ${dateString} @ ${timeString}');
 			
             populateFilters();
             processDashboard();
@@ -316,8 +393,9 @@ function populateFilters() {
     const cards = [...new Set(rawData.map(item => item.Card_Type))];
     const categories = [...new Set(rawData.map(item => item.Category))];
     
-    cards.forEach(c => $('#filter-card').append(`<option value="${c}">${c}</option>`));
-    categories.forEach(c => $('#filter-category').append(`<option value="${c}">${c}</option>`));
+    cards.forEach(c => $('#filter-card').append('<option value="${c}">${c}</option>'));
+    categories.forEach(c => $('#filter-category').append('<option value="${c}">${c}</option>'));
+    payees.forEach(c => $('#filter-payee').append('<option value="${c}">${c}</option>'));
 }
 
 function processDashboard() {
@@ -327,29 +405,59 @@ function processDashboard() {
 
     // 1. Filter Data
     let filtered = rawData.filter(d => {
-        const dDate = new Date(d.Transaction_Date);
-        let timeMatch = true;
         
-        if(timeFilter === 'ytd') timeMatch = dDate.getFullYear() === today.getFullYear();
-        if(timeFilter === '1m') timeMatch = dDate.getMonth() === today.getMonth() && dDate.getFullYear() === today.getFullYear();
-        if(timeFilter === '1w') {
-            const weekAgo = new Date(); weekAgo.setDate(today.getDate() - 7);
-            timeMatch = dDate >= weekAgo;
+		// 1. Date filter
+        const dDate = new Date(d.Transaction_Date + "T00:00:00"); 
+        let timeMatch = true;
+
+        if (timeFilter === 'ytd') {
+            timeMatch = dDate.getFullYear() === today.getFullYear();
+        } 
+        else if (timeFilter === '6m') {
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(today.getMonth() - 6);
+            timeMatch = dDate >= sixMonthsAgo;
+        } 
+        else if (timeFilter === '1m') {
+            timeMatch = dDate.getMonth() === today.getMonth() && dDate.getFullYear() === today.getFullYear();
+        } 
+        else if (timeFilter === '1w') {
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(today.getDate() - 7);
+            timeMatch = dDate >= oneWeekAgo;
         }
 
+        // 2. Other Filters
         const cardMatch = $('#filter-card').val() ? d.Card_Type === $('#filter-card').val() : true;
         const catMatch = $('#filter-category').val() ? d.Category === $('#filter-category').val() : true;
+        const payeeMatch = $('#filter-payee').val() ? d.Payee === $('#filter-payee').val() : true;
+		const reviewMatch = $('#filter-review').val() ? String(d.Needs_Review).toUpperCase() === $('#filter-review').val() : true;
 
-        return timeMatch && cardMatch && catMatch;
+        return timeMatch && cardMatch && catMatch && payeeMatch && reviewMatch;
     });
+	
+	// 2. Calculate Review Backlog (Total from rawData, not just filtered)
+    const pendingReview = rawData.filter(d => 
+        d.Needs_Review === true || String(d.Needs_Review).toUpperCase() === 'TRUE'
+    ).length;
 
-    // 2. Executive Metrics Logic
+    const reviewEl = $('#review-count');
+    reviewEl.text(pendingReview);
+    
+    // Toggle alert color if count > 0
+    if (pendingReview > 0) {
+        reviewEl.addClass('alert-text');
+    } else {
+        reviewEl.removeClass('alert-text');
+    }
+
+    // 3. Executive Metrics Logic
     const income = rawData.filter(d => d.Transaction_Type === 'income').reduce((a, b) => a + b.Transaction_Amount, 0);
     const expense = rawData.filter(d => d.Transaction_Type === 'expense').reduce((a, b) => a + b.Transaction_Amount, 0);
     const net = income - expense;
 
-    $('#monthly-net').text(`$${net.toLocaleString()}`).toggleClass('income-text', net >= 0).toggleClass('expense-text', net < 0);
-    $('#ytd-expense').text(`$${expense.toLocaleString()}`);
+    $('#monthly-net').text('$${net.toLocaleString()}').toggleClass('income-text', net >= 0).toggleClass('expense-text', net < 0);
+    $('#ytd-expense').text('$${expense.toLocaleString()}');
 
     // Traffic Light Logic
     const ratio = expense / (income || 1);
@@ -376,7 +484,11 @@ function renderTable(data) {
         const amtClass = row.Transaction_Type === 'income' ? 'income-text' : '';
         const dateStr = new Date(row.Transaction_Date).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
         
-        tbody.append(`
+		// Check if Needs_Review is true, "TRUE", or a truthy string
+        const needsReview = (row.Needs_Review === true || String(row.Needs_Review).toUpperCase() === 'TRUE');
+        const reviewCell = needsReview ? '<span class="review-badge">!</span>' : '<span style="opacity:0.2">—</span>';
+		
+        tbody.append('
             <tr>
                 <td class="mono">${dateStr}</td>
                 <td style="font-weight: 600;">${row.Payee || 'Unknown'}</td>
@@ -384,8 +496,9 @@ function renderTable(data) {
                 <td class="mono ${amtClass}">${row.Transaction_Type === 'expense' ? '-' : ''}$${row.Transaction_Amount.toLocaleString()}</td>
                 <td style="color:var(--text-dim)">${row.Card_Type || 'N/A'}</td>
                 <td style="font-size: 0.7rem; opacity: 0.7;">${row.Transaction_Type}</td>
+				<td>${reviewCell}</td>
             </tr>
-        `);
+        ');
     });
 }
 
