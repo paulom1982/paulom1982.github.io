@@ -103,12 +103,10 @@
         tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
 
         .mono { font-family: 'JetBrains Mono', monospace; }
-        .review-badge { background: #ff9f0a; color: #000; font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
 
         .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 20px;}
         .chart-container { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); min-height: 300px; }
 
-        /* Payee Row Styles */
         .payee-row { margin-bottom: 12px; }
         .payee-info { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; }
         .payee-bar-bg { background: #2c2c2e; height: 6px; border-radius: 3px; overflow: hidden; }
@@ -118,69 +116,72 @@
         .income-text { color: var(--bloomberg-green); }
         .expense-text { color: var(--bloomberg-red); }
         .alert-text { color: #ff9f0a; text-shadow: 0 0 10px rgba(255, 159, 10, 0.3); font-weight: 800; }
-		
-		.review-badge { 
-			background: #ff9f0a; 
-			color: #000; 
-			font-weight: 800; 
-			padding: 2px 8px; 
-			border-radius: 4px; 
-			font-size: 0.7rem; 
-			cursor: pointer; 
-			transition: transform 0.1s ease;
-			display: inline-block;
-		}
-		.review-badge:hover { 
-			transform: scale(1.1); 
-			background: #ffb340; 
-		}
-		
-		/* Slide-down Notification Panel */
-		#review-toast {
-			position: fixed;
-			top: -100px; /* Start off-screen */
-			left: 50%;
-			transform: translateX(-50%);
-			background: rgba(44, 44, 46, 0.95);
-			backdrop-filter: blur(10px);
-			border: 1px solid var(--apple-blue);
-			border-radius: 12px;
-			padding: 16px 24px;
-			z-index: 9999;
-			box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-			transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-			min-width: 300px;
-			max-width: 80% ;
-			display: flex;
-			flex-direction: column;
-			gap: 8px;
-		}
+        
+        /* Interactive Review Badge */
+        .review-badge { 
+            background: #ff9f0a; 
+            color: #000; 
+            font-weight: 800; 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            font-size: 0.7rem; 
+            cursor: pointer; 
+            transition: transform 0.1s ease;
+            display: inline-block;
+        }
+        .review-badge:hover { 
+            transform: scale(1.1); 
+            background: #ffb340; 
+        }
+        
+        /* Slide-down Notification Panel */
+        #review-toast {
+            position: fixed;
+            top: -120px; 
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(44, 44, 46, 0.95);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--apple-blue);
+            border-radius: 12px;
+            padding: 18px 26px;
+            z-index: 9999;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            min-width: 320px;
+            max-width: 85%;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+        }
 
-		#review-toast.show { top: 20px; }
+        #review-toast.show { top: 25px; }
 
-		#review-toast .toast-header {
-			font-size: 0.7rem;
-			color: var(--apple-blue);
-			text-transform: uppercase;
-			letter-spacing: 1px;
-			font-weight: 800;
-		}
+        .toast-header {
+            font-size: 0.65rem;
+            color: var(--apple-blue);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 800;
+        }
 
-		#review-toast .toast-body {
-			font-size: 0.95rem;
-			color: var(--text-main);
-			line-height: 1.4;
-		}
-
+        .toast-body {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            line-height: 1.5;
+            font-weight: 400;
+        }
     </style>
 </head>
 <body>
 
-	<div id="review-toast" onclick="$(this).removeClass('show')">
-		<div class="toast-header">Review Note</div>
-		<div id="toast-content" class="toast-body"></div>
-		<div style="font-size: 0.6rem; color: var(--text-dim); margin-top: 4px;">Click to dismiss</div>
-	</div>
+    <div id="review-toast" onclick="$(this).removeClass('show')">
+        <div class="toast-header">Flagged Detail</div>
+        <div id="toast-content" class="toast-body"></div>
+        <div style="font-size: 0.6rem; color: var(--text-dim); margin-top: 4px; text-align: right; opacity: 0.6;">Tap to dismiss</div>
+    </div>
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
         <h1 style="margin: 0; font-size: 1.4rem; letter-spacing: -0.5px; font-weight: 600;">
@@ -271,7 +272,7 @@
                     <th onclick="sortTable('Transaction_Amount')">Amount</th>
                     <th onclick="sortTable('Card_Type')">Card</th>
                     <th onclick="sortTable('Transaction_Type')">Type</th>
-                    <th onclick="sortTable('Needs_Review')">Review</th>
+                    <th style="text-align:center;">Review</th>
                 </tr>
             </thead>
             <tbody id="table-body"></tbody>
@@ -331,7 +332,6 @@ function populateFilters() {
 }
 
 function processDashboard() {
-    // Reference Date: Feb 17, 2026
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
@@ -339,35 +339,34 @@ function processDashboard() {
     const timeFilter = $('#filter-time').val();
 
     let filtered = rawData.filter(d => {
-        // Fix: Use slashes to force local time parsing of yyyy-mm-dd
+        // Parse date reliably across browsers
         const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
         dDate.setHours(0, 0, 0, 0);
         
         let timeMatch = true;
+
         if (timeFilter === 'ytd') {
-            timeMatch = dDate.getFullYear() === today.getFullYear() && dDate <= today;
+            timeMatch = dDate.getFullYear() === today.getFullYear();
         } 
         else if (timeFilter === '6m') {
             const sixMonthsAgo = new Date();
             sixMonthsAgo.setMonth(today.getMonth() - 6);
-            timeMatch = dDate >= sixMonthsAgo && dDate <= today;
+            timeMatch = dDate >= sixMonthsAgo;
         } 
         else if (timeFilter === '1m') {
-            // Strict match for February 2026
             timeMatch = dDate.getMonth() === today.getMonth() && 
                         dDate.getFullYear() === today.getFullYear();
         } 
         else if (timeFilter === '1w') {
             const oneWeekAgo = new Date();
             oneWeekAgo.setDate(today.getDate() - 7);
-            timeMatch = dDate >= oneWeekAgo && dDate <= today;
+            timeMatch = dDate >= oneWeekAgo;
         }
 
         const cardMatch = $('#filter-card').val() ? d.Card_Type === $('#filter-card').val() : true;
         const categoryMatch = $('#filter-category').val() ? d.Category === $('#filter-category').val() : true;
         const payeeMatch = $('#filter-payee').val() ? d.Payee === $('#filter-payee').val() : true;
         
-        // Fix: Review Logic (Non-empty = TRUE, Empty = FALSE)
         const isPopulated = (d.Needs_Review && String(d.Needs_Review).trim() !== "");
         const reviewMatch = $('#filter-review').val() === "" ? true :
                             ($('#filter-review').val() === "TRUE" ? isPopulated : !isPopulated);
@@ -375,36 +374,37 @@ function processDashboard() {
         return timeMatch && cardMatch && categoryMatch && payeeMatch && reviewMatch;
     });
 
-    // Metric Calculations
-    const pendingReviewCount = rawData.filter(d => d.Needs_Review && String(d.Needs_Review).trim() !== "").length;
-    $('#review-count').text(pendingReviewCount).toggleClass('alert-text', pendingReviewCount > 0);
-
-    const currentMonthData = rawData.filter(d => {
-        const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
-        return dDate.getMonth() === today.getMonth() && dDate.getFullYear() === today.getFullYear();
-    });
-
-    const income = currentMonthData.filter(d => d.Transaction_Type.toLowerCase() === 'income').reduce((a, b) => a + b.Transaction_Amount, 0);
-    const expense = currentMonthData.filter(d => d.Transaction_Type.toLowerCase() === 'expense').reduce((a, b) => a + b.Transaction_Amount, 0);
-    const net = income - expense;
-
-    $('#monthly-net').text(`$${net.toLocaleString()}`).toggleClass('income-text', net >= 0).toggleClass('expense-text', net < 0);
+    // Re-calculate Metrics based on the NEW filtered set
+    updateMetrics(filtered);
     
-    const ytdExpense = rawData.filter(d => {
-        const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
-        return dDate.getFullYear() === today.getFullYear() && d.Transaction_Type.toLowerCase() === 'expense';
-    }).reduce((a, b) => a + b.Transaction_Amount, 0);
-    $('#ytd-expense').text(`$${ytdExpense.toLocaleString()}`);
-
-    const ratio = expense / (income || 1);
-    let status = ratio < 0.8 ? '<span class="status-light light-green"></span> HEALTHY' : (ratio < 1 ? '<span class="status-light light-yellow"></span> ALERT' : '<span class="status-light light-red"></span> OVER');
-    $('#status-indicator').html(status);
-
     currentFilteredData = filtered;
+    // Keep most recent transactions at the top
     currentFilteredData.sort((a, b) => new Date(b.Transaction_Date.replace(/-/g, '/')) - new Date(a.Transaction_Date.replace(/-/g, '/')));
     
     renderTable(currentFilteredData);
     updateCharts(filtered, selectedType);
+}
+
+// Helper to keep metrics in sync with the date filter
+function updateMetrics(data) {
+    const pendingReviewCount = data.filter(d => d.Needs_Review && String(d.Needs_Review).trim() !== "").length;
+    $('#review-count').text(pendingReviewCount).toggleClass('alert-text', pendingReviewCount > 0);
+
+    const income = data.filter(d => d.Transaction_Type.toLowerCase() === 'income').reduce((a, b) => a + b.Transaction_Amount, 0);
+    const expense = data.filter(d => d.Transaction_Type.toLowerCase() === 'expense').reduce((a, b) => a + b.Transaction_Amount, 0);
+    const net = income - expense;
+
+    $('#monthly-net').text(`$${net.toLocaleString()}`).toggleClass('income-text', net >= 0).toggleClass('expense-text', net < 0);
+}
+
+function showReviewToast(text) {
+    $('#toast-content').text(text);
+    $('#review-toast').addClass('show');
+    
+    // Auto-hide after 6 seconds
+    setTimeout(() => {
+        $('#review-toast').removeClass('show');
+    }, 6000);
 }
 
 function renderTable(data) {
@@ -417,7 +417,7 @@ function renderTable(data) {
         const reviewText = row.Needs_Review ? String(row.Needs_Review).trim() : "";
         const isPopulated = reviewText !== "";
         
-        // Escape quotes for the JS function call
+        // Escape quotes to prevent breaks in the onclick attribute
         const safeReviewText = reviewText.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         
         const reviewBadge = isPopulated ? 
@@ -444,7 +444,7 @@ function sortTable(field, preserveDir = false) {
 
     currentFilteredData.sort((a, b) => {
         let vA = a[field], vB = b[field];
-        if (field === 'Transaction_Date') { vA = new Date(vA); vB = new Date(vB); }
+        if (field === 'Transaction_Date') { vA = new Date(vA.replace(/-/g, '/')); vB = new Date(vB.replace(/-/g, '/')); }
         return currentSort.direction === 'asc' ? (vA > vB ? 1 : -1) : (vA < vB ? 1 : -1);
     });
     renderTable(currentFilteredData);
@@ -476,7 +476,7 @@ function updateCharts(data, type) {
     });
 
     // 3. Net Worth (Cumulative)
-    const sortedAll = [...rawData].sort((a,b) => new Date(a.Transaction_Date) - new Date(b.Transaction_Date));
+    const sortedAll = [...rawData].sort((a,b) => new Date(a.Transaction_Date.replace(/-/g, '/')) - new Date(b.Transaction_Date.replace(/-/g, '/')));
     let bal = 0; const netMap = {};
     sortedAll.forEach(d => { bal += (d.Transaction_Type.toLowerCase() === 'income' ? d.Transaction_Amount : -d.Transaction_Amount); netMap[d.Transaction_Date] = bal; });
     if(netWorthChart) netWorthChart.destroy();
@@ -498,17 +498,6 @@ function updateCharts(data, type) {
         </div>
     `).join(''));
 }
-
-function showReviewToast(text) {
-    $('#toast-content').text(text);
-    $('#review-toast').addClass('show');
-    
-    // Auto-hide after 6 seconds if user doesn't click it
-    setTimeout(() => {
-        $('#review-toast').removeClass('show');
-    }, 6000);
-}
-
 </script>
 </body>
 </html>
