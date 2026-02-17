@@ -76,7 +76,7 @@
             margin-bottom: 20px;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
             border: 1px solid var(--border);
             align-items: center;
         }
@@ -117,7 +117,6 @@
         .expense-text { color: var(--bloomberg-red); }
         .alert-text { color: #ff9f0a; text-shadow: 0 0 10px rgba(255, 159, 10, 0.3); font-weight: 800; }
         
-        /* Interactive Review Badge */
         .review-badge { 
             background: #ff9f0a; 
             color: #000; 
@@ -129,12 +128,8 @@
             transition: transform 0.1s ease;
             display: inline-block;
         }
-        .review-badge:hover { 
-            transform: scale(1.1); 
-            background: #ffb340; 
-        }
+        .review-badge:hover { transform: scale(1.1); background: #ffb340; }
         
-        /* Slide-down Notification Panel */
         #review-toast {
             position: fixed;
             top: -120px; 
@@ -156,22 +151,19 @@
             gap: 6px;
             cursor: pointer;
         }
-
         #review-toast.show { top: 25px; }
+        .toast-header { font-size: 0.65rem; color: var(--apple-blue); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; }
+        .toast-body { font-size: 0.95rem; color: var(--text-main); line-height: 1.5; font-weight: 400; }
 
-        .toast-header {
-            font-size: 0.65rem;
-            color: var(--apple-blue);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 800;
-        }
-
-        .toast-body {
-            font-size: 0.95rem;
-            color: var(--text-main);
-            line-height: 1.5;
-            font-weight: 400;
+        #record-count-badge {
+            background: #3a3a3c; 
+            padding: 6px 12px; 
+            border-radius: 8px; 
+            font-size: 0.75rem; 
+            color: var(--apple-blue); 
+            font-weight: 600; 
+            border: 1px solid var(--border);
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -237,6 +229,9 @@
             <option value="TRUE">Needs Review</option>
             <option value="FALSE">Reviewed</option>
         </select>
+        <div id="record-count-badge">
+            <span id="filtered-count">0</span> Records
+        </div>
         <button id="reset-filters" style="margin-left: auto;">Reset Filters</button>
     </div>
 
@@ -339,12 +334,10 @@ function processDashboard() {
     const timeFilter = $('#filter-time').val();
 
     let filtered = rawData.filter(d => {
-        // Parse date reliably across browsers
         const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
         dDate.setHours(0, 0, 0, 0);
         
         let timeMatch = true;
-
         if (timeFilter === 'ytd') {
             timeMatch = dDate.getFullYear() === today.getFullYear();
         } 
@@ -354,8 +347,7 @@ function processDashboard() {
             timeMatch = dDate >= sixMonthsAgo;
         } 
         else if (timeFilter === '1m') {
-            timeMatch = dDate.getMonth() === today.getMonth() && 
-                        dDate.getFullYear() === today.getFullYear();
+            timeMatch = dDate.getMonth() === today.getMonth() && dDate.getFullYear() === today.getFullYear();
         } 
         else if (timeFilter === '1w') {
             const oneWeekAgo = new Date();
@@ -374,37 +366,42 @@ function processDashboard() {
         return timeMatch && cardMatch && categoryMatch && payeeMatch && reviewMatch;
     });
 
-    // Re-calculate Metrics based on the NEW filtered set
+    $('#filtered-count').text(filtered.length);
     updateMetrics(filtered);
     
     currentFilteredData = filtered;
-    // Keep most recent transactions at the top
     currentFilteredData.sort((a, b) => new Date(b.Transaction_Date.replace(/-/g, '/')) - new Date(a.Transaction_Date.replace(/-/g, '/')));
     
     renderTable(currentFilteredData);
     updateCharts(filtered, selectedType);
 }
 
-// Helper to keep metrics in sync with the date filter
 function updateMetrics(data) {
     const pendingReviewCount = data.filter(d => d.Needs_Review && String(d.Needs_Review).trim() !== "").length;
     $('#review-count').text(pendingReviewCount).toggleClass('alert-text', pendingReviewCount > 0);
 
-    const income = data.filter(d => d.Transaction_Type.toLowerCase() === 'income').reduce((a, b) => a + b.Transaction_Amount, 0);
-    const expense = data.filter(d => d.Transaction_Type.toLowerCase() === 'expense').reduce((a, b) => a + b.Transaction_Amount, 0);
+    const income = data.filter(d => d.Transaction_Type.toLowerCase() === 'income').reduce((a, b) => a + (Number(b.Transaction_Amount) || 0), 0);
+    const expense = data.filter(d => d.Transaction_Type.toLowerCase() === 'expense').reduce((a, b) => a + (Number(b.Transaction_Amount) || 0), 0);
     const net = income - expense;
 
     $('#monthly-net').text(`$${net.toLocaleString()}`).toggleClass('income-text', net >= 0).toggleClass('expense-text', net < 0);
+    
+    const ytdTotal = rawData.filter(d => {
+        const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
+        return dDate.getFullYear() === new Date().getFullYear() && d.Transaction_Type.toLowerCase() === 'expense';
+    }).reduce((a, b) => a + (Number(b.Transaction_Amount) || 0), 0);
+    
+    $('#ytd-expense').text(`$${ytdTotal.toLocaleString()}`);
+
+    const ratio = expense / (income || 1);
+    let status = ratio < 0.8 ? '<span class="status-light light-green"></span> HEALTHY' : (ratio < 1 ? '<span class="status-light light-yellow"></span> ALERT' : '<span class="status-light light-red"></span> OVER');
+    $('#status-indicator').html(status);
 }
 
 function showReviewToast(text) {
     $('#toast-content').text(text);
     $('#review-toast').addClass('show');
-    
-    // Auto-hide after 6 seconds
-    setTimeout(() => {
-        $('#review-toast').removeClass('show');
-    }, 6000);
+    setTimeout(() => $('#review-toast').removeClass('show'), 6000);
 }
 
 function renderTable(data) {
@@ -416,8 +413,6 @@ function renderTable(data) {
         
         const reviewText = row.Needs_Review ? String(row.Needs_Review).trim() : "";
         const isPopulated = reviewText !== "";
-        
-        // Escape quotes to prevent breaks in the onclick attribute
         const safeReviewText = reviewText.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         
         const reviewBadge = isPopulated ? 
@@ -453,7 +448,6 @@ function sortTable(field, preserveDir = false) {
 function updateCharts(data, type) {
     const filteredByType = data.filter(d => d.Transaction_Type.toLowerCase() === type.toLowerCase());
 
-    // 1. Category Doughnut
     const catMap = {};
     filteredByType.forEach(d => catMap[d.Category] = (catMap[d.Category] || 0) + d.Transaction_Amount);
     const top5Cat = Object.entries(catMap).sort((a,b) => b[1] - a[1]).slice(0, 5);
@@ -465,7 +459,6 @@ function updateCharts(data, type) {
         options: { plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } } }
     });
 
-    // 2. Trend Line
     const trendMap = {};
     filteredByType.forEach(d => { const m = d.Transaction_Date.substring(0, 7); trendMap[m] = (trendMap[m] || 0) + d.Transaction_Amount; });
     if(trendChart) trendChart.destroy();
@@ -475,7 +468,6 @@ function updateCharts(data, type) {
         options: { scales: { y: { grid: { color: '#38383a' }, ticks: { color: '#8e8e93' } }, x: { ticks: { color: '#8e8e93' } } }, plugins: { legend: { display: false } } }
     });
 
-    // 3. Net Worth (Cumulative)
     const sortedAll = [...rawData].sort((a,b) => new Date(a.Transaction_Date.replace(/-/g, '/')) - new Date(b.Transaction_Date.replace(/-/g, '/')));
     let bal = 0; const netMap = {};
     sortedAll.forEach(d => { bal += (d.Transaction_Type.toLowerCase() === 'income' ? d.Transaction_Amount : -d.Transaction_Amount); netMap[d.Transaction_Date] = bal; });
@@ -486,7 +478,6 @@ function updateCharts(data, type) {
         options: { scales: { y: { ticks: { color: '#8e8e93' } }, x: { ticks: { display: false } } }, plugins: { legend: { display: false } } }
     });
 
-    // 4. Top Payees List
     const pMap = {};
     filteredByType.forEach(d => pMap[d.Payee] = (pMap[d.Payee] || 0) + d.Transaction_Amount);
     const topP = Object.entries(pMap).sort((a,b) => b[1]-a[1]).slice(0, 5);
