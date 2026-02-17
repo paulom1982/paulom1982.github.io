@@ -118,9 +118,69 @@
         .income-text { color: var(--bloomberg-green); }
         .expense-text { color: var(--bloomberg-red); }
         .alert-text { color: #ff9f0a; text-shadow: 0 0 10px rgba(255, 159, 10, 0.3); font-weight: 800; }
+		
+		.review-badge { 
+			background: #ff9f0a; 
+			color: #000; 
+			font-weight: 800; 
+			padding: 2px 8px; 
+			border-radius: 4px; 
+			font-size: 0.7rem; 
+			cursor: pointer; 
+			transition: transform 0.1s ease;
+			display: inline-block;
+		}
+		.review-badge:hover { 
+			transform: scale(1.1); 
+			background: #ffb340; 
+		}
+		
+		/* Slide-down Notification Panel */
+		#review-toast {
+			position: fixed;
+			top: -100px; /* Start off-screen */
+			left: 50%;
+			transform: translateX(-50%);
+			background: rgba(44, 44, 46, 0.95);
+			backdrop-filter: blur(10px);
+			border: 1px solid var(--apple-blue);
+			border-radius: 12px;
+			padding: 16px 24px;
+			z-index: 9999;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+			transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+			min-width: 300px;
+			max-width: 80% ;
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		#review-toast.show { top: 20px; }
+
+		#review-toast .toast-header {
+			font-size: 0.7rem;
+			color: var(--apple-blue);
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			font-weight: 800;
+		}
+
+		#review-toast .toast-body {
+			font-size: 0.95rem;
+			color: var(--text-main);
+			line-height: 1.4;
+		}
+
     </style>
 </head>
 <body>
+
+	<div id="review-toast" onclick="$(this).removeClass('show')">
+		<div class="toast-header">Review Note</div>
+		<div id="toast-content" class="toast-body"></div>
+		<div style="font-size: 0.6rem; color: var(--text-dim); margin-top: 4px;">Click to dismiss</div>
+	</div>
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
         <h1 style="margin: 0; font-size: 1.4rem; letter-spacing: -0.5px; font-weight: 600;">
@@ -271,22 +331,19 @@ function populateFilters() {
 }
 
 function processDashboard() {
-    // 1. Get current reference date (Today: Feb 17, 2026)
+    // Reference Date: Feb 17, 2026
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
     const selectedType = $('#type-toggle').val();
     const timeFilter = $('#filter-time').val();
 
-    // 2. Filter the rawData
     let filtered = rawData.filter(d => {
-        // TRICK: Replace '-' with '/' to force JS to parse as Local Time, not UTC.
-        // This prevents "2026-02-17" from becoming "2026-02-16" in Western timezones.
+        // Fix: Use slashes to force local time parsing of yyyy-mm-dd
         const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
         dDate.setHours(0, 0, 0, 0);
         
         let timeMatch = true;
-
         if (timeFilter === 'ytd') {
             timeMatch = dDate.getFullYear() === today.getFullYear() && dDate <= today;
         } 
@@ -296,37 +353,32 @@ function processDashboard() {
             timeMatch = dDate >= sixMonthsAgo && dDate <= today;
         } 
         else if (timeFilter === '1m') {
-            // Match current month AND year
+            // Strict match for February 2026
             timeMatch = dDate.getMonth() === today.getMonth() && 
                         dDate.getFullYear() === today.getFullYear();
         } 
         else if (timeFilter === '1w') {
             const oneWeekAgo = new Date();
             oneWeekAgo.setDate(today.getDate() - 7);
-            // From 7 days ago through today
             timeMatch = dDate >= oneWeekAgo && dDate <= today;
         }
-        // 'all' remains timeMatch = true
 
-        // Static Filters
         const cardMatch = $('#filter-card').val() ? d.Card_Type === $('#filter-card').val() : true;
         const categoryMatch = $('#filter-category').val() ? d.Category === $('#filter-category').val() : true;
         const payeeMatch = $('#filter-payee').val() ? d.Payee === $('#filter-payee').val() : true;
         
-		// Filter Logic
-		const reviewMatch = $('#filter-review').val() === "" ? true :
-						 ($('#filter-review').val() === "TRUE" ? (d.Needs_Review && String(d.Needs_Review).trim() !== "") : 
-						 (!d.Needs_Review || String(d.Needs_Review).trim() === ""));
+        // Fix: Review Logic (Non-empty = TRUE, Empty = FALSE)
+        const isPopulated = (d.Needs_Review && String(d.Needs_Review).trim() !== "");
+        const reviewMatch = $('#filter-review').val() === "" ? true :
+                            ($('#filter-review').val() === "TRUE" ? isPopulated : !isPopulated);
 
         return timeMatch && cardMatch && categoryMatch && payeeMatch && reviewMatch;
     });
 
-    // 3. Update Executive Metrics
-    // Calculate Review Backlog (always from rawData)
-    const pendingReview = rawData.filter(d => d.Needs_Review && String(d.Needs_Review).trim() !== "").length;
-    $('#review-count').text(pendingReview).toggleClass('alert-text', pendingReview > 0);
+    // Metric Calculations
+    const pendingReviewCount = rawData.filter(d => d.Needs_Review && String(d.Needs_Review).trim() !== "").length;
+    $('#review-count').text(pendingReviewCount).toggleClass('alert-text', pendingReviewCount > 0);
 
-    // Calculate Net/Expense based on current system month/year for the summary cards
     const currentMonthData = rawData.filter(d => {
         const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
         return dDate.getMonth() === today.getMonth() && dDate.getFullYear() === today.getFullYear();
@@ -342,18 +394,13 @@ function processDashboard() {
         const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
         return dDate.getFullYear() === today.getFullYear() && d.Transaction_Type.toLowerCase() === 'expense';
     }).reduce((a, b) => a + b.Transaction_Amount, 0);
-    
     $('#ytd-expense').text(`$${ytdExpense.toLocaleString()}`);
 
-    // Status Light Logic
     const ratio = expense / (income || 1);
     let status = ratio < 0.8 ? '<span class="status-light light-green"></span> HEALTHY' : (ratio < 1 ? '<span class="status-light light-yellow"></span> ALERT' : '<span class="status-light light-red"></span> OVER');
     $('#status-indicator').html(status);
 
-    // 4. Update UI Components
     currentFilteredData = filtered;
-    
-    // Sort table by date descending by default
     currentFilteredData.sort((a, b) => new Date(b.Transaction_Date.replace(/-/g, '/')) - new Date(a.Transaction_Date.replace(/-/g, '/')));
     
     renderTable(currentFilteredData);
@@ -364,9 +411,18 @@ function renderTable(data) {
     const tbody = $('#table-body').empty();
     data.forEach(row => {
         const isInc = row.Transaction_Type.toLowerCase() === 'income';
-        const dateStr = new Date(row.Transaction_Date + "T00:00:00").toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
-        const needsReview = (row.Needs_Review && String(row.Needs_Review).trim() !== "");
-		
+        const dDate = new Date(row.Transaction_Date.replace(/-/g, '/'));
+        const dateStr = dDate.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+        
+        const reviewText = row.Needs_Review ? String(row.Needs_Review).trim() : "";
+        const isPopulated = reviewText !== "";
+        
+        // Escape quotes for the JS function call
+        const safeReviewText = reviewText.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        
+        const reviewBadge = isPopulated ? 
+            `<span class="review-badge" onclick="showReviewToast('${safeReviewText}')">!</span>` : 
+            `<span style="opacity:0.2">—</span>`;
 
         tbody.append(`
             <tr>
@@ -376,7 +432,7 @@ function renderTable(data) {
                 <td class="mono ${isInc ? 'income-text' : ''}">${isInc ? '' : '-'}$${row.Transaction_Amount.toLocaleString()}</td>
                 <td style="color:var(--text-dim)">${row.Card_Type || 'N/A'}</td>
                 <td style="font-size:0.7rem; opacity:0.7;">${row.Transaction_Type}</td>
-                <td>${needsReview ? '<span class="review-badge" title="${row.Needs_Review}">!</span>' : '<span style="opacity:0.2">—</span>'}</td>
+                <td style="text-align:center;">${reviewBadge}</td>
             </tr>
         `);
     });
@@ -442,6 +498,17 @@ function updateCharts(data, type) {
         </div>
     `).join(''));
 }
+
+function showReviewToast(text) {
+    $('#toast-content').text(text);
+    $('#review-toast').addClass('show');
+    
+    // Auto-hide after 6 seconds if user doesn't click it
+    setTimeout(() => {
+        $('#review-toast').removeClass('show');
+    }, 6000);
+}
+
 </script>
 </body>
 </html>
