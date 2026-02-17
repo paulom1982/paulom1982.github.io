@@ -480,15 +480,22 @@ function renderTable(data) {
     const tbody = $('#table-body');
     tbody.empty();
 
+    // Use an array to collect rows and append once at the end for performance
+    let rowsHtml = '';
+
     data.forEach(row => {
         const amtClass = row.Transaction_Type === 'income' ? 'income-text' : '';
-        const dateStr = new Date(row.Transaction_Date).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
+        const dateStr = new Date(row.Transaction_Date).toLocaleDateString('en-US', {
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric'
+        });
         
-		// Check if Needs_Review is true, "TRUE", or a truthy string
         const needsReview = (row.Needs_Review === true || String(row.Needs_Review).toUpperCase() === 'TRUE');
         const reviewCell = needsReview ? '<span class="review-badge">!</span>' : '<span style="opacity:0.2">—</span>';
-		
-        tbody.append('
+        
+        // FIX: Changed single quotes to backticks (`)
+        rowsHtml += `
             <tr>
                 <td class="mono">${dateStr}</td>
                 <td style="font-weight: 600;">${row.Payee || 'Unknown'}</td>
@@ -496,10 +503,12 @@ function renderTable(data) {
                 <td class="mono ${amtClass}">${row.Transaction_Type === 'expense' ? '-' : ''}$${row.Transaction_Amount.toLocaleString()}</td>
                 <td style="color:var(--text-dim)">${row.Card_Type || 'N/A'}</td>
                 <td style="font-size: 0.7rem; opacity: 0.7;">${row.Transaction_Type}</td>
-				<td>${reviewCell}</td>
+                <td>${reviewCell}</td>
             </tr>
-        ');
+        `;
     });
+
+    tbody.append(rowsHtml);
 }
 
 function sortTable(field) {
