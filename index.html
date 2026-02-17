@@ -273,8 +273,8 @@ function processDashboard() {
     });
 
     // 2. Executive Metrics Logic
-    const income = rawData.filter(d => d.Transaction_Type === 'Income').reduce((a, b) => a + b.Transaction_Amount, 0);
-    const expense = rawData.filter(d => d.Transaction_Type === 'Expense').reduce((a, b) => a + b.Transaction_Amount, 0);
+    const income = rawData.filter(d => d.Transaction_Type === 'income').reduce((a, b) => a + b.Transaction_Amount, 0);
+    const expense = rawData.filter(d => d.Transaction_Type === 'expense').reduce((a, b) => a + b.Transaction_Amount, 0);
     const net = income - expense;
 
     $('#monthly-net').text(`$${net.toLocaleString()}`).toggleClass('income-text', net >= 0).toggleClass('expense-text', net < 0);
@@ -302,7 +302,7 @@ function renderTable(data) {
     tbody.empty();
 
     data.forEach(row => {
-        const amtClass = row.Transaction_Type === 'Income' ? 'income-text' : '';
+        const amtClass = row.Transaction_Type === 'income' ? 'income-text' : '';
         const dateStr = new Date(row.Transaction_Date).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
         
         tbody.append(`
@@ -310,7 +310,7 @@ function renderTable(data) {
                 <td class="mono">${dateStr}</td>
                 <td style="font-weight: 600;">${row.Payee || 'Unknown'}</td>
                 <td><span style="background:#3a3a3c; padding:2px 8px; border-radius:4px;">${row.Category}</span></td>
-                <td class="mono ${amtClass}">${row.Transaction_Type === 'Expense' ? '-' : ''}$${row.Transaction_Amount.toLocaleString()}</td>
+                <td class="mono ${amtClass}">${row.Transaction_Type === 'expense' ? '-' : ''}$${row.Transaction_Amount.toLocaleString()}</td>
                 <td style="color:var(--text-dim)">${row.Card_Type || 'N/A'}</td>
                 <td style="font-size: 0.7rem; opacity: 0.7;">${row.Transaction_Type}</td>
             </tr>
