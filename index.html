@@ -100,9 +100,6 @@
             border-color: var(--apple-blue); 
             box-shadow: 0 0 10px rgba(10, 132, 255, 0.2);
         }
-        #download-pdf:active { 
-            transform: scale(0.92); 
-        }
 
         select { background: #2c2c2e; color: white; border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; outline: none; font-size: 0.9rem; }
         
@@ -122,75 +119,45 @@
         .payee-bar-bg { background: #2c2c2e; height: 6px; border-radius: 3px; overflow: hidden; }
         .payee-bar-fill { background: var(--apple-blue); height: 100%; border-radius: 3px; }
 
-        @media (max-width: 768px) { .exec-header { grid-template-columns: 1fr 1fr; } #reset-filters { width: 100%; margin-left: 0; } }
         .income-text { color: var(--bloomberg-green); }
         .expense-text { color: var(--bloomberg-red); }
-        .alert-text { color: #ff9f0a; text-shadow: 0 0 10px rgba(255, 159, 10, 0.3); font-weight: 800; }
+        .alert-text { color: #ff9f0a; font-weight: 800; }
         
-        .review-badge { 
-            background: #ff9f0a; 
-            color: #000; 
-            font-weight: 800; 
-            padding: 2px 8px; 
-            border-radius: 4px; 
-            font-size: 0.7rem; 
-            cursor: pointer; 
-            transition: transform 0.1s ease;
-            display: inline-block;
-        }
-        .review-badge:hover { transform: scale(1.1); background: #ffb340; }
-        
-        #review-toast {
-            position: fixed;
-            top: -120px; 
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(44, 44, 46, 0.95);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid var(--apple-blue);
-            border-radius: 12px;
-            padding: 18px 26px;
-            z-index: 9999;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            min-width: 320px;
-            max-width: 85%;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+        .review-badge { background: #ff9f0a; color: #000; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; }
+
+        #pagination-controls button {
+            background: #2c2c2e;
+            border: 1px solid var(--border);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        #pagination-controls button:hover:not([style*="opacity: 0.3"]) { background: #3a3a3c; border-color: var(--apple-blue); }
+
+        #review-toast {
+            position: fixed; top: -120px; left: 50%; transform: translateX(-50%);
+            background: rgba(44, 44, 46, 0.95); backdrop-filter: blur(15px);
+            border: 1px solid var(--apple-blue); border-radius: 12px; padding: 18px 26px; z-index: 9999;
+            transition: top 0.4s; min-width: 320px; display: flex; flex-direction: column; gap: 6px; cursor: pointer;
         }
         #review-toast.show { top: 25px; }
-        .toast-header { font-size: 0.65rem; color: var(--apple-blue); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; }
-        .toast-body { font-size: 0.95rem; color: var(--text-main); line-height: 1.5; font-weight: 400; }
-
-        #record-count-badge {
-            background: #3a3a3c; 
-            padding: 6px 12px; 
-            border-radius: 8px; 
-            font-size: 0.75rem; 
-            color: var(--apple-blue); 
-            font-weight: 600; 
-            border: 1px solid var(--border);
-            white-space: nowrap;
-        }
     </style>
 </head>
 <body>
 
     <div id="review-toast" onclick="$(this).removeClass('show')">
-        <div class="toast-header">Flagged Detail</div>
-        <div id="toast-content" class="toast-body"></div>
-        <div style="font-size: 0.6rem; color: var(--text-dim); margin-top: 4px; text-align: right; opacity: 0.6;">Tap to dismiss</div>
+        <div class="toast-header" style="font-size: 0.65rem; color: var(--apple-blue); text-transform: uppercase; font-weight: 800;">Flagged Detail</div>
+        <div id="toast-content" style="font-size: 0.95rem; color: #fff;"></div>
+        <div style="font-size: 0.6rem; color: var(--text-dim); text-align: right; opacity: 0.6;">Tap to dismiss</div>
     </div>
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h1 style="margin: 0; font-size: 1.4rem; letter-spacing: -0.5px; font-weight: 600;">
-            Martins<span style="color: var(--apple-blue);">Budget</span>
-        </h1>
+        <h1 style="margin: 0; font-size: 1.4rem; font-weight: 600;">Martins<span style="color: var(--apple-blue);">Budget</span></h1>
         <div style="display: flex; align-items: center; gap: 12px;">
-            <div id="sync-timestamp" class="mono" style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; text-align: right; line-height: 1.2;">Initializing...</div>
+            <div id="sync-timestamp" class="mono" style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase;">Initializing...</div>
             <button id="refresh-btn" title="Sync Now">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
             </button>
@@ -205,12 +172,12 @@
         <div class="metric-card">
             <div class="metric-label">Monthly Net</div>
             <div class="metric-value" id="monthly-net">$0.00</div>
-            <div id="net-period-label" style="font-size: 0.65rem; color: var(--text-dim); margin-top: 4px; opacity: 0.8;"></div>
+            <div id="net-period-label" style="font-size: 0.65rem; color: var(--text-dim); margin-top: 4px;"></div>
         </div>
         <div class="metric-card">
             <div class="metric-label">YTD Expense</div>
             <div class="metric-value expense-text" id="ytd-expense">$0.00</div>
-            <div id="ytd-period-label" style="font-size: 0.65rem; color: var(--text-dim); margin-top: 4px; opacity: 0.8;"></div>
+            <div id="ytd-period-label" style="font-size: 0.65rem; color: var(--text-dim); margin-top: 4px;"></div>
         </div>
         <div class="metric-card">
             <div class="metric-label">Review Items</div>
@@ -241,12 +208,10 @@
             <option value="TRUE">Needs Review</option>
             <option value="FALSE">Reviewed</option>
         </select>
-        <div id="record-count-badge">
-            <span id="filtered-count">0</span> Records
-        </div>
+        <div id="record-count-badge"><span id="filtered-count">0</span> Records</div>
         
         <button id="reset-filters" style="margin-left: auto;">Reset Filters</button>
-        <button id="download-pdf" title="Export PDF" style="margin-left: 10px; background: #2c2c2e; border: 1px solid var(--border); color: var(--apple-blue); padding: 8px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
+        <button id="download-pdf" title="Export PDF" style="margin-left: 10px; background: #2c2c2e; border: 1px solid var(--border); color: var(--apple-blue); padding: 8px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
@@ -258,25 +223,13 @@
     </div>
 
     <div class="chart-grid">
-        <div class="chart-container">
-            <div class="metric-label">Net Worth Trend (Cumulative)</div>
-            <canvas id="netWorthChart"></canvas>
-        </div>
-        <div class="chart-container">
-            <div class="metric-label">Volume Trend</div>
-            <canvas id="trendChart"></canvas>
-        </div>
+        <div class="chart-container"><div class="metric-label">Net Worth Trend</div><canvas id="netWorthChart"></canvas></div>
+        <div class="chart-container"><div class="metric-label">Volume Trend</div><canvas id="trendChart"></canvas></div>
     </div>
 
     <div class="chart-grid">
-        <div class="chart-container">
-            <div class="metric-label">Top 5 Categories</div>
-            <canvas id="categoryChart"></canvas>
-        </div>
-        <div class="chart-container">
-            <div class="metric-label">Top 5 Payees</div>
-            <div id="payee-list" style="margin-top: 20px;"></div>
-        </div>
+        <div class="chart-container"><div class="metric-label">Top 5 Categories</div><canvas id="categoryChart"></canvas></div>
+        <div class="chart-container"><div class="metric-label">Top 5 Payees</div><div id="payee-list" style="margin-top: 20px;"></div></div>
     </div>
     
     <div class="table-wrapper">
@@ -296,277 +249,148 @@
         </table>
     </div>
 
+    <div id="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 10px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border);">
+        <button id="prev-page">&larr; Previous</button>
+        <div id="page-info" class="mono" style="font-size: 0.8rem; color: var(--text-dim);">Page 1 of 1</div>
+        <button id="next-page">Next &rarr;</button>
+    </div>
+
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSO3dh28NbiDkFF4jTtjolPCg4oB3spD4fxw9jYOQiOFphOXOuMCpmsynBempzNXHor52pL_ZtanSz7/pub?gid=1564593237&single=true&output=csv";
 
-let rawData = [];
-let currentFilteredData = [];
+let rawData = [], currentFilteredData = [];
 let trendChart, categoryChart, netWorthChart;
 let currentSort = { field: 'Transaction_Date', direction: 'desc' };
-// --- PAGINATION VARIABLES ---
 let currentPage = 1;
 const rowsPerPage = 10;
 
 $(document).ready(function() {
     fetchData();
     
-    $('#refresh-btn').on('click', function() {
-        $(this).addClass('spinning');
-        setTimeout(fetchData, 500);
-    });
-    
-    $('#reset-filters').on('click', function() {
-        $('#filter-card, #filter-category, #filter-payee, #filter-review').val('');
-        $('#filter-time').val('all');
-        $('#type-toggle').val('expense');
-        processDashboard();
-    });
-
+    $('#refresh-btn').on('click', function() { $(this).addClass('spinning'); setTimeout(fetchData, 500); });
+    $('#reset-filters').on('click', function() { $('#filter-card, #filter-category, #filter-payee, #filter-review').val(''); $('#filter-time').val('all'); $('#type-toggle').val('expense'); processDashboard(); });
     $('select').on('change', processDashboard);
-	
-	// Transaction list pagination settings
-	$('#prev-page').on('click', () => { if (currentPage > 1) { currentPage--; renderTable(currentFilteredData); } });
-	$('#next-page').on('click', () => { 
-		const maxPage = Math.ceil(currentFilteredData.length / rowsPerPage);
-		if (currentPage < maxPage) { currentPage++; renderTable(currentFilteredData); } 
-	});
+
+    $('#prev-page').on('click', () => { if (currentPage > 1) { currentPage--; renderTable(currentFilteredData); } });
+    $('#next-page').on('click', () => { 
+        const maxPage = Math.ceil(currentFilteredData.length / rowsPerPage);
+        if (currentPage < maxPage) { currentPage++; renderTable(currentFilteredData); } 
+    });
     
     $('#download-pdf').on('click', function() {
         const element = document.body;
-        const timestamp = new Date().toISOString().split('T')[0];
-        
-        const opt = {
-            margin: 0.5,
-            filename: `MartinsBudget_Report_${timestamp}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { 
-                scale: 2, 
-                backgroundColor: '#000000',
-                logging: false 
-            },
+        const opt = { margin: 0.5, filename: `Budget_Report.pdf`, image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, backgroundColor: '#000000' },
             jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
-
-        $('.filter-bar, #refresh-btn, #type-toggle').hide();
-        
-        html2pdf().set(opt).from(element).save().then(() => {
-            $('.filter-bar, #refresh-btn, #type-toggle').show();
-        });
+        $('.filter-bar, #refresh-btn, #type-toggle, #pagination-controls').hide();
+        html2pdf().set(opt).from(element).save().then(() => { $('.filter-bar, #refresh-btn, #type-toggle, #pagination-controls').show(); });
     });
-    
 });
 
 function fetchData() {
-    Papa.parse(CSV_URL, {
-        download: true,
-        header: true,
-        dynamicTyping: true,
-        complete: function(results) {
-            rawData = results.data.filter(d => d.Transaction_Date);
-            const now = new Date();
-            $('#sync-timestamp').html(`Last Sync: ${now.toLocaleDateString()} @ ${now.toLocaleTimeString()}`);
-            populateFilters();
-            processDashboard();
-            $('#refresh-btn').removeClass('spinning');
-        }
-    });
+    Papa.parse(CSV_URL, { download: true, header: true, dynamicTyping: true, complete: function(results) {
+        rawData = results.data.filter(d => d.Transaction_Date);
+        const now = new Date();
+        $('#sync-timestamp').html(`Last Sync: ${now.toLocaleDateString()} @ ${now.toLocaleTimeString()}`);
+        populateFilters();
+        processDashboard();
+        $('#refresh-btn').removeClass('spinning');
+    }});
 }
 
 function populateFilters() {
     const cards = [...new Set(rawData.map(item => item.Card_Type))].sort();
     const categories = [...new Set(rawData.map(item => item.Category))].sort();
     const payees = [...new Set(rawData.map(item => item.Payee))].sort();
-    
     $('#filter-card').html('<option value="">All Cards</option>' + cards.map(c => `<option value="${c}">${c}</option>`).join(''));
     $('#filter-category').html('<option value="">All Categories</option>' + categories.map(c => `<option value="${c}">${c}</option>`).join(''));
     $('#filter-payee').html('<option value="">All Payees</option>' + payees.map(p => `<option value="${p}">${p}</option>`).join(''));
 }
 
 function processDashboard() {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
+    const today = new Date(); today.setHours(0,0,0,0);
     const selectedType = $('#type-toggle').val();
     const timeFilter = $('#filter-time').val();
 
     updateExecutiveSummary(rawData);
 
     let filtered = rawData.filter(d => {
-        const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
-        dDate.setHours(0, 0, 0, 0);
-        
+        const dDate = new Date(d.Transaction_Date.replace(/-/g, '/')); dDate.setHours(0,0,0,0);
         let timeMatch = true;
-        if (timeFilter === 'ytd') {
-            timeMatch = dDate.getFullYear() === today.getFullYear();
-        } 
-        else if (timeFilter === '6m') {
-            const sixMonthsAgo = new Date();
-            sixMonthsAgo.setMonth(today.getMonth() - 6);
-            timeMatch = dDate >= sixMonthsAgo;
-        } 
-        else if (timeFilter === '1m') {
-            timeMatch = dDate.getMonth() === today.getMonth() && dDate.getFullYear() === today.getFullYear();
-        } 
-        else if (timeFilter === '1w') {
-            const oneWeekAgo = new Date();
-            oneWeekAgo.setDate(today.getDate() - 7);
-            timeMatch = dDate >= oneWeekAgo;
-        }
+        if (timeFilter === 'ytd') timeMatch = dDate.getFullYear() === today.getFullYear();
+        else if (timeFilter === '6m') { let sixM = new Date(); sixM.setMonth(today.getMonth()-6); timeMatch = dDate >= sixM; }
+        else if (timeFilter === '1m') timeMatch = dDate.getMonth() === today.getMonth() && dDate.getFullYear() === today.getFullYear();
+        else if (timeFilter === '1w') { let oneW = new Date(); oneW.setDate(today.getDate()-7); timeMatch = dDate >= oneW; }
 
         const cardMatch = $('#filter-card').val() ? d.Card_Type === $('#filter-card').val() : true;
         const categoryMatch = $('#filter-category').val() ? d.Category === $('#filter-category').val() : true;
         const payeeMatch = $('#filter-payee').val() ? d.Payee === $('#filter-payee').val() : true;
-        
-        const isPopulated = (d.Needs_Review && String(d.Needs_Review).trim() !== "");
-        const reviewMatch = $('#filter-review').val() === "" ? true :
-                            ($('#filter-review').val() === "TRUE" ? isPopulated : !isPopulated);
-
+        const isPop = (d.Needs_Review && String(d.Needs_Review).trim() !== "");
+        const reviewMatch = $('#filter-review').val() === "" ? true : ($('#filter-review').val() === "TRUE" ? isPop : !isPop);
         return timeMatch && cardMatch && categoryMatch && payeeMatch && reviewMatch;
     });
 
-    // Reset to page 1 whenever filters change
-    currentPage = 1; 
-    
+    $('#filtered-count').text(filtered.length);
+    currentPage = 1;
     currentFilteredData = filtered;
     currentFilteredData.sort((a, b) => new Date(b.Transaction_Date.replace(/-/g, '/')) - new Date(a.Transaction_Date.replace(/-/g, '/')));
-    
     renderTable(currentFilteredData);
     updateCharts(filtered, selectedType);
-	
 }
 
 function updateExecutiveSummary(allData) {
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth();
-    
+    const today = new Date(); const curY = today.getFullYear(); const curM = today.getMonth();
     const monthName = today.toLocaleString('default', { month: 'short' });
-    $('#net-period-label').text(`(${monthName} ${currentYear})`);
-    $('#ytd-period-label').text(`(Jan - Dec ${currentYear})`);
+    $('#net-period-label').text(`(${monthName} ${curY})`);
+    $('#ytd-period-label').text(`(Jan - Dec ${curY})`);
 
-    const totalPendingReview = allData.filter(d => d.Needs_Review && String(d.Needs_Review).trim() !== "").length;
-    $('#review-count').text(totalPendingReview).toggleClass('alert-text', totalPendingReview > 0);
+    const reviewItems = allData.filter(d => d.Needs_Review && String(d.Needs_Review).trim() !== "").length;
+    $('#review-count').text(reviewItems).toggleClass('alert-text', reviewItems > 0);
 
-    const monthlyData = allData.filter(d => {
-        const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
-        return dDate.getMonth() === currentMonth && dDate.getFullYear() === currentYear;
-    });
-    
-    const monthlyIncome = monthlyData.filter(d => d.Transaction_Type.toLowerCase() === 'income').reduce((a, b) => a + (Number(b.Transaction_Amount) || 0), 0);
-    const monthlyExpense = monthlyData.filter(d => d.Transaction_Type.toLowerCase() === 'expense').reduce((a, b) => a + (Number(b.Transaction_Amount) || 0), 0);
-
-    const net = monthlyIncome - monthlyExpense;
+    const mData = allData.filter(d => { const dd = new Date(d.Transaction_Date.replace(/-/g, '/')); return dd.getMonth() === curM && dd.getFullYear() === curY; });
+    const mInc = mData.filter(d => d.Transaction_Type.toLowerCase() === 'income').reduce((a,b) => a+(Number(b.Transaction_Amount)||0),0);
+    const mExp = mData.filter(d => d.Transaction_Type.toLowerCase() === 'expense').reduce((a,b) => a+(Number(b.Transaction_Amount)||0),0);
+    const net = mInc - mExp;
     $('#monthly-net').text(`$${net.toLocaleString()}`).toggleClass('income-text', net >= 0).toggleClass('expense-text', net < 0);
     
-    const ytdTotal = allData.filter(d => {
-        const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
-        return dDate.getFullYear() === currentYear && d.Transaction_Type.toLowerCase() === 'expense';
-    }).reduce((a, b) => a + (Number(b.Transaction_Amount) || 0), 0);
-    
-    $('#ytd-expense').text(`$${ytdTotal.toLocaleString()}`);
+    const ytdExp = allData.filter(d => { const dd = new Date(d.Transaction_Date.replace(/-/g, '/')); return dd.getFullYear() === curY && d.Transaction_Type.toLowerCase() === 'expense'; }).reduce((a,b) => a+(Number(b.Transaction_Amount)||0),0);
+    $('#ytd-expense').text(`$${ytdExp.toLocaleString()}`);
 
-    const ratio = monthlyExpense / (monthlyIncome || 1);
-    let status = ratio < 0.8 ? '<span class="status-light light-green"></span> HEALTHY' : (ratio < 1 ? '<span class="status-light light-yellow"></span> ALERT' : '<span class="status-light light-red"></span> OVER');
-    $('#status-indicator').html(status);
-}
-
-function showReviewToast(text) {
-    $('#toast-content').text(text);
-    $('#review-toast').addClass('show');
-    setTimeout(() => $('#review-toast').removeClass('show'), 6000);
-}
-
-// Add event listeners inside $(document).ready
-$('#prev-page').on('click', () => { if (currentPage > 1) { currentPage--; renderTable(currentFilteredData); } });
-$('#next-page').on('click', () => { 
-    const maxPage = Math.ceil(currentFilteredData.length / rowsPerPage);
-    if (currentPage < maxPage) { currentPage++; renderTable(currentFilteredData); } 
-});
-
-function processDashboard() {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const selectedType = $('#type-toggle').val();
-    const timeFilter = $('#filter-time').val();
-
-    updateExecutiveSummary(rawData);
-
-    let filtered = rawData.filter(d => {
-        // ... (Keep your existing filtering logic here)
-    });
-
-    $('#filtered-count').text(filtered.length);
-    
-    // Reset to page 1 whenever filters change
-    currentPage = 1; 
-    
-    currentFilteredData = filtered;
-    currentFilteredData.sort((a, b) => new Date(b.Transaction_Date.replace(/-/g, '/')) - new Date(a.Transaction_Date.replace(/-/g, '/')));
-    
-    renderTable(currentFilteredData);
-    updateCharts(filtered, selectedType);
+    const ratio = mExp / (mInc || 1);
+    let stat = ratio < 0.8 ? '<span class="status-light light-green"></span> HEALTHY' : (ratio < 1 ? '<span class="status-light light-yellow"></span> ALERT' : '<span class="status-light light-red"></span> OVER');
+    $('#status-indicator').html(stat);
 }
 
 function renderTable(data) {
     const tbody = $('#table-body').empty();
-    
-    // 1. Calculate Pagination Indices
     const totalPages = Math.ceil(data.length / rowsPerPage) || 1;
-    
-    // Safety check: if filters make data smaller than current page
     if (currentPage > totalPages) currentPage = totalPages;
 
-    const startIndex = (currentPage - 1) * rowsPerPage;
-    const endIndex = startIndex + rowsPerPage;
-    const paginatedData = data.slice(startIndex, endIndex);
+    const start = (currentPage - 1) * rowsPerPage;
+    const paginated = data.slice(start, start + rowsPerPage);
 
-    // 2. Update Pagination UI Text
     $('#page-info').text(`Page ${currentPage} of ${totalPages}`);
-    
-    // 3. Style buttons (dim them if they can't be clicked)
-    $('#prev-page').css('opacity', currentPage === 1 ? '0.3' : '1').css('cursor', currentPage === 1 ? 'default' : 'pointer');
-    $('#next-page').css('opacity', currentPage === totalPages ? '0.3' : '1').css('cursor', currentPage === totalPages ? 'default' : 'pointer');
+    $('#prev-page').css('opacity', currentPage === 1 ? '0.3' : '1');
+    $('#next-page').css('opacity', currentPage === totalPages ? '0.3' : '1');
 
-    // 4. If no data, show a friendly message
-    if (data.length === 0) {
-        tbody.append('<tr><td colspan="7" style="text-align:center; padding:40px; color:var(--text-dim);">No transactions found for these filters.</td></tr>');
-        return;
-    }
+    if (data.length === 0) { tbody.append('<tr><td colspan="7" style="text-align:center; padding:20px;">No results found.</td></tr>'); return; }
 
-    // 5. Build the rows
-    paginatedData.forEach(row => {
+    paginated.forEach(row => {
         const isInc = row.Transaction_Type.toLowerCase() === 'income';
-        const dDate = new Date(row.Transaction_Date.replace(/-/g, '/'));
-        const dateStr = dDate.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
-        
+        const dStr = new Date(row.Transaction_Date.replace(/-/g, '/')).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
         const reviewText = row.Needs_Review ? String(row.Needs_Review).trim() : "";
-        const isPopulated = reviewText !== "";
-        const safeReviewText = reviewText.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        
-        const reviewBadge = isPopulated ? 
-            `<span class="review-badge" onclick="showReviewToast('${safeReviewText}')">!</span>` : 
-            `<span style="opacity:0.2">—</span>`;
+        const safeReview = reviewText.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        const badge = reviewText !== "" ? `<span class="review-badge" onclick="showReviewToast('${safeReview}')">!</span>` : `<span style="opacity:0.2">—</span>`;
 
-        tbody.append(`
-            <tr>
-                <td class="mono">${dateStr}</td>
-                <td style="font-weight:600;">${row.Payee || 'Unknown'}</td>
-                <td><span style="background:#3a3a3c; padding:2px 8px; border-radius:4px;">${row.Category}</span></td>
-                <td class="mono ${isInc ? 'income-text' : ''}">${isInc ? '' : '-'}$${row.Transaction_Amount.toLocaleString()}</td>
-                <td style="color:var(--text-dim)">${row.Card_Type || 'N/A'}</td>
-                <td style="font-size:0.7rem; opacity:0.7;">${row.Transaction_Type}</td>
-                <td style="text-align:center;">${reviewBadge}</td>
-            </tr>
-        `);
+        tbody.append(`<tr><td class="mono">${dStr}</td><td style="font-weight:600;">${row.Payee}</td><td><span style="background:#3a3a3c; padding:2px 8px; border-radius:4px;">${row.Category}</span></td><td class="mono ${isInc ? 'income-text' : ''}">${isInc ? '' : '-'}$${row.Transaction_Amount.toLocaleString()}</td><td style="color:var(--text-dim)">${row.Card_Type}</td><td style="font-size:0.7rem;">${row.Transaction_Type}</td><td style="text-align:center;">${badge}</td></tr>`);
     });
 }
 
-function sortTable(field, preserveDir = false) {
-    if (!preserveDir) currentSort.direction = (currentSort.field === field && currentSort.direction === 'desc') ? 'asc' : 'desc';
+function sortTable(field) {
+    currentSort.direction = (currentSort.field === field && currentSort.direction === 'desc') ? 'asc' : 'desc';
     currentSort.field = field;
-
-    currentFilteredData.sort((a, b) => {
+    currentFilteredData.sort((a,b) => {
         let vA = a[field], vB = b[field];
         if (field === 'Transaction_Date') { vA = new Date(vA.replace(/-/g, '/')); vB = new Date(vB.replace(/-/g, '/')); }
         return currentSort.direction === 'asc' ? (vA > vB ? 1 : -1) : (vA < vB ? 1 : -1);
@@ -574,41 +398,25 @@ function sortTable(field, preserveDir = false) {
     renderTable(currentFilteredData);
 }
 
+function showReviewToast(text) { $('#toast-content').text(text); $('#review-toast').addClass('show'); setTimeout(() => $('#review-toast').removeClass('show'), 6000); }
+
 function updateCharts(data, type) {
     const filteredByType = data.filter(d => d.Transaction_Type.toLowerCase() === type.toLowerCase());
-
-    const catMap = {};
-    filteredByType.forEach(d => catMap[d.Category] = (catMap[d.Category] || 0) + d.Transaction_Amount);
+    const catMap = {}; filteredByType.forEach(d => catMap[d.Category] = (catMap[d.Category] || 0) + d.Transaction_Amount);
     const top5Cat = Object.entries(catMap).sort((a,b) => b[1] - a[1]).slice(0, 5);
-    
     if(categoryChart) categoryChart.destroy();
-    categoryChart = new Chart(document.getElementById('categoryChart'), {
-        type: 'doughnut',
-        data: { labels: top5Cat.map(x => x[0]), datasets: [{ data: top5Cat.map(x => x[1]), backgroundColor: ['#0a84ff', '#30d158', '#ffd60a', '#ff9f0a', '#ff375f'], borderWidth: 0 }]},
-        options: { plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } } }
-    });
+    categoryChart = new Chart(document.getElementById('categoryChart'), { type: 'doughnut', data: { labels: top5Cat.map(x => x[0]), datasets: [{ data: top5Cat.map(x => x[1]), backgroundColor: ['#0a84ff', '#30d158', '#ffd60a', '#ff9f0a', '#ff375f'], borderWidth: 0 }]}, options: { plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } } } });
 
-    const trendMap = {};
-    filteredByType.forEach(d => { const m = d.Transaction_Date.substring(0, 7); trendMap[m] = (trendMap[m] || 0) + d.Transaction_Amount; });
+    const trendMap = {}; filteredByType.forEach(d => { const m = d.Transaction_Date.substring(0, 7); trendMap[m] = (trendMap[m] || 0) + d.Transaction_Amount; });
     if(trendChart) trendChart.destroy();
-    trendChart = new Chart(document.getElementById('trendChart'), {
-        type: 'line',
-        data: { labels: Object.keys(trendMap).sort(), datasets: [{ data: Object.values(trendMap), borderColor: '#00ff41', tension: 0.3, fill: true, backgroundColor: 'rgba(0, 255, 65, 0.1)' }]},
-        options: { scales: { y: { grid: { color: '#38383a' }, ticks: { color: '#8e8e93' } }, x: { ticks: { color: '#8e8e93' } } }, plugins: { legend: { display: false } } }
-    });
+    trendChart = new Chart(document.getElementById('trendChart'), { type: 'line', data: { labels: Object.keys(trendMap).sort(), datasets: [{ data: Object.values(trendMap), borderColor: '#00ff41', tension: 0.3, fill: true, backgroundColor: 'rgba(0, 255, 65, 0.1)' }]}, options: { scales: { y: { grid: { color: '#38383a' }, ticks: { color: '#8e8e93' } }, x: { ticks: { color: '#8e8e93' } } }, plugins: { legend: { display: false } } } });
 
     const sortedAll = [...rawData].sort((a,b) => new Date(a.Transaction_Date.replace(/-/g, '/')) - new Date(b.Transaction_Date.replace(/-/g, '/')));
-    let bal = 0; const netMap = {};
-    sortedAll.forEach(d => { bal += (d.Transaction_Type.toLowerCase() === 'income' ? d.Transaction_Amount : -d.Transaction_Amount); netMap[d.Transaction_Date] = bal; });
+    let bal = 0; const netMap = {}; sortedAll.forEach(d => { bal += (d.Transaction_Type.toLowerCase() === 'income' ? d.Transaction_Amount : -d.Transaction_Amount); netMap[d.Transaction_Date] = bal; });
     if(netWorthChart) netWorthChart.destroy();
-    netWorthChart = new Chart(document.getElementById('netWorthChart'), {
-        type: 'line',
-        data: { labels: Object.keys(netMap), datasets: [{ data: Object.values(netMap), borderColor: '#00d2ff', borderWidth: 2, fill: true, backgroundColor: 'rgba(0, 210, 255, 0.1)', pointRadius: 0 }]},
-        options: { scales: { y: { ticks: { color: '#8e8e93' } }, x: { ticks: { display: false } } }, plugins: { legend: { display: false } } }
-    });
+    netWorthChart = new Chart(document.getElementById('netWorthChart'), { type: 'line', data: { labels: Object.keys(netMap), datasets: [{ data: Object.values(netMap), borderColor: '#00d2ff', borderWidth: 2, fill: true, backgroundColor: 'rgba(0, 210, 255, 0.1)', pointRadius: 0 }]}, options: { scales: { y: { ticks: { color: '#8e8e93' } }, x: { ticks: { display: false } } }, plugins: { legend: { display: false } } } });
 
-    const pMap = {};
-    filteredByType.forEach(d => pMap[d.Payee] = (pMap[d.Payee] || 0) + d.Transaction_Amount);
+    const pMap = {}; filteredByType.forEach(d => pMap[d.Payee] = (pMap[d.Payee] || 0) + d.Transaction_Amount);
     const topP = Object.entries(pMap).sort((a,b) => b[1]-a[1]).slice(0, 5);
     const maxP = topP.length ? topP[0][1] : 0;
     $('#payee-list').empty().append(topP.map(([name, amt]) => `
