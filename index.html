@@ -303,7 +303,7 @@ let rawData = [];
 let currentFilteredData = [];
 let trendChart, categoryChart, netWorthChart;
 let currentSort = { field: 'Transaction_Date', direction: 'desc' };
-// Transaction list pagination settings
+// --- PAGINATION VARIABLES ---
 let currentPage = 1;
 const rowsPerPage = 10;
 
@@ -511,17 +511,30 @@ function processDashboard() {
 function renderTable(data) {
     const tbody = $('#table-body').empty();
     
-    // Pagination Logic
+    // 1. Calculate Pagination Indices
+    const totalPages = Math.ceil(data.length / rowsPerPage) || 1;
+    
+    // Safety check: if filters make data smaller than current page
+    if (currentPage > totalPages) currentPage = totalPages;
+
     const startIndex = (currentPage - 1) * rowsPerPage;
     const endIndex = startIndex + rowsPerPage;
     const paginatedData = data.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(data.length / rowsPerPage) || 1;
 
-    // Update UI Controls
+    // 2. Update Pagination UI Text
     $('#page-info').text(`Page ${currentPage} of ${totalPages}`);
-    $('#prev-page').css('opacity', currentPage === 1 ? '0.3' : '1');
-    $('#next-page').css('opacity', currentPage === totalPages ? '0.3' : '1');
+    
+    // 3. Style buttons (dim them if they can't be clicked)
+    $('#prev-page').css('opacity', currentPage === 1 ? '0.3' : '1').css('cursor', currentPage === 1 ? 'default' : 'pointer');
+    $('#next-page').css('opacity', currentPage === totalPages ? '0.3' : '1').css('cursor', currentPage === totalPages ? 'default' : 'pointer');
 
+    // 4. If no data, show a friendly message
+    if (data.length === 0) {
+        tbody.append('<tr><td colspan="7" style="text-align:center; padding:40px; color:var(--text-dim);">No transactions found for these filters.</td></tr>');
+        return;
+    }
+
+    // 5. Build the rows
     paginatedData.forEach(row => {
         const isInc = row.Transaction_Type.toLowerCase() === 'income';
         const dDate = new Date(row.Transaction_Date.replace(/-/g, '/'));
