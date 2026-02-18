@@ -193,13 +193,15 @@
             <div class="metric-value" id="status-indicator">--</div>
         </div>
         <div class="metric-card">
-            <div class="metric-label">Monthly Net</div>
-            <div class="metric-value" id="monthly-net">$0.00</div>
-        </div>
+			<div class="metric-label">Monthly Net</div>
+			<div class="metric-value" id="monthly-net">$0.00</div>
+			<div id="net-period-label" style="font-size: 0.65rem; color: var(--text-dim); margin-top: 4px; opacity: 0.8;"></div>
+		</div>
         <div class="metric-card">
-            <div class="metric-label">YTD Expense</div>
-            <div class="metric-value expense-text" id="ytd-expense">$0.00</div>
-        </div>
+			<div class="metric-label">YTD Expense</div>
+			<div class="metric-value expense-text" id="ytd-expense">$0.00</div>
+			<div id="ytd-period-label" style="font-size: 0.65rem; color: var(--text-dim); margin-top: 4px; opacity: 0.8;"></div>
+		</div>
         <div class="metric-card">
             <div class="metric-label">Review Items</div>
             <div class="metric-value" id="review-count">0</div>
@@ -333,6 +335,10 @@ function processDashboard() {
     const selectedType = $('#type-toggle').val();
     const timeFilter = $('#filter-time').val();
 
+    // Update Top Executive Cards using FULL dataset
+    updateExecutiveSummary(rawData);
+
+    // Filter logic for Table and Charts ONLY
     let filtered = rawData.filter(d => {
         const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
         dDate.setHours(0, 0, 0, 0);
@@ -367,8 +373,6 @@ function processDashboard() {
     });
 
     $('#filtered-count').text(filtered.length);
-    updateMetrics(filtered);
-    
     currentFilteredData = filtered;
     currentFilteredData.sort((a, b) => new Date(b.Transaction_Date.replace(/-/g, '/')) - new Date(a.Transaction_Date.replace(/-/g, '/')));
     
@@ -376,24 +380,44 @@ function processDashboard() {
     updateCharts(filtered, selectedType);
 }
 
-function updateMetrics(data) {
-    const pendingReviewCount = data.filter(d => d.Needs_Review && String(d.Needs_Review).trim() !== "").length;
-    $('#review-count').text(pendingReviewCount).toggleClass('alert-text', pendingReviewCount > 0);
+function updateExecutiveSummary(allData) {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+    
+    // 1. Set Dynamic Labels
+    const monthName = today.toLocaleString('default', { month: 'short' });
+    $('#net-period-label').text(`(${monthName} ${currentYear})`);
+    $('#ytd-period-label').text(`(Jan - Dec ${currentYear})`);
 
-    const income = data.filter(d => d.Transaction_Type.toLowerCase() === 'income').reduce((a, b) => a + (Number(b.Transaction_Amount) || 0), 0);
-    const expense = data.filter(d => d.Transaction_Type.toLowerCase() === 'expense').reduce((a, b) => a + (Number(b.Transaction_Amount) || 0), 0);
-    const net = income - expense;
+    // 2. Review Items (Full Dataset)
+    const totalPendingReview = allData.filter(d => d.Needs_Review && String(d.Needs_Review).trim() !== "").length;
+    $('#review-count').text(totalPendingReview).toggleClass('alert-text', totalPendingReview > 0);
 
+    // 3. Monthly Net (Calendar Month)
+    const monthlyIncome = allData.filter(d => {
+        const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
+        return dDate.getMonth() === currentMonth && dDate.getFullYear() === currentYear && d.Transaction_Type.toLowerCase() === 'income';
+    }).reduce((a, b) => a + (Number(b.Transaction_Amount) || 0), 0);
+
+    const monthlyExpense = allData.filter(d => {
+        const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
+        return dDate.getMonth() === currentMonth && dDate.getFullYear() === currentYear && d.Transaction_Type.toLowerCase() === 'expense';
+    }).reduce((a, b) => a + (Number(b.Transaction_Amount) || 0), 0);
+
+    const net = monthlyIncome - monthlyExpense;
     $('#monthly-net').text(`$${net.toLocaleString()}`).toggleClass('income-text', net >= 0).toggleClass('expense-text', net < 0);
     
-    const ytdTotal = rawData.filter(d => {
+    // 4. YTD Expense (Calendar Year)
+    const ytdTotal = allData.filter(d => {
         const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
-        return dDate.getFullYear() === new Date().getFullYear() && d.Transaction_Type.toLowerCase() === 'expense';
+        return dDate.getFullYear() === currentYear && d.Transaction_Type.toLowerCase() === 'expense';
     }).reduce((a, b) => a + (Number(b.Transaction_Amount) || 0), 0);
     
     $('#ytd-expense').text(`$${ytdTotal.toLocaleString()}`);
 
-    const ratio = expense / (income || 1);
+    // 5. Overall Health Status
+    const ratio = monthlyExpense / (monthlyIncome || 1);
     let status = ratio < 0.8 ? '<span class="status-light light-green"></span> HEALTHY' : (ratio < 1 ? '<span class="status-light light-yellow"></span> ALERT' : '<span class="status-light light-red"></span> OVER');
     $('#status-indicator').html(status);
 }
