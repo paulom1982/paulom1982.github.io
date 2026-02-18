@@ -8,7 +8,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
@@ -94,15 +94,15 @@
             transition: all 0.2s ease;
         }
         #reset-filters:hover { border-color: var(--apple-blue); color: var(--apple-blue); background: rgba(10, 132, 255, 0.05); }
-		
-		#download-pdf:hover { 
-			background: #3a3a3c; 
-			border-color: var(--apple-blue); 
-			box-shadow: 0 0 10px rgba(10, 132, 255, 0.2);
-		}
-		#download-pdf:active { 
-			transform: scale(0.92); 
-		}
+        
+        #download-pdf:hover { 
+            background: #3a3a3c; 
+            border-color: var(--apple-blue); 
+            box-shadow: 0 0 10px rgba(10, 132, 255, 0.2);
+        }
+        #download-pdf:active { 
+            transform: scale(0.92); 
+        }
 
         select { background: #2c2c2e; color: white; border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; outline: none; font-size: 0.9rem; }
         
@@ -203,15 +203,15 @@
             <div class="metric-value" id="status-indicator">--</div>
         </div>
         <div class="metric-card">
-			<div class="metric-label">Monthly Net</div>
-			<div class="metric-value" id="monthly-net">$0.00</div>
-			<div id="net-period-label" style="font-size: 0.65rem; color: var(--text-dim); margin-top: 4px; opacity: 0.8;"></div>
-		</div>
+            <div class="metric-label">Monthly Net</div>
+            <div class="metric-value" id="monthly-net">$0.00</div>
+            <div id="net-period-label" style="font-size: 0.65rem; color: var(--text-dim); margin-top: 4px; opacity: 0.8;"></div>
+        </div>
         <div class="metric-card">
-			<div class="metric-label">YTD Expense</div>
-			<div class="metric-value expense-text" id="ytd-expense">$0.00</div>
-			<div id="ytd-period-label" style="font-size: 0.65rem; color: var(--text-dim); margin-top: 4px; opacity: 0.8;"></div>
-		</div>
+            <div class="metric-label">YTD Expense</div>
+            <div class="metric-value expense-text" id="ytd-expense">$0.00</div>
+            <div id="ytd-period-label" style="font-size: 0.65rem; color: var(--text-dim); margin-top: 4px; opacity: 0.8;"></div>
+        </div>
         <div class="metric-card">
             <div class="metric-label">Review Items</div>
             <div class="metric-value" id="review-count">0</div>
@@ -244,17 +244,17 @@
         <div id="record-count-badge">
             <span id="filtered-count">0</span> Records
         </div>
-		
+        
         <button id="reset-filters" style="margin-left: auto;">Reset Filters</button>
-		<button id="download-pdf" title="Export PDF" style="margin-left: 10px; background: #2c2c2e; border: 1px solid var(--border); color: var(--apple-blue); padding: 8px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
-			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-				<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-				<polyline points="14 2 14 8 20 8"></polyline>
-				<line x1="16" y1="13" x2="8" y2="13"></line>
-				<line x1="16" y1="17" x2="8" y2="17"></line>
-				<polyline points="10 9 9 9 8 9"></polyline>
-			</svg>
-		</button>
+        <button id="download-pdf" title="Export PDF" style="margin-left: 10px; background: #2c2c2e; border: 1px solid var(--border); color: var(--apple-blue); padding: 8px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+        </button>
     </div>
 
     <div class="chart-grid">
@@ -320,34 +320,30 @@ $(document).ready(function() {
     });
 
     $('select').on('change', processDashboard);
-	
-	$('#download-pdf').on('click', function() {
-        const element = document.body; // Captures the whole dashboard
+    
+    $('#download-pdf').on('click', function() {
+        const element = document.body;
         const timestamp = new Date().toISOString().split('T')[0];
         
-        // Configuration for the PDF
         const opt = {
-            margin:       0.5,
-            filename:     `MartinsBudget_Report_${timestamp}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { 
+            margin: 0.5,
+            filename: `MartinsBudget_Report_${timestamp}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
                 scale: 2, 
                 backgroundColor: '#000000',
                 logging: false 
             },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
 
-        // Hide elements we don't want in the PDF
         $('.filter-bar, #refresh-btn, #type-toggle').hide();
         
-        // Generate PDF
         html2pdf().set(opt).from(element).save().then(() => {
-            // Bring the UI elements back after saving
             $('.filter-bar, #refresh-btn, #type-toggle').show();
         });
     });
-	
+    
 });
 
 function fetchData() {
@@ -383,10 +379,8 @@ function processDashboard() {
     const selectedType = $('#type-toggle').val();
     const timeFilter = $('#filter-time').val();
 
-    // Update Top Executive Cards using FULL dataset
     updateExecutiveSummary(rawData);
 
-    // Filter logic for Table and Charts ONLY
     let filtered = rawData.filter(d => {
         const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
         dDate.setHours(0, 0, 0, 0);
@@ -433,16 +427,13 @@ function updateExecutiveSummary(allData) {
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth();
     
-    // Set Dynamic Labels
     const monthName = today.toLocaleString('default', { month: 'short' });
     $('#net-period-label').text(`(${monthName} ${currentYear})`);
     $('#ytd-period-label').text(`(Jan - Dec ${currentYear})`);
 
-    // Review Items
     const totalPendingReview = allData.filter(d => d.Needs_Review && String(d.Needs_Review).trim() !== "").length;
     $('#review-count').text(totalPendingReview).toggleClass('alert-text', totalPendingReview > 0);
 
-    // Monthly Net
     const monthlyData = allData.filter(d => {
         const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
         return dDate.getMonth() === currentMonth && dDate.getFullYear() === currentYear;
@@ -454,7 +445,6 @@ function updateExecutiveSummary(allData) {
     const net = monthlyIncome - monthlyExpense;
     $('#monthly-net').text(`$${net.toLocaleString()}`).toggleClass('income-text', net >= 0).toggleClass('expense-text', net < 0);
     
-    // YTD Expense
     const ytdTotal = allData.filter(d => {
         const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
         return dDate.getFullYear() === currentYear && d.Transaction_Type.toLowerCase() === 'expense';
@@ -462,7 +452,6 @@ function updateExecutiveSummary(allData) {
     
     $('#ytd-expense').text(`$${ytdTotal.toLocaleString()}`);
 
-    // Health Status
     const ratio = monthlyExpense / (monthlyIncome || 1);
     let status = ratio < 0.8 ? '<span class="status-light light-green"></span> HEALTHY' : (ratio < 1 ? '<span class="status-light light-yellow"></span> ALERT' : '<span class="status-light light-red"></span> OVER');
     $('#status-indicator').html(status);
