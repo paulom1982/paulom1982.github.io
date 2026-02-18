@@ -303,6 +303,9 @@ let rawData = [];
 let currentFilteredData = [];
 let trendChart, categoryChart, netWorthChart;
 let currentSort = { field: 'Transaction_Date', direction: 'desc' };
+// Transaction list pagination settings
+let currentPage = 1;
+const rowsPerPage = 10;
 
 $(document).ready(function() {
     fetchData();
@@ -320,6 +323,13 @@ $(document).ready(function() {
     });
 
     $('select').on('change', processDashboard);
+	
+	// Transaction list pagination settings
+	$('#prev-page').on('click', () => { if (currentPage > 1) { currentPage--; renderTable(currentFilteredData); } });
+	$('#next-page').on('click', () => { 
+		const maxPage = Math.ceil(currentFilteredData.length / rowsPerPage);
+		if (currentPage < maxPage) { currentPage++; renderTable(currentFilteredData); } 
+	});
     
     $('#download-pdf').on('click', function() {
         const element = document.body;
@@ -414,12 +424,15 @@ function processDashboard() {
         return timeMatch && cardMatch && categoryMatch && payeeMatch && reviewMatch;
     });
 
-    $('#filtered-count').text(filtered.length);
+    // Reset to page 1 whenever filters change
+    currentPage = 1; 
+    
     currentFilteredData = filtered;
     currentFilteredData.sort((a, b) => new Date(b.Transaction_Date.replace(/-/g, '/')) - new Date(a.Transaction_Date.replace(/-/g, '/')));
     
     renderTable(currentFilteredData);
     updateCharts(filtered, selectedType);
+	
 }
 
 function updateExecutiveSummary(allData) {
@@ -463,9 +476,53 @@ function showReviewToast(text) {
     setTimeout(() => $('#review-toast').removeClass('show'), 6000);
 }
 
+// Add event listeners inside $(document).ready
+$('#prev-page').on('click', () => { if (currentPage > 1) { currentPage--; renderTable(currentFilteredData); } });
+$('#next-page').on('click', () => { 
+    const maxPage = Math.ceil(currentFilteredData.length / rowsPerPage);
+    if (currentPage < maxPage) { currentPage++; renderTable(currentFilteredData); } 
+});
+
+function processDashboard() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const selectedType = $('#type-toggle').val();
+    const timeFilter = $('#filter-time').val();
+
+    updateExecutiveSummary(rawData);
+
+    let filtered = rawData.filter(d => {
+        // ... (Keep your existing filtering logic here)
+    });
+
+    $('#filtered-count').text(filtered.length);
+    
+    // Reset to page 1 whenever filters change
+    currentPage = 1; 
+    
+    currentFilteredData = filtered;
+    currentFilteredData.sort((a, b) => new Date(b.Transaction_Date.replace(/-/g, '/')) - new Date(a.Transaction_Date.replace(/-/g, '/')));
+    
+    renderTable(currentFilteredData);
+    updateCharts(filtered, selectedType);
+}
+
 function renderTable(data) {
     const tbody = $('#table-body').empty();
-    data.forEach(row => {
+    
+    // Pagination Logic
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    const paginatedData = data.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(data.length / rowsPerPage) || 1;
+
+    // Update UI Controls
+    $('#page-info').text(`Page ${currentPage} of ${totalPages}`);
+    $('#prev-page').css('opacity', currentPage === 1 ? '0.3' : '1');
+    $('#next-page').css('opacity', currentPage === totalPages ? '0.3' : '1');
+
+    paginatedData.forEach(row => {
         const isInc = row.Transaction_Type.toLowerCase() === 'income';
         const dDate = new Date(row.Transaction_Date.replace(/-/g, '/'));
         const dateStr = dDate.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
