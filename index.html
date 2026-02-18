@@ -8,6 +8,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
@@ -234,7 +235,11 @@
         <div id="record-count-badge">
             <span id="filtered-count">0</span> Records
         </div>
+		
         <button id="reset-filters" style="margin-left: auto;">Reset Filters</button>
+		<button id="download-pdf" style="margin-left: 10px; background: var(--apple-blue); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">
+			Export PDF
+		</button>
     </div>
 
     <div class="chart-grid">
@@ -300,6 +305,34 @@ $(document).ready(function() {
     });
 
     $('select').on('change', processDashboard);
+	
+	$('#download-pdf').on('click', function() {
+        const element = document.body; // Captures the whole dashboard
+        const timestamp = new Date().toISOString().split('T')[0];
+        
+        // Configuration for the PDF
+        const opt = {
+            margin:       0.5,
+            filename:     `MartinsBudget_Report_${timestamp}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { 
+                scale: 2, 
+                backgroundColor: '#000000',
+                logging: false 
+            },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        // Hide elements we don't want in the PDF
+        $('.filter-bar, #refresh-btn, #type-toggle').hide();
+        
+        // Generate PDF
+        html2pdf().set(opt).from(element).save().then(() => {
+            // Bring the UI elements back after saving
+            $('.filter-bar, #refresh-btn, #type-toggle').show();
+        });
+    });
+	
 });
 
 function fetchData() {
@@ -385,30 +418,28 @@ function updateExecutiveSummary(allData) {
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth();
     
-    // 1. Set Dynamic Labels
+    // Set Dynamic Labels
     const monthName = today.toLocaleString('default', { month: 'short' });
     $('#net-period-label').text(`(${monthName} ${currentYear})`);
     $('#ytd-period-label').text(`(Jan - Dec ${currentYear})`);
 
-    // 2. Review Items (Full Dataset)
+    // Review Items
     const totalPendingReview = allData.filter(d => d.Needs_Review && String(d.Needs_Review).trim() !== "").length;
     $('#review-count').text(totalPendingReview).toggleClass('alert-text', totalPendingReview > 0);
 
-    // 3. Monthly Net (Calendar Month)
-    const monthlyIncome = allData.filter(d => {
+    // Monthly Net
+    const monthlyData = allData.filter(d => {
         const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
-        return dDate.getMonth() === currentMonth && dDate.getFullYear() === currentYear && d.Transaction_Type.toLowerCase() === 'income';
-    }).reduce((a, b) => a + (Number(b.Transaction_Amount) || 0), 0);
-
-    const monthlyExpense = allData.filter(d => {
-        const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
-        return dDate.getMonth() === currentMonth && dDate.getFullYear() === currentYear && d.Transaction_Type.toLowerCase() === 'expense';
-    }).reduce((a, b) => a + (Number(b.Transaction_Amount) || 0), 0);
+        return dDate.getMonth() === currentMonth && dDate.getFullYear() === currentYear;
+    });
+    
+    const monthlyIncome = monthlyData.filter(d => d.Transaction_Type.toLowerCase() === 'income').reduce((a, b) => a + (Number(b.Transaction_Amount) || 0), 0);
+    const monthlyExpense = monthlyData.filter(d => d.Transaction_Type.toLowerCase() === 'expense').reduce((a, b) => a + (Number(b.Transaction_Amount) || 0), 0);
 
     const net = monthlyIncome - monthlyExpense;
     $('#monthly-net').text(`$${net.toLocaleString()}`).toggleClass('income-text', net >= 0).toggleClass('expense-text', net < 0);
     
-    // 4. YTD Expense (Calendar Year)
+    // YTD Expense
     const ytdTotal = allData.filter(d => {
         const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
         return dDate.getFullYear() === currentYear && d.Transaction_Type.toLowerCase() === 'expense';
@@ -416,7 +447,7 @@ function updateExecutiveSummary(allData) {
     
     $('#ytd-expense').text(`$${ytdTotal.toLocaleString()}`);
 
-    // 5. Overall Health Status
+    // Health Status
     const ratio = monthlyExpense / (monthlyIncome || 1);
     let status = ratio < 0.8 ? '<span class="status-light light-green"></span> HEALTHY' : (ratio < 1 ? '<span class="status-light light-yellow"></span> ALERT' : '<span class="status-light light-red"></span> OVER');
     $('#status-indicator').html(status);
