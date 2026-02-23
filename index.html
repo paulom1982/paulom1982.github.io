@@ -357,6 +357,7 @@ function renderTable(data) {
                 <td class="mono ${isInc ? 'income-text' : 'expense-text'}">${isInc ? '' : '-'}${fmt.format(row.Transaction_Amount)}</td>
                 <td style="color:var(--text-dim)">${row.Card_Type}</td>
                 <td style="text-align:center;">${badge}</td>
+                <td style="color:var(--text-dim)">${row.Transaction_ID}</td>
             </tr>
         `);
     });
