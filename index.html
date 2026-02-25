@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MartinsBudget Dashboard v2.14</title>
+    <title>MartinsBudget Dashboard v2.16</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -49,8 +49,7 @@
         .metric-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
         .metric-value { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; margin-top: 5px; }
         
-        /* Forecast Styling */
-        .forecast-subtext { font-size: 0.65rem; color: var(--apple-blue); margin-top: 8px; border-top: 1px solid var(--border); pt: 5px; }
+        .forecast-subtext { font-size: 0.65rem; color: var(--apple-blue); margin-top: 8px; border-top: 1px solid var(--border); padding-top: 5px; }
 
         .status-light { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
         .light-green { background: var(--bloomberg-green); box-shadow: 0 0 8px var(--bloomberg-green); }
@@ -221,6 +220,29 @@ const rowsPerPage = 10;
 
 const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
+/**
+ * Robust Date Parser to handle UTC vs Local shift.
+ * Standardizes everything to Local Midnight.
+ */
+function safeParseDate(dateStr) {
+    if (!dateStr) return null;
+    let d;
+    // Check for YYYY-MM-DD or MM-DD-YYYY
+    if (typeof dateStr === 'string' && dateStr.includes('-')) {
+        const parts = dateStr.split('-');
+        if (parts[0].length === 4) {
+            d = new Date(parts[0], parts[1] - 1, parts[2]);
+        } else {
+            d = new Date(parts[2], parts[0] - 1, parts[1]);
+        }
+    } else {
+        // Fallback for MM/DD/YYYY or Date objects
+        d = new Date(String(dateStr).replace(/-/g, '/'));
+    }
+    d.setHours(0, 0, 0, 0);
+    return d;
+}
+
 $(document).ready(function() {
     fetchData();
     
@@ -269,40 +291,38 @@ function processDashboard() {
     const today = new Date(); today.setHours(0,0,0,0);
     const timeFilter = $('#filter-time').val();
     const searchVal = $('#search-box').val().toLowerCase();
-
-    const startVal = $('#start-date').val();
-    const endVal = $('#end-date').val();
-    const startDate = startVal ? new Date(startVal.replace(/-/g, '/')) : null;
-    const endDate = endVal ? new Date(endVal.replace(/-/g, '/')) : null;
+    
+    // Parse custom bounds safely
+    const startDate = safeParseDate($('#start-date').val());
+    const endDate = safeParseDate($('#end-date').val());
 
     updateExecutiveSummary(rawData);
 
     let filtered = rawData.filter(d => {
-        const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
-        dDate.setHours(0,0,0,0);
+        const dDate = safeParseDate(d.Transaction_Date);
         let timeMatch = true;
-        
+
         if (timeFilter === 'ytd') {
             timeMatch = dDate.getFullYear() === today.getFullYear();
         } else if (timeFilter === '1m') {
             timeMatch = dDate.getMonth() === today.getMonth() && dDate.getFullYear() === today.getFullYear();
         } else if (timeFilter === 'cw') {
-            const sunday = new Date(today); sunday.setDate(today.getDate() - today.getDay());
-            const saturday = new Date(sunday); saturday.setDate(sunday.getDate() + 6);
-            timeMatch = dDate >= sunday && dDate <= saturday;
+            const sun = new Date(today); sun.setDate(today.getDate() - today.getDay());
+            const sat = new Date(sun); sat.setDate(sun.getDate() + 6);
+            timeMatch = dDate >= sun && dDate <= sat;
         } else if (timeFilter === 'lw') {
-            const lastSunday = new Date(today); lastSunday.setDate(today.getDate() - today.getDay() - 7);
-            const lastSaturday = new Date(lastSunday); lastSaturday.setDate(lastSunday.getDate() + 6);
-            timeMatch = dDate >= lastSunday && dDate <= lastSaturday;
+            const lSun = new Date(today); lSun.setDate(today.getDate() - today.getDay() - 7);
+            const lSat = new Date(lSun); lSat.setDate(lSun.getDate() + 6);
+            timeMatch = dDate >= lSun && dDate <= lSat;
         } else if (timeFilter === 'lm') {
-            const lm = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-            const lme = new Date(today.getFullYear(), today.getMonth(), 0);
-            timeMatch = dDate >= lm && dDate <= lme;
+            const lmS = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            const lmE = new Date(today.getFullYear(), today.getMonth(), 0);
+            timeMatch = dDate >= lmS && dDate <= lmE;
         } else if (timeFilter === 'ly') {
             timeMatch = dDate.getFullYear() === today.getFullYear() - 1;
         } else if (timeFilter === 'custom') {
-            if (startDate) timeMatch = dDate >= startDate;
-            if (endDate && timeMatch) timeMatch = dDate <= endDate;
+            if (startDate) timeMatch = (dDate >= startDate);
+            if (endDate && timeMatch) timeMatch = (dDate <= endDate);
         }
         
         const cardMatch = $('#filter-card').val() ? d.Card_Type === $('#filter-card').val() : true;
@@ -325,21 +345,20 @@ function updateExecutiveSummary(allData) {
     const curY = now.getFullYear();
     const curM = now.getMonth();
 
-    const ytdData = allData.filter(d => new Date(d.Transaction_Date.replace(/-/g, '/')).getFullYear() === curY);
+    const ytdData = allData.filter(d => safeParseDate(d.Transaction_Date).getFullYear() === curY);
     const ytdInc = ytdData.filter(d => d.Transaction_Type.toLowerCase() === 'income').reduce((a,b) => a+(b.Transaction_Amount||0),0);
     const ytdExp = ytdData.filter(d => d.Transaction_Type.toLowerCase() === 'expense').reduce((a,b) => a+(b.Transaction_Amount||0),0);
 
     $('#ytd-income').text(fmt.format(ytdInc));
     $('#ytd-expense').text(fmt.format(ytdExp));
 
-    const mData = allData.filter(d => { const dd = new Date(d.Transaction_Date.replace(/-/g, '/')); return dd.getMonth() === curM && dd.getFullYear() === curY; });
+    const mData = allData.filter(d => { const dd = safeParseDate(d.Transaction_Date); return dd.getMonth() === curM && dd.getFullYear() === curY; });
     const mInc = mData.filter(d => d.Transaction_Type.toLowerCase() === 'income').reduce((a,b) => a+(b.Transaction_Amount||0),0);
     const mExp = mData.filter(d => d.Transaction_Type.toLowerCase() === 'expense').reduce((a,b) => a+(b.Transaction_Amount||0),0);
     const net = mInc - mExp;
 
     $('#monthly-net-val').text(fmt.format(net)).toggleClass('income-text', net >= 0).toggleClass('expense-text', net < 0);
     
-    // FORECAST LOGIC
     const day = now.getDate();
     const lastDay = new Date(curY, curM + 1, 0).getDate();
     const velocity = net / day;
@@ -370,7 +389,7 @@ function applySort() {
     
     currentFilteredData.sort((a, b) => {
         let vA = a[f], vB = b[f];
-        if (f === 'Transaction_Date') { vA = new Date(vA); vB = new Date(vB); }
+        if (f === 'Transaction_Date') { vA = safeParseDate(vA); vB = safeParseDate(vB); }
         if (vA < vB) return d === 'asc' ? -1 : 1;
         if (vA > vB) return d === 'asc' ? 1 : -1;
         return 0;
@@ -399,7 +418,7 @@ function renderTable(data) {
 
         tbody.append(`
             <tr>
-                <td class="mono">${new Date(row.Transaction_Date).toLocaleDateString()}</td>
+                <td class="mono">${safeParseDate(row.Transaction_Date).toLocaleDateString()}</td>
                 <td style="font-weight:600;">${row.Payee}</td>
                 <td><span style="background:#3a3a3c; padding:2px 8px; border-radius:4px;">${row.Category}</span></td>
                 <td class="mono ${isInc ? 'income-text' : 'expense-text'}">${isInc ? '' : '-'}${fmt.format(row.Transaction_Amount)}</td>
@@ -413,8 +432,6 @@ function renderTable(data) {
 
 function updateCharts(data, type) {
     const filtered = data.filter(d => d.Transaction_Type.toLowerCase() === type.toLowerCase());
-    
-    // Category Doughnut
     const catMap = {}; filtered.forEach(d => catMap[d.Category] = (catMap[d.Category] || 0) + d.Transaction_Amount);
     const top5Cat = Object.entries(catMap).sort((a,b) => b[1]-a[1]).slice(0, 5);
     
@@ -430,7 +447,6 @@ function updateCharts(data, type) {
         }
     });
 
-    // Volume Trend
     const trendMap = {}; filtered.forEach(d => { const m = d.Transaction_Date.substring(0, 7); trendMap[m] = (trendMap[m] || 0) + d.Transaction_Amount; });
     if(trendChart) trendChart.destroy();
     trendChart = new Chart(document.getElementById('trendChart'), {
@@ -438,15 +454,11 @@ function updateCharts(data, type) {
         data: { labels: Object.keys(trendMap).sort(), datasets: [{ data: Object.values(trendMap), borderColor: '#00ff41', tension: 0.3, fill: true, backgroundColor: 'rgba(0, 255, 65, 0.1)' }]},
         options: { 
             scales: { y: { grid: { color: '#38383a' }, ticks: { color: '#8e8e93', callback: v => fmt.format(v) } } },
-            plugins: { 
-                legend: { display: false },
-                tooltip: { callbacks: { label: (ctx) => ` Total: ${fmt.format(ctx.raw)}` } }
-            } 
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ` Total: ${fmt.format(ctx.raw)}` } } } 
         }
     });
 
-    // Net Worth Trend
-    const sortedAll = [...rawData].sort((a,b) => new Date(a.Transaction_Date) - new Date(b.Transaction_Date));
+    const sortedAll = [...rawData].sort((a,b) => safeParseDate(a.Transaction_Date) - safeParseDate(b.Transaction_Date));
     let bal = 0; const netMap = {}; sortedAll.forEach(d => { bal += (d.Transaction_Type.toLowerCase() === 'income' ? d.Transaction_Amount : -d.Transaction_Amount); netMap[d.Transaction_Date] = bal; });
     if(netWorthChart) netWorthChart.destroy();
     netWorthChart = new Chart(document.getElementById('netWorthChart'), {
@@ -454,14 +466,10 @@ function updateCharts(data, type) {
         data: { labels: Object.keys(netMap), datasets: [{ data: Object.values(netMap), borderColor: '#0a84ff', borderWidth: 2, pointRadius: 0, fill: true, backgroundColor: 'rgba(10, 132, 255, 0.05)' }]},
         options: { 
             scales: { x: { display: false }, y: { ticks: { color: '#8e8e93', callback: v => fmt.format(v) } } },
-            plugins: { 
-                legend: { display: false },
-                tooltip: { callbacks: { label: (ctx) => ` Balance: ${fmt.format(ctx.raw)}` } }
-            } 
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ` Balance: ${fmt.format(ctx.raw)}` } } } 
         }
     });
 
-    // Top Payees List
     const pMap = {}; filtered.forEach(d => pMap[d.Payee] = (pMap[d.Payee] || 0) + d.Transaction_Amount);
     const topP = Object.entries(pMap).sort((a,b) => b[1]-a[1]).slice(0, 5);
     const maxP = topP.length ? topP[0][1] : 0;
