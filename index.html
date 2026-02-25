@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MartinsBudget Dashboard v2.13</title>
+    <title>MartinsBudget Dashboard v2.14</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -45,35 +45,28 @@
             margin-bottom: 20px;
         }
 
-        .metric-card { background: var(--card-bg); padding: 18px; border-radius: 12px; border: 1px solid var(--border); }
+        .metric-card { background: var(--card-bg); padding: 18px; border-radius: 12px; border: 1px solid var(--border); position: relative; overflow: hidden; }
         .metric-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
         .metric-value { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; margin-top: 5px; }
+        
+        /* Forecast Styling */
+        .forecast-subtext { font-size: 0.65rem; color: var(--apple-blue); margin-top: 8px; border-top: 1px solid var(--border); pt: 5px; }
 
         .status-light { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
         .light-green { background: var(--bloomberg-green); box-shadow: 0 0 8px var(--bloomberg-green); }
         .light-yellow { background: #ffd60a; box-shadow: 0 0 8px #ffd60a; }
         .light-red { background: var(--bloomberg-red); box-shadow: 0 0 8px var(--bloomberg-red); }
 
-        .forecast-box {
-            border-top: 1px inset var(--border); margin-top: 10px; padding-top: 10px;
-            font-size: 0.75rem; color: var(--apple-blue);
-        }
-
         .filter-bar {
             background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 20px;
             display: flex; flex-wrap: wrap; gap: 10px; border: 1px solid var(--border); align-items: center;
         }
 
-        .date-input {
+        input[type="text"], input[type="date"] {
             background: #2c2c2e; color: white; border: 1px solid var(--border);
-            padding: 6px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+            padding: 8px 12px; border-radius: 8px; outline: none; font-size: 0.9rem;
         }
-
-        input#search-box {
-            background: #2c2c2e; color: white; border: 1px solid var(--border);
-            padding: 8px 12px; border-radius: 8px; outline: none; font-size: 0.9rem; min-width: 200px;
-        }
-        input#search-box:focus { border-color: var(--apple-blue); }
+        input:focus { border-color: var(--apple-blue); }
 
         select { background: #2c2c2e; color: white; border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; outline: none; font-size: 0.9rem; }
         
@@ -99,11 +92,6 @@
 
         .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 20px;}
         .chart-container { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); min-height: 300px; }
-
-        .payee-row { margin-bottom: 12px; }
-        .payee-info { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; }
-        .payee-bar-bg { background: #2c2c2e; height: 6px; border-radius: 3px; overflow: hidden; }
-        .payee-bar-fill { background: var(--apple-blue); height: 100%; border-radius: 3px; }
 
         #pagination-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 10px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); }
         #pagination-controls button { background: #2c2c2e; border: 1px solid var(--border); color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
@@ -139,7 +127,8 @@
         </div>
         <div class="metric-card">
             <div class="metric-label">Monthly Net</div>
-            <div class="metric-value" id="monthly-net">$0</div>
+            <div class="metric-value" id="monthly-net-val">$0</div>
+            <div id="forecast-container" class="forecast-subtext">Calculating...</div>
         </div>
         <div class="metric-card">
             <div class="metric-label">YTD Income</div>
@@ -169,11 +158,13 @@
             <option value="1m">This Month</option>
             <option value="custom">Custom Range...</option>
         </select>
-        <div id="custom-date-container" style="display: none; gap: 8px; align-items: center;">
-            <input type="date" id="start-date" class="date-input">
-            <span style="color: var(--text-dim); font-size: 0.8rem;">to</span>
-            <input type="date" id="end-date" class="date-input">
+        
+        <div id="custom-range-inputs" style="display:none; gap:8px; align-items:center;">
+            <input type="date" id="start-date">
+            <span style="color:var(--text-dim)">to</span>
+            <input type="date" id="end-date">
         </div>
+
         <div style="color: var(--text-dim); font-size: 0.8rem; margin-left: 10px;"><span id="filtered-count">0</span> Records</div>
         
         <button id="reset-filters" style="margin-left: auto;">Reset</button>
@@ -224,26 +215,24 @@ let currentSort = { field: 'Transaction_ID', direction: 'desc' };
 let currentPage = 1;
 const rowsPerPage = 10;
 
-// Currency Formatter
 const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
 $(document).ready(function() {
     fetchData();
     
     $('#refresh-btn').on('click', function() { $(this).addClass('spinning'); fetchData(); });
-    
-    $('#filter-time').on('change', function() {
-        $('#custom-date-container').css('display', $(this).val() === 'custom' ? 'flex' : 'none');
-    });
-    
     $('#reset-filters').on('click', function() { 
-        $('#search-box').val(''); 
+        $('#search-box, #start-date, #end-date').val(''); 
         $('#filter-card, #filter-category').val(''); 
-        $('#filter-time').val('all'); 
+        $('#filter-time').val('all').trigger('change'); 
         processDashboard(); 
     });
     
-    $('select, #search-box').on('input change', processDashboard);
+    $('select, #search-box, #start-date, #end-date').on('input change', processDashboard);
+    
+    $('#filter-time').on('change', function() {
+        $('#custom-range-inputs').css('display', $(this).val() === 'custom' ? 'flex' : 'none');
+    });
 
     $('#prev-page').on('click', () => { if (currentPage > 1) { currentPage--; renderTable(currentFilteredData); } });
     $('#next-page').on('click', () => { 
@@ -275,28 +264,25 @@ function populateFilters() {
 function processDashboard() {
     const today = new Date(); today.setHours(0,0,0,0);
     const timeFilter = $('#filter-time').val();
-    const startVal = $('#start-date').val();
-    const endVal = $('#end-date').val();
     const searchVal = $('#search-box').val().toLowerCase();
+    const startDate = $('#start-date').val() ? new Date($('#start-date').val()) : null;
+    const endDate = $('#end-date').val() ? new Date($('#end-date').val()) : null;
 
     updateExecutiveSummary(rawData);
 
     let filtered = rawData.filter(d => {
         const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
         let timeMatch = true;
-
-        if (timeFilter === 'ytd') {
-            timeMatch = dDate.getFullYear() === today.getFullYear();
-        } else if (timeFilter === '1m') {
-            timeMatch = dDate.getMonth() === today.getMonth() && dDate.getFullYear() === today.getFullYear();
-        } else if (timeFilter === 'custom' && startVal && endVal) {
-            const s = new Date(startVal); const e = new Date(endVal);
-            timeMatch = dDate >= s && dDate <= e;
+        
+        if (timeFilter === 'ytd') timeMatch = dDate.getFullYear() === today.getFullYear();
+        else if (timeFilter === '1m') timeMatch = dDate.getMonth() === today.getMonth() && dDate.getFullYear() === today.getFullYear();
+        else if (timeFilter === 'custom') {
+            if (startDate) timeMatch = dDate >= startDate;
+            if (endDate && timeMatch) timeMatch = dDate <= endDate;
         }
         
         const cardMatch = $('#filter-card').val() ? d.Card_Type === $('#filter-card').val() : true;
         const catMatch = $('#filter-category').val() ? d.Category === $('#filter-category').val() : true;
-        
         const searchMatch = !searchVal || 
             (d.Payee && d.Payee.toLowerCase().includes(searchVal)) || 
             (d.Category && d.Category.toLowerCase().includes(searchVal));
@@ -308,15 +294,12 @@ function processDashboard() {
     currentPage = 1;
     currentFilteredData = filtered;
     applySort();
-
-    // Apply the forecasting logic
-    calculateForecast(rawData);
-
 }
 
 function updateExecutiveSummary(allData) {
-    const curY = new Date().getFullYear();
-    const curM = new Date().getMonth();
+    const now = new Date();
+    const curY = now.getFullYear();
+    const curM = now.getMonth();
 
     const ytdData = allData.filter(d => new Date(d.Transaction_Date.replace(/-/g, '/')).getFullYear() === curY);
     const ytdInc = ytdData.filter(d => d.Transaction_Type.toLowerCase() === 'income').reduce((a,b) => a+(b.Transaction_Amount||0),0);
@@ -328,9 +311,17 @@ function updateExecutiveSummary(allData) {
     const mData = allData.filter(d => { const dd = new Date(d.Transaction_Date.replace(/-/g, '/')); return dd.getMonth() === curM && dd.getFullYear() === curY; });
     const mInc = mData.filter(d => d.Transaction_Type.toLowerCase() === 'income').reduce((a,b) => a+(b.Transaction_Amount||0),0);
     const mExp = mData.filter(d => d.Transaction_Type.toLowerCase() === 'expense').reduce((a,b) => a+(b.Transaction_Amount||0),0);
+    const net = mInc - mExp;
+
+    $('#monthly-net-val').text(fmt.format(net)).toggleClass('income-text', net >= 0).toggleClass('expense-text', net < 0);
     
-    $('#monthly-net').text(fmt.format(mInc - mExp)).toggleClass('income-text', (mInc-mExp) >= 0).toggleClass('expense-text', (mInc-mExp) < 0);
-    
+    // FORECAST LOGIC
+    const day = now.getDate();
+    const lastDay = new Date(curY, curM + 1, 0).getDate();
+    const velocity = net / day;
+    const forecast = net + (velocity * (lastDay - day));
+    $('#forecast-container').html(`EST. EOM: ${fmt.format(forecast)}`);
+
     const rev = allData.filter(d => d.Needs_Review && String(d.Needs_Review).trim() !== "").length;
     $('#review-count').text(rev).css('color', rev > 0 ? 'var(--bloomberg-red)' : 'inherit');
 
@@ -451,39 +442,11 @@ function updateCharts(data, type) {
     const topP = Object.entries(pMap).sort((a,b) => b[1]-a[1]).slice(0, 5);
     const maxP = topP.length ? topP[0][1] : 0;
     $('#payee-list').empty().append(topP.map(([name, amt]) => `
-        <div class="payee-row">
-            <div class="payee-info"><span>${name}</span><span class="mono">${fmt.format(amt)}</span></div>
-            <div class="payee-bar-bg"><div class="payee-bar-fill" style="width:${(amt/maxP)*100}%"></div></div>
+        <div style="margin-bottom:12px;">
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;"><span>${name}</span><span class="mono">${fmt.format(amt)}</span></div>
+            <div style="background:#2c2c2e; height:6px; border-radius:3px; overflow:hidden;"><div style="background:var(--apple-blue); height:100%; width:${(amt/maxP)*100}%"></div></div>
         </div>
     `).join(''));
-}
-
-// Regression / Forecast Logic
-function calculateForecast(allData) {
-    const now = new Date();
-    const curMonth = now.getMonth();
-    const curYear = now.getFullYear();
-    const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
-    const dayOfMonth = now.getDate();
-
-    const mData = allData.filter(d => {
-        const dd = new Date(d.Transaction_Date.replace(/-/g, '/'));
-        return dd.getMonth() === curMonth && dd.getFullYear() === curYear;
-    });
-
-    const netSoFar = mData.reduce((acc, d) => 
-        acc + (d.Transaction_Type.toLowerCase() === 'income' ? d.Transaction_Amount : -d.Transaction_Amount), 0);
-
-    // Spending Velocity (Net per day)
-    const velocity = netSoFar / dayOfMonth;
-    const projectedFinal = netSoFar + (velocity * (daysInMonth - dayOfMonth));
-
-    // Update UI in the Monthly Net card
-    $('#monthly-net').append(`
-        <div class="forecast-box">
-            EST. EOM: ${fmt.format(projectedFinal)}
-        </div>
-    `);
 }
 
 function exportToCSV() {
@@ -499,10 +462,7 @@ function exportToCSV() {
     link.click();
 }
 
-function showReviewToast(text) { 
-    $('#toast-content').text(text); $('#review-toast').addClass('show'); setTimeout(() => $('#review-toast').removeClass('show'), 5000); 
-}
-
+function showReviewToast(text) { $('#toast-content').text(text); $('#review-toast').addClass('show'); setTimeout(() => $('#review-toast').removeClass('show'), 5000); }
 </script>
 </body>
 </html>
