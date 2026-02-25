@@ -154,8 +154,12 @@
         <select id="filter-category"><option value="">All Categories</option></select>
         <select id="filter-time">
             <option value="all">All Time</option>
-            <option value="ytd">Year to Date</option>
+            <option value="cw">Current Week</option>
+            <option value="lw">Last Week</option>
             <option value="1m">This Month</option>
+            <option value="lm">Last Month</option>
+            <option value="ytd">Year to Date (YTD)</option>
+            <option value="ly">Last Year</option>
             <option value="custom">Custom Range...</option>
         </select>
         
@@ -265,18 +269,38 @@ function processDashboard() {
     const today = new Date(); today.setHours(0,0,0,0);
     const timeFilter = $('#filter-time').val();
     const searchVal = $('#search-box').val().toLowerCase();
-    const startDate = $('#start-date').val() ? new Date($('#start-date').val()) : null;
-    const endDate = $('#end-date').val() ? new Date($('#end-date').val()) : null;
+
+    const startVal = $('#start-date').val();
+    const endVal = $('#end-date').val();
+    const startDate = startVal ? new Date(startVal.replace(/-/g, '/')) : null;
+    const endDate = endVal ? new Date(endVal.replace(/-/g, '/')) : null;
 
     updateExecutiveSummary(rawData);
 
     let filtered = rawData.filter(d => {
         const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
+        dDate.setHours(0,0,0,0);
         let timeMatch = true;
         
-        if (timeFilter === 'ytd') timeMatch = dDate.getFullYear() === today.getFullYear();
-        else if (timeFilter === '1m') timeMatch = dDate.getMonth() === today.getMonth() && dDate.getFullYear() === today.getFullYear();
-        else if (timeFilter === 'custom') {
+        if (timeFilter === 'ytd') {
+            timeMatch = dDate.getFullYear() === today.getFullYear();
+        } else if (timeFilter === '1m') {
+            timeMatch = dDate.getMonth() === today.getMonth() && dDate.getFullYear() === today.getFullYear();
+        } else if (timeFilter === 'cw') {
+            const sunday = new Date(today); sunday.setDate(today.getDate() - today.getDay());
+            const saturday = new Date(sunday); saturday.setDate(sunday.getDate() + 6);
+            timeMatch = dDate >= sunday && dDate <= saturday;
+        } else if (timeFilter === 'lw') {
+            const lastSunday = new Date(today); lastSunday.setDate(today.getDate() - today.getDay() - 7);
+            const lastSaturday = new Date(lastSunday); lastSaturday.setDate(lastSunday.getDate() + 6);
+            timeMatch = dDate >= lastSunday && dDate <= lastSaturday;
+        } else if (timeFilter === 'lm') {
+            const lm = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            const lme = new Date(today.getFullYear(), today.getMonth(), 0);
+            timeMatch = dDate >= lm && dDate <= lme;
+        } else if (timeFilter === 'ly') {
+            timeMatch = dDate.getFullYear() === today.getFullYear() - 1;
+        } else if (timeFilter === 'custom') {
             if (startDate) timeMatch = dDate >= startDate;
             if (endDate && timeMatch) timeMatch = dDate <= endDate;
         }
