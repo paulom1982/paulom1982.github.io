@@ -54,9 +54,19 @@
         .light-yellow { background: #ffd60a; box-shadow: 0 0 8px #ffd60a; }
         .light-red { background: var(--bloomberg-red); box-shadow: 0 0 8px var(--bloomberg-red); }
 
+        .forecast-box {
+            border-top: 1px inset var(--border); margin-top: 10px; padding-top: 10px;
+            font-size: 0.75rem; color: var(--apple-blue);
+        }
+
         .filter-bar {
             background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 20px;
             display: flex; flex-wrap: wrap; gap: 10px; border: 1px solid var(--border); align-items: center;
+        }
+
+        .date-input {
+            background: #2c2c2e; color: white; border: 1px solid var(--border);
+            padding: 6px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
         }
 
         input#search-box {
@@ -156,9 +166,14 @@
         <select id="filter-time">
             <option value="all">All Time</option>
             <option value="ytd">Year to Date</option>
-            <option value="6m">Last 6 Months</option>
             <option value="1m">This Month</option>
+            <option value="custom">Custom Range...</option>
         </select>
+        <div id="custom-date-container" style="display: none; gap: 8px; align-items: center;">
+            <input type="date" id="start-date" class="date-input">
+            <span style="color: var(--text-dim); font-size: 0.8rem;">to</span>
+            <input type="date" id="end-date" class="date-input">
+        </div>
         <div style="color: var(--text-dim); font-size: 0.8rem; margin-left: 10px;"><span id="filtered-count">0</span> Records</div>
         
         <button id="reset-filters" style="margin-left: auto;">Reset</button>
@@ -216,6 +231,11 @@ $(document).ready(function() {
     fetchData();
     
     $('#refresh-btn').on('click', function() { $(this).addClass('spinning'); fetchData(); });
+    
+    $('#filter-time').on('change', function() {
+        $('#custom-date-container').css('display', $(this).val() === 'custom' ? 'flex' : 'none');
+    });
+    
     $('#reset-filters').on('click', function() { 
         $('#search-box').val(''); 
         $('#filter-card, #filter-category').val(''); 
@@ -255,6 +275,8 @@ function populateFilters() {
 function processDashboard() {
     const today = new Date(); today.setHours(0,0,0,0);
     const timeFilter = $('#filter-time').val();
+    const startVal = $('#start-date').val();
+    const endVal = $('#end-date').val();
     const searchVal = $('#search-box').val().toLowerCase();
 
     updateExecutiveSummary(rawData);
@@ -262,8 +284,15 @@ function processDashboard() {
     let filtered = rawData.filter(d => {
         const dDate = new Date(d.Transaction_Date.replace(/-/g, '/'));
         let timeMatch = true;
-        if (timeFilter === 'ytd') timeMatch = dDate.getFullYear() === today.getFullYear();
-        else if (timeFilter === '1m') timeMatch = dDate.getMonth() === today.getMonth() && dDate.getFullYear() === today.getFullYear();
+
+        if (timeFilter === 'ytd') {
+            timeMatch = dDate.getFullYear() === today.getFullYear();
+        } else if (timeFilter === '1m') {
+            timeMatch = dDate.getMonth() === today.getMonth() && dDate.getFullYear() === today.getFullYear();
+        } else if (timeFilter === 'custom' && startVal && endVal) {
+            const s = new Date(startVal); const e = new Date(endVal);
+            timeMatch = dDate >= s && dDate <= e;
+        }
         
         const cardMatch = $('#filter-card').val() ? d.Card_Type === $('#filter-card').val() : true;
         const catMatch = $('#filter-category').val() ? d.Category === $('#filter-category').val() : true;
@@ -279,6 +308,10 @@ function processDashboard() {
     currentPage = 1;
     currentFilteredData = filtered;
     applySort();
+
+    // Apply the forecasting logic
+    calculateForecast(rawData);
+
 }
 
 function updateExecutiveSummary(allData) {
@@ -425,6 +458,34 @@ function updateCharts(data, type) {
     `).join(''));
 }
 
+// Regression / Forecast Logic
+function calculateForecast(allData) {
+    const now = new Date();
+    const curMonth = now.getMonth();
+    const curYear = now.getFullYear();
+    const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
+    const dayOfMonth = now.getDate();
+
+    const mData = allData.filter(d => {
+        const dd = new Date(d.Transaction_Date.replace(/-/g, '/'));
+        return dd.getMonth() === curMonth && dd.getFullYear() === curYear;
+    });
+
+    const netSoFar = mData.reduce((acc, d) => 
+        acc + (d.Transaction_Type.toLowerCase() === 'income' ? d.Transaction_Amount : -d.Transaction_Amount), 0);
+
+    // Spending Velocity (Net per day)
+    const velocity = netSoFar / dayOfMonth;
+    const projectedFinal = netSoFar + (velocity * (daysInMonth - dayOfMonth));
+
+    // Update UI in the Monthly Net card
+    $('#monthly-net').append(`
+        <div class="forecast-box">
+            EST. EOM: ${fmt.format(projectedFinal)}
+        </div>
+    `);
+}
+
 function exportToCSV() {
     if (!currentFilteredData.length) return alert("No data to export");
     const headers = Object.keys(currentFilteredData[0]).join(",");
@@ -438,7 +499,10 @@ function exportToCSV() {
     link.click();
 }
 
-function showReviewToast(text) { $('#toast-content').text(text); $('#review-toast').addClass('show'); setTimeout(() => $('#review-toast').removeClass('show'), 5000); }
+function showReviewToast(text) { 
+    $('#toast-content').text(text); $('#review-toast').addClass('show'); setTimeout(() => $('#review-toast').removeClass('show'), 5000); 
+}
+
 </script>
 </body>
 </html>
