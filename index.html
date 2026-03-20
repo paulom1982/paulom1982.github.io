@@ -309,8 +309,9 @@ $(document).ready(function() {
     
     $('#refresh-btn').on('click', function() { $(this).addClass('spinning'); fetchData(); });
     $('#reset-filters').on('click', function() { 
-        $('#search-box, #start-date, #end-date, #review-only').val(''); 
-        $('#filter-card, #filter-category').val(''); 
+        $('#search-box, #start-date, #end-date').val('');
+        $('#review-only').prop('checked', false)
+        $('#filter-card, #filter-category').val(''); s
         $('#filter-time').val('all').trigger('change');
         processDashboard(); 
     });
