@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MartinsBudget Dashboard v2.17.3</title>
+    <title>MartinsBudget Dashboard v2.17.4</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -241,7 +241,7 @@
                 <div class="metric-label">Cash Flow: Expenses vs Income</div>
                 <select id="grain-toggle" style="width: auto; font-size: 0.7rem; padding: 4px 8px;">
                     <option value="monthly">Monthly View</option>
-                    <option value="ytd">YTD View</option>
+                    <option value="annually">Annual View</option>
                 </select>
             </div>
             <canvas id="cashFlowChart" style="max-height: 350px;"></canvas>
@@ -522,30 +522,31 @@ function updateCharts(data, type) {
     const grain = $('#grain-toggle').val();
     const cashFlowCtx = document.getElementById('cashFlowChart').getContext('2d');
 
-    // 1. Group Data by Month
-    const months = {};
+    // 1. Group Data by selected Grain
+    const aggregates = {};
+    
     rawData.forEach(d => {
         const date = safeParseDate(d.Transaction_Date);
-        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        if (!months[key]) months[key] = { income: 0, expense: 0 };
+        if (!date) return;
+
+        // Define the key based on the toggle
+        const key = (grain === 'annually') 
+            ? `${date.getFullYear()}` 
+            : `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+        if (!aggregates[key]) aggregates[key] = { income: 0, expense: 0 };
         
+        const amt = parseFloat(d.Transaction_Amount) || 0;
         if (d.Transaction_Type?.toLowerCase() === 'income') {
-            months[key].income += (d.Transaction_Amount || 0);
+            aggregates[key].income += amt;
         } else {
-            months[key].expense += (d.Transaction_Amount || 0);
+            aggregates[key].expense += amt;
         }
     });
 
-    const sortedLabels = Object.keys(months).sort();
-    let incomeData = sortedLabels.map(m => months[m].income);
-    let expenseData = sortedLabels.map(m => months[m].expense);
-
-    // 2. Apply YTD Accumulation if selected
-    if (grain === 'ytd') {
-        let incAcc = 0, expAcc = 0;
-        incomeData = incomeData.map(v => incAcc += v);
-        expenseData = expenseData.map(v => expAcc += v);
-    }
+    const sortedLabels = Object.keys(aggregates).sort();
+    const incomeData = sortedLabels.map(k => aggregates[k].income);
+    const expenseData = sortedLabels.map(k => aggregates[k].expense);
 
     if (cashFlowChart) cashFlowChart.destroy();
     cashFlowChart = new Chart(cashFlowCtx, {
@@ -561,17 +562,29 @@ function updateCharts(data, type) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                x: { grid: { display: false }, ticks: { color: '#8e8e93' } },
-                y: { grid: { color: '#38383a' }, ticks: { color: '#8e8e93', callback: v => fmt.format(v) } }
+                x: { 
+                    grid: { display: false }, 
+                    ticks: { color: 'var(--text-dim)' },
+                    title: { display: true, text: grain === 'annually' ? 'Year' : 'Month', color: 'var(--text-dim)', font: { size: 10 } }
+                },
+                y: { 
+                    grid: { color: 'var(--border)' }, 
+                    ticks: { color: 'var(--text-dim)', callback: v => fmt.format(v) } 
+                }
             },
             plugins: {
-                legend: { position: 'top', labels: { color: '#fff', usePointStyle: true } },
-                tooltip: { callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${fmt.format(ctx.raw)}` } }
+                legend: { position: 'top', labels: { color: 'var(--text-main)', usePointStyle: true, boxWidth: 8 } },
+                tooltip: { 
+                    backgroundColor: 'rgba(28, 28, 30, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${fmt.format(ctx.raw)}` } 
+                }
             }
         }
     });
     
-    // 3. Top 5 Category Chart
+    // 2. Top 5 Category Chart
     const filtered = data.filter(d => d.Transaction_Type?.toLowerCase() === type?.toLowerCase());
     const catMap = {}; filtered.forEach(d => catMap[d.Category] = (catMap[d.Category] || 0) + d.Transaction_Amount);
     const top5Cat = Object.entries(catMap).sort((a,b) => b[1]-a[1]).slice(0, 5);
@@ -588,7 +601,7 @@ function updateCharts(data, type) {
         }
     });
 
-    // 4. Top 5 Payees List
+    // 3. Top 5 Payees List
     const pMap = {}; filtered.forEach(d => pMap[d.Payee] = (pMap[d.Payee] || 0) + d.Transaction_Amount);
     const topP = Object.entries(pMap).sort((a,b) => b[1]-a[1]).slice(0, 5);
     const maxP = topP.length ? topP[0][1] : 0;
