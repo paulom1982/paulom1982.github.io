@@ -168,7 +168,8 @@
             <div style="display: flex; align-items: center; gap: 12px;">
                 <button id="theme-toggle" style="background:none; border:none; color:var(--text-dim); cursor:pointer;">🌓</button>
                 <div id="sync-timestamp" class="mono" style="font-size: 0.65rem; color: var(--text-dim);">Initializing...</div>
-                <button id="refresh-btn">...</button>
+                <button id="refresh-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                </button>
             </div>
         </div>
     </div>
@@ -308,9 +309,9 @@ $(document).ready(function() {
     
     $('#refresh-btn').on('click', function() { $(this).addClass('spinning'); fetchData(); });
     $('#reset-filters').on('click', function() { 
-        $('#search-box, #start-date, #end-date').val(''); 
+        $('#search-box, #start-date, #end-date, #review-only').val(''); 
         $('#filter-card, #filter-category').val(''); 
-        $('#filter-time').val('all').trigger('change'); 
+        $('#filter-time').val('all').trigger('change');
         processDashboard(); 
     });
 
