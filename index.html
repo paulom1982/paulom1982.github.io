@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MartinsBudget Dashboard v2.17.4</title>
+    <title>MartinsBudget Dashboard v2.17.5</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -145,6 +145,27 @@
 
         #pagination-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 10px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); }
         #pagination-controls button { background: #2c2c2e; border: 1px solid var(--border); color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+
+        /* Fade-in animation for chart containers */
+        .chart-container {
+            animation: slideUpFade 0.6s ease-out forwards;
+        }
+
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Add a subtle transition for all canvas elements */
+        canvas {
+            transition: filter 0.3s ease;
+        }
 
         #review-toast {
             position: fixed; top: -120px; left: 50%; transform: translateX(-50%);
@@ -518,6 +539,11 @@ function renderTable(data) {
 }
 
 function updateCharts(data, type) {
+    // 1. Get the current colors from your CSS variables
+    const style = getComputedStyle(document.body);
+    const mainColor = style.getPropertyValue('--text-main').trim();
+    const dimColor = style.getPropertyValue('--text-dim').trim();
+    const borderColor = style.getPropertyValue('--border').trim();
     
     const grain = $('#grain-toggle').val();
     const cashFlowCtx = document.getElementById('cashFlowChart').getContext('2d');
@@ -561,19 +587,33 @@ function updateCharts(data, type) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                duration: 1000,
+                easing: 'easeOutQuart',
+                delay: (context) => context.dataIndex * 50
+            },
             scales: {
                 x: { 
                     grid: { display: false }, 
-                    ticks: { color: 'var(--text-dim)' },
-                    title: { display: true, text: grain === 'annually' ? 'Year' : 'Month', color: 'var(--text-dim)', font: { size: 10 } }
+                    ticks: { color: dimColor } // Uses --text-dim
                 },
                 y: { 
-                    grid: { color: 'var(--border)' }, 
-                    ticks: { color: 'var(--text-dim)', callback: v => fmt.format(v) } 
+                    grid: { color: borderColor }, // Uses --border
+                    ticks: { 
+                        color: dimColor, // Uses --text-dim
+                        callback: v => fmt.format(v) 
+                    } 
                 }
             },
             plugins: {
-                legend: { position: 'top', labels: { color: 'var(--text-main)', usePointStyle: true, boxWidth: 8 } },
+                legend: { 
+                    position: 'top', 
+                    labels: { 
+                        color: mainColor, // Uses --text-main
+                        usePointStyle: true,
+                        boxWidth: 8
+                    } 
+                },
                 tooltip: { 
                     backgroundColor: 'rgba(28, 28, 30, 0.9)',
                     titleColor: '#fff',
