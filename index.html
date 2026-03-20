@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MartinsBudget Dashboard v2.17.2</title>
+    <title>MartinsBudget Dashboard v2.17.3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -235,9 +235,17 @@
         </button>
     </div>
 
-    <div class="chart-grid">
-        <div class="chart-container"><div class="metric-label">Net Worth Trend</div><canvas id="netWorthChart"></canvas></div>
-        <div class="chart-container"><div class="metric-label">Volume Trend</div><canvas id="trendChart"></canvas></div>
+    <div class="chart-grid" style="grid-template-columns: 1fr;">
+        <div class="chart-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div class="metric-label">Cash Flow: Expenses vs Income</div>
+                <select id="grain-toggle" style="width: auto; font-size: 0.7rem; padding: 4px 8px;">
+                    <option value="monthly">Monthly View</option>
+                    <option value="ytd">YTD View</option>
+                </select>
+            </div>
+            <canvas id="cashFlowChart" style="max-height: 350px;"></canvas>
+        </div>
     </div>
 
     <div class="chart-grid">
@@ -269,10 +277,13 @@
     </div>
 
 <script>
+
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSO3dh28NbiDkFF4jTtjolPCg4oB3spD4fxw9jYOQiOFphOXOuMCpmsynBempzNXHor52pL_ZtanSz7/pub?gid=1564593237&single=true&output=csv";
 
+let cashFlowChart; // Top-level variable
+
 let rawData = [], currentFilteredData = [];
-let trendChart, categoryChart, netWorthChart;
+let categoryChart;
 let currentSort = { field: 'Transaction_ID', direction: 'desc' };
 let currentPage = 1;
 const rowsPerPage = 10;
@@ -308,6 +319,10 @@ $(document).ready(function() {
     $('#theme-toggle').on('click', () => $('body').toggleClass('light-mode'));
     
     $('#refresh-btn').on('click', function() { $(this).addClass('spinning'); fetchData(); });
+    
+    // Specific to the Expenses vs Income Chart
+    $('#grain-toggle').on('change', () => updateCharts(currentFilteredData, $('#type-toggle').val()));
+
     $('#reset-filters').on('click', function() { 
         $('#search-box, #start-date, #end-date').val('');
         $('#review-only').prop('checked', false);
@@ -503,6 +518,60 @@ function renderTable(data) {
 }
 
 function updateCharts(data, type) {
+    
+    const grain = $('#grain-toggle').val();
+    const cashFlowCtx = document.getElementById('cashFlowChart').getContext('2d');
+
+    // 1. Group Data by Month
+    const months = {};
+    rawData.forEach(d => {
+        const date = safeParseDate(d.Transaction_Date);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        if (!months[key]) months[key] = { income: 0, expense: 0 };
+        
+        if (d.Transaction_Type?.toLowerCase() === 'income') {
+            months[key].income += (d.Transaction_Amount || 0);
+        } else {
+            months[key].expense += (d.Transaction_Amount || 0);
+        }
+    });
+
+    const sortedLabels = Object.keys(months).sort();
+    let incomeData = sortedLabels.map(m => months[m].income);
+    let expenseData = sortedLabels.map(m => months[m].expense);
+
+    // 2. Apply YTD Accumulation if selected
+    if (grain === 'ytd') {
+        let incAcc = 0, expAcc = 0;
+        incomeData = incomeData.map(v => incAcc += v);
+        expenseData = expenseData.map(v => expAcc += v);
+    }
+
+    if (cashFlowChart) cashFlowChart.destroy();
+    cashFlowChart = new Chart(cashFlowCtx, {
+        type: 'bar',
+        data: {
+            labels: sortedLabels,
+            datasets: [
+                { label: 'Income', data: incomeData, backgroundColor: '#30d158', borderRadius: 4 },
+                { label: 'Expenses', data: expenseData, backgroundColor: '#ff375f', borderRadius: 4 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#8e8e93' } },
+                y: { grid: { color: '#38383a' }, ticks: { color: '#8e8e93', callback: v => fmt.format(v) } }
+            },
+            plugins: {
+                legend: { position: 'top', labels: { color: '#fff', usePointStyle: true } },
+                tooltip: { callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${fmt.format(ctx.raw)}` } }
+            }
+        }
+    });
+    
+    // 3. Top 5 Category Chart
     const filtered = data.filter(d => d.Transaction_Type?.toLowerCase() === type?.toLowerCase());
     const catMap = {}; filtered.forEach(d => catMap[d.Category] = (catMap[d.Category] || 0) + d.Transaction_Amount);
     const top5Cat = Object.entries(catMap).sort((a,b) => b[1]-a[1]).slice(0, 5);
@@ -519,29 +588,7 @@ function updateCharts(data, type) {
         }
     });
 
-    const trendMap = {}; filtered.forEach(d => { const m = d.Transaction_Date.substring(0, 7); trendMap[m] = (trendMap[m] || 0) + d.Transaction_Amount; });
-    if(trendChart) trendChart.destroy();
-    trendChart = new Chart(document.getElementById('trendChart'), {
-        type: 'line',
-        data: { labels: Object.keys(trendMap).sort(), datasets: [{ data: Object.values(trendMap), borderColor: '#00ff41', tension: 0.3, fill: true, backgroundColor: 'rgba(0, 255, 65, 0.1)' }]},
-        options: { 
-            scales: { y: { grid: { color: '#38383a' }, ticks: { color: '#8e8e93', callback: v => fmt.format(v) } } },
-            plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ` Total: ${fmt.format(ctx.raw)}` } } } 
-        }
-    });
-
-    const sortedAll = [...rawData].sort((a,b) => safeParseDate(a.Transaction_Date) - safeParseDate(b.Transaction_Date));
-    let bal = 0; const netMap = {}; sortedAll.forEach(d => { bal += (d.Transaction_Type?.toLowerCase() === 'income' ? d.Transaction_Amount : -d.Transaction_Amount); netMap[d.Transaction_Date] = bal; });
-    if(netWorthChart) netWorthChart.destroy();
-    netWorthChart = new Chart(document.getElementById('netWorthChart'), {
-        type: 'line',
-        data: { labels: Object.keys(netMap), datasets: [{ data: Object.values(netMap), borderColor: '#0a84ff', borderWidth: 2, pointRadius: 0, fill: true, backgroundColor: 'rgba(10, 132, 255, 0.05)' }]},
-        options: { 
-            scales: { x: { display: false }, y: { ticks: { color: '#8e8e93', callback: v => fmt.format(v) } } },
-            plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ` Balance: ${fmt.format(ctx.raw)}` } } } 
-        }
-    });
-
+    // 4. Top 5 Payees List
     const pMap = {}; filtered.forEach(d => pMap[d.Payee] = (pMap[d.Payee] || 0) + d.Transaction_Amount);
     const topP = Object.entries(pMap).sort((a,b) => b[1]-a[1]).slice(0, 5);
     const maxP = topP.length ? topP[0][1] : 0;
