@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MartinsBudget Dashboard v2.17.5</title>
+    <title>MartinsBudget Dashboard v2.17.6</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -574,6 +574,7 @@ function updateCharts(data, type) {
     const incomeData = sortedLabels.map(k => aggregates[k].income);
     const expenseData = sortedLabels.map(k => aggregates[k].expense);
 
+    // 2. Destroy and recreate the chart to apply new colors and data
     if (cashFlowChart) cashFlowChart.destroy();
     cashFlowChart = new Chart(cashFlowCtx, {
         type: 'bar',
@@ -624,31 +625,54 @@ function updateCharts(data, type) {
         }
     });
     
-    // 2. Top 5 Category Chart
+    // 3. Top 5 Category Chart
     const filtered = data.filter(d => d.Transaction_Type?.toLowerCase() === type?.toLowerCase());
     const catMap = {}; filtered.forEach(d => catMap[d.Category] = (catMap[d.Category] || 0) + d.Transaction_Amount);
     const top5Cat = Object.entries(catMap).sort((a,b) => b[1]-a[1]).slice(0, 5);
     
-    if(categoryChart) categoryChart.destroy();
+
+    if (categoryChart) categoryChart.destroy();
     categoryChart = new Chart(document.getElementById('categoryChart'), {
         type: 'doughnut',
-        data: { labels: top5Cat.map(x => x[0]), datasets: [{ data: top5Cat.map(x => x[1]), backgroundColor: ['#0a84ff', '#30d158', '#ffd60a', '#ff9f0a', '#ff375f'], borderWidth: 0 }]},
+        data: { 
+            labels: top5Cat.map(x => x[0]), 
+            datasets: [{ 
+                data: top5Cat.map(x => x[1]), 
+                backgroundColor: ['#0a84ff', '#30d158', '#ffd60a', '#ff9f0a', '#ff375f'], 
+                borderWidth: 2,
+                borderColor: style.getPropertyValue('--card-bg').trim() // Subtle gap between slices
+            }]
+        },
         options: { 
+            animation: { animateRotate: true, duration: 1000 },
             plugins: { 
-                legend: { position: 'bottom', labels: { color: '#fff', boxWidth: 12 } },
+                legend: { 
+                    position: 'bottom', 
+                    labels: { 
+                        color: mainColor, // Dynamic Font Color
+                        boxWidth: 12,
+                        padding: 20,
+                        font: { size: 11 }
+                    } 
+                },
                 tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${fmt.format(ctx.raw)}` } }
             } 
         }
     });
 
-    // 3. Top 5 Payees List
+    // 4. Top 5 Payees List
     const pMap = {}; filtered.forEach(d => pMap[d.Payee] = (pMap[d.Payee] || 0) + d.Transaction_Amount);
     const topP = Object.entries(pMap).sort((a,b) => b[1]-a[1]).slice(0, 5);
     const maxP = topP.length ? topP[0][1] : 0;
     $('#payee-list').empty().append(topP.map(([name, amt]) => `
-        <div style="margin-bottom:12px;">
-            <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;"><span>${name}</span><span class="mono">${fmt.format(amt)}</span></div>
-            <div style="background:#2c2c2e; height:6px; border-radius:3px; overflow:hidden;"><div style="background:var(--apple-blue); height:100%; width:${(amt/maxP)*100}%"></div></div>
+        <div style="margin-bottom:12px; animation: slideUpFade 0.4s ease-out forwards;">
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px; color:${mainColor};">
+                <span>${name}</span>
+                <span class="mono" style="color:${dimColor};">${fmt.format(amt)}</span>
+            </div>
+            <div style="background:var(--input-bg); height:6px; border-radius:3px; overflow:hidden;">
+                <div style="background:var(--apple-blue); height:100%; width:${(amt/maxP)*100}%; transition: width 1s ease-out;"></div>
+            </div>
         </div>
     `).join(''));
 }
