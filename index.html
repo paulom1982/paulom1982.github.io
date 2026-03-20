@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MartinsBudget Dashboard v2.16.3</title>
+    <title>MartinsBudget Dashboard v2.17</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,14 +11,27 @@
 
     <style>
         :root {
+            /* Dark Mode (Default) */
             --bg-black: #000000;
             --card-bg: #1c1c1e;
+            --header-bg: rgba(0, 0, 0, 0.7);
             --apple-blue: #0a84ff;
             --bloomberg-green: #00ff41;
             --bloomberg-red: #ff3b30;
             --text-main: #ffffff;
             --text-dim: #8e8e93;
             --border: #38383a;
+            --input-bg: #2c2c2e;
+        }
+
+        body.light-mode {
+            --bg-black: #f5f5f7;
+            --card-bg: #ffffff;
+            --header-bg: rgba(245, 245, 247, 0.7);
+            --text-main: #1d1d1f;
+            --text-dim: #86868b;
+            --border: #d2d2d7;
+            --input-bg: #e8e8ed;
         }
 
         body {
@@ -27,9 +40,22 @@
             font-family: 'Inter', -apple-system, sans-serif;
             margin: 0;
             padding: 20px;
-            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease;
         }
         
+        /* Glassmorphism Header */
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            background: var(--header-bg);
+            margin: -20px -20px 20px -20px;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
         #refresh-btn {
             background: #2c2c2e; border: 1px solid var(--border); color: var(--text-main);
             padding: 8px; border-radius: 8px; cursor: pointer; display: flex; transition: all 0.2s ease;
@@ -56,9 +82,34 @@
         .light-yellow { background: #ffd60a; box-shadow: 0 0 8px #ffd60a; }
         .light-red { background: var(--bloomberg-red); box-shadow: 0 0 8px var(--bloomberg-red); }
 
+        
+        /* Tactile Button Feedback */
+        button, .review-badge {
+            transition: transform 0.1s ease, background 0.2s ease;
+        }
+        button:active {
+            transform: scale(0.96);
+        }
+
         .filter-bar {
-            background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 20px;
-            display: flex; flex-wrap: wrap; gap: 10px; border: 1px solid var(--border); align-items: center;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid var(--border);
+            align-items: center;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            cursor: pointer;
         }
 
         input[type="text"], input[type="date"] {
@@ -111,11 +162,14 @@
         <div id="toast-content" style="font-size: 0.95rem; color: #fff;"></div>
     </div>
 
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h1 style="margin: 0; font-size: 1.4rem; font-weight: 600;">Martins<span style="color: var(--apple-blue);">Budget</span></h1>
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div id="sync-timestamp" class="mono" style="font-size: 0.65rem; color: var(--text-dim);">Initializing...</div>
-            <button id="refresh-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
+    <div class="app-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="margin: 0; font-size: 1.4rem; font-weight: 600;">Martins<span style="color: var(--apple-blue);">Budget</span></h1>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button id="theme-toggle" style="background:none; border:none; color:var(--text-dim); cursor:pointer;">🌓</button>
+                <div id="sync-timestamp" class="mono" style="font-size: 0.65rem; color: var(--text-dim);">Initializing...</div>
+                <button id="refresh-btn">...</button>
+            </div>
         </div>
     </div>
 
@@ -167,6 +221,10 @@
             <span style="color:var(--text-dim)">to</span>
             <input type="date" id="end-date">
         </div>
+
+        <label class="toggle-container">
+            <input type="checkbox" id="review-only"> Review Only
+        </label>
 
         <div style="color: var(--text-dim); font-size: 0.8rem; margin-left: 10px;"><span id="filtered-count">0</span> Records</div>
         
@@ -246,6 +304,8 @@ function safeParseDate(dateStr) {
 $(document).ready(function() {
     fetchData();
     
+    $('#theme-toggle').on('click', () => $('body').toggleClass('light-mode'));
+    
     $('#refresh-btn').on('click', function() { $(this).addClass('spinning'); fetchData(); });
     $('#reset-filters').on('click', function() { 
         $('#search-box, #start-date, #end-date').val(''); 
@@ -253,6 +313,8 @@ $(document).ready(function() {
         $('#filter-time').val('all').trigger('change'); 
         processDashboard(); 
     });
+
+    $('#review-only').on('change', processDashboard);
     
     $('select, #search-box, #start-date, #end-date').on('input change', processDashboard);
     
@@ -291,6 +353,7 @@ function processDashboard() {
     const today = new Date(); today.setHours(0,0,0,0);
     const timeFilter = $('#filter-time').val();
     const searchVal = $('#search-box').val().toLowerCase();
+    const reviewOnly = $('#review-only').is(':checked');
     
     // Parse custom bounds safely
     const startDate = safeParseDate($('#start-date').val());
@@ -299,6 +362,7 @@ function processDashboard() {
     updateExecutiveSummary(rawData);
 
     let filtered = rawData.filter(d => {
+        // 1. Time Filter Logic
         const dDate = safeParseDate(d.Transaction_Date);
         let timeMatch = true;
 
@@ -325,13 +389,19 @@ function processDashboard() {
             if (endDate && timeMatch) timeMatch = (dDate <= endDate);
         }
         
+        // 2. Global Search Logic
+        const rowContent = `${d.Payee} ${d.Category} ${d.Card_Type} ${d.Transaction_Amount}`.toLowerCase();
+        const searchMatch = !searchVal || rowContent.includes(searchVal);
+
+        // 3. Review Logic
+        const needsReview = d.Needs_Review && String(d.Needs_Review).trim() !== "";
+        const reviewMatch = reviewOnly ? needsReview : true;
+
         const cardMatch = $('#filter-card').val() ? d.Card_Type === $('#filter-card').val() : true;
         const catMatch = $('#filter-category').val() ? d.Category === $('#filter-category').val() : true;
-        const searchMatch = !searchVal || 
-            (d.Payee && d.Payee?.toLowerCase().includes(searchVal)) || 
-            (d.Category && d.Category?.toLowerCase().includes(searchVal));
 
-        return timeMatch && cardMatch && catMatch && searchMatch;
+        return timeMatch && cardMatch && catMatch && searchMatch && reviewMatch;
+
     });
 
     $('#filtered-count').text(filtered.length);
