@@ -328,8 +328,8 @@ function processDashboard() {
         const cardMatch = $('#filter-card').val() ? d.Card_Type === $('#filter-card').val() : true;
         const catMatch = $('#filter-category').val() ? d.Category === $('#filter-category').val() : true;
         const searchMatch = !searchVal || 
-            (d.Payee && d.Payee.toLowerCase().includes(searchVal)) || 
-            (d.Category && d.Category.toLowerCase().includes(searchVal));
+            (d.Payee && d.Payee?.toLowerCase().includes(searchVal)) || 
+            (d.Category && d.Category?.toLowerCase().includes(searchVal));
 
         return timeMatch && cardMatch && catMatch && searchMatch;
     });
@@ -346,15 +346,15 @@ function updateExecutiveSummary(allData) {
     const curM = now.getMonth();
 
     const ytdData = allData.filter(d => safeParseDate(d.Transaction_Date).getFullYear() === curY);
-    const ytdInc = ytdData.filter(d => d.Transaction_Type.toLowerCase() === 'income').reduce((a,b) => a+(b.Transaction_Amount||0),0);
-    const ytdExp = ytdData.filter(d => d.Transaction_Type.toLowerCase() === 'expense').reduce((a,b) => a+(b.Transaction_Amount||0),0);
+    const ytdInc = ytdData.filter(d => d.Transaction_Type?.toLowerCase() === 'income').reduce((a,b) => a+(b.Transaction_Amount||0),0);
+    const ytdExp = ytdData.filter(d => d.Transaction_Type?.toLowerCase() === 'expense').reduce((a,b) => a+(b.Transaction_Amount||0),0);
 
     $('#ytd-income').text(fmt.format(ytdInc));
     $('#ytd-expense').text(fmt.format(ytdExp));
 
     const mData = allData.filter(d => { const dd = safeParseDate(d.Transaction_Date); return dd.getMonth() === curM && dd.getFullYear() === curY; });
-    const mInc = mData.filter(d => d.Transaction_Type.toLowerCase() === 'income').reduce((a,b) => a+(b.Transaction_Amount||0),0);
-    const mExp = mData.filter(d => d.Transaction_Type.toLowerCase() === 'expense').reduce((a,b) => a+(b.Transaction_Amount||0),0);
+    const mInc = mData.filter(d => d.Transaction_Type?.toLowerCase() === 'income').reduce((a,b) => a+(b.Transaction_Amount||0),0);
+    const mExp = mData.filter(d => d.Transaction_Type?.toLowerCase() === 'expense').reduce((a,b) => a+(b.Transaction_Amount||0),0);
     const net = mInc - mExp;
 
     $('#monthly-net-val').text(fmt.format(net)).toggleClass('income-text', net >= 0).toggleClass('expense-text', net < 0);
@@ -412,7 +412,7 @@ function renderTable(data) {
     $('#next-page').css('opacity', currentPage === totalPages ? 0.3 : 1);
 
     paginated.forEach(row => {
-        const isInc = row.Transaction_Type.toLowerCase() === 'income';
+        const isInc = row.Transaction_Type?.toLowerCase() === 'income';
         const reviewText = row.Needs_Review ? String(row.Needs_Review).trim() : "";
         const badge = reviewText !== "" ? `<span class="review-badge" onclick="showReviewToast('${reviewText.replace(/'/g, "\\'")}')">!</span>` : `—`;
 
@@ -431,7 +431,7 @@ function renderTable(data) {
 }
 
 function updateCharts(data, type) {
-    const filtered = data.filter(d => d.Transaction_Type.toLowerCase() === type.toLowerCase());
+    const filtered = data.filter(d => d.Transaction_Type?.toLowerCase() === type?.toLowerCase());
     const catMap = {}; filtered.forEach(d => catMap[d.Category] = (catMap[d.Category] || 0) + d.Transaction_Amount);
     const top5Cat = Object.entries(catMap).sort((a,b) => b[1]-a[1]).slice(0, 5);
     
@@ -459,7 +459,7 @@ function updateCharts(data, type) {
     });
 
     const sortedAll = [...rawData].sort((a,b) => safeParseDate(a.Transaction_Date) - safeParseDate(b.Transaction_Date));
-    let bal = 0; const netMap = {}; sortedAll.forEach(d => { bal += (d.Transaction_Type.toLowerCase() === 'income' ? d.Transaction_Amount : -d.Transaction_Amount); netMap[d.Transaction_Date] = bal; });
+    let bal = 0; const netMap = {}; sortedAll.forEach(d => { bal += (d.Transaction_Type?.toLowerCase() === 'income' ? d.Transaction_Amount : -d.Transaction_Amount); netMap[d.Transaction_Date] = bal; });
     if(netWorthChart) netWorthChart.destroy();
     netWorthChart = new Chart(document.getElementById('netWorthChart'), {
         type: 'line',
